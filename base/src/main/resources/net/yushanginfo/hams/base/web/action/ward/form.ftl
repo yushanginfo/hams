@@ -1,0 +1,16 @@
+[#ftl]
+[@b.head/]
+[@b.toolbar title="修改病区"]bar.addBack();[/@]
+  [@b.form action=b.rest.save(ward) theme="list"]
+    [@b.textfield name="ward.code" label="代码" value="${ward.code!}" required="true" maxlength="20"/]
+    [@b.textfield name="ward.name" label="名称" value="${ward.name!}" required="true" maxlength="20"/]
+    [@b.textfield name="ward.enName" label="英文名称" value="${ward.enName!}" maxlength="100"/]
+    [@b.startend label="有效期限"
+      name="ward.beginOn,ward.endOn" required="false,false"
+      start=ward.beginOn end=ward.endOn format="date"/]
+    [@b.textfield name="ward.remark" label="备注" value="${ward.remark!}" maxlength="3"/]
+    [@b.formfoot]
+      [@b.reset/]&nbsp;&nbsp;[@b.submit value="action.submit"/]
+    [/@]
+  [/@]
+[@b.foot/]

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<orm>
+  <mapping class="net.yushanginfo.hams.code.model.DefaultMapping" name="code"/>
+  <mapping class="net.yushanginfo.hams.base.model.DefaultMapping" name="base"/>
+  <mapping class="net.yushanginfo.hams.wallet.model.DefaultMapping" name="wallet"/>
+  <naming>
+    <profile package="net.yushanginfo.hams" pluralize="true" schema="hams"/>
+  </naming>
+</orm>

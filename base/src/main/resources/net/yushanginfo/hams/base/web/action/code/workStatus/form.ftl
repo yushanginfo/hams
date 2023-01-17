@@ -1,0 +1,16 @@
+[#ftl]
+[@b.head/]
+[@b.toolbar title="修改在职状态"]bar.addBack();[/@]
+  [@b.form action=b.rest.save(workStatus) theme="list"]
+    [@b.textfield name="workStatus.code" label="代码" value="${workStatus.code!}" required="true" maxlength="20"/]
+    [@b.textfield name="workStatus.name" label="名称" value="${workStatus.name!}" required="true" maxlength="20"/]
+    [@b.textfield name="workStatus.enName" label="英文名称" value="${workStatus.enName!}" maxlength="100"/]
+    [@b.startend label="有效期限"
+      name="workStatus.beginOn,workStatus.endOn" required="false,false"
+      start=workStatus.beginOn end=workStatus.endOn format="date"/]
+    [@b.textfield name="workStatus.remark" label="备注" value="${workStatus.remark!}" maxlength="3"/]
+    [@b.formfoot]
+      [@b.reset/]&nbsp;&nbsp;[@b.submit value="action.submit"/]
+    [/@]
+  [/@]
+[@b.foot/]

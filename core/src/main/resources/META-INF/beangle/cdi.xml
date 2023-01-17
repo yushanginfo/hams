@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<cdi>
+  <container>
+    <module class="net.yushanginfo.hams.web.action.DefaultModule"/>
+    <module class="net.yushanginfo.hams.DaoModule"/>
+    <module class="org.beangle.ems.app.cas.DefaultModule"/>
+    <module class="org.beangle.serializer.text.DefaultModule"/>
+    <module class="org.beangle.serializer.json.DefaultModule"/>
+    <module class="org.beangle.serializer.xml.DefaultModule"/>
+  </container>
+</cdi>

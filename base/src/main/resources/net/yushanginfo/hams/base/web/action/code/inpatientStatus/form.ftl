@@ -1,0 +1,16 @@
+[#ftl]
+[@b.head/]
+[@b.toolbar title="修改病人状态"]bar.addBack();[/@]
+  [@b.form action=b.rest.save(inpatientStatus) theme="list"]
+    [@b.textfield name="inpatientStatus.code" label="代码" value="${inpatientStatus.code!}" required="true" maxlength="20"/]
+    [@b.textfield name="inpatientStatus.name" label="名称" value="${inpatientStatus.name!}" required="true" maxlength="20"/]
+    [@b.textfield name="inpatientStatus.enName" label="英文名称" value="${inpatientStatus.enName!}" maxlength="100"/]
+    [@b.startend label="有效期限"
+      name="inpatientStatus.beginOn,inpatientStatus.endOn" required="false,false"
+      start=inpatientStatus.beginOn end=inpatientStatus.endOn format="date"/]
+    [@b.textfield name="inpatientStatus.remark" label="备注" value="${inpatientStatus.remark!}" maxlength="3"/]
+    [@b.formfoot]
+      [@b.reset/]&nbsp;&nbsp;[@b.submit value="action.submit"/]
+    [/@]
+  [/@]
+[@b.foot/]

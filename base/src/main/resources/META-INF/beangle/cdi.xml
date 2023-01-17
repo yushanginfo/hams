@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<cdi>
+  <container>
+    <module class="net.yushanginfo.hams.base.web.action.code.DefaultModule"/>
+    <module class="net.yushanginfo.hams.base.web.action.DefaultModule"/>
+    <module class="net.yushanginfo.hams.base.service.DefaultModule"/>
+  </container>
+</cdi>
