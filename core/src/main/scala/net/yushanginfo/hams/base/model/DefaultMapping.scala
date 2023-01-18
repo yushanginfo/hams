@@ -32,10 +32,14 @@ class DefaultMapping extends MappingModule {
       index("", true, e.indexno)
     }
 
-    bind[Inpatient]
+    bind[Inpatient] declare { e =>
+      e.members is depends("inpatient")
+    }
+
+    bind[FamilyMember]
     bind[Staff]
     bind[Ward]
 
-    all.except(classOf[Inpatient], classOf[Staff]).cacheAll()
+    all.except(classOf[Inpatient], classOf[FamilyMember],classOf[Staff]).cacheAll()
   }
 }

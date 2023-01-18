@@ -25,6 +25,6 @@ class DefaultModule extends BindModule {
     bind(classOf[GenderAction])
     bind(classOf[InpatientStatusAction])
     bind(classOf[StaffTypeAction])
-    bind(classOf[WorkStatusAction])
+    bind(classOf[FamilyRelationshipAction])
   }
 }

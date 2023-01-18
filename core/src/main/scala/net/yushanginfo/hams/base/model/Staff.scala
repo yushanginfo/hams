@@ -17,7 +17,7 @@
 
 package net.yushanginfo.hams.base.model
 
-import net.yushanginfo.hams.code.model.{Gender, StaffType, WorkStatus}
+import net.yushanginfo.hams.code.model.{Gender, StaffType}
 import org.beangle.data.model.LongId
 import org.beangle.data.model.pojo.*
 
@@ -30,33 +30,13 @@ class Staff extends LongId, Coded, Named, Updated, TemporalOn, Remark {
   /** 员工类型 */
   var staffType: StaffType = _
 
-  /** 身份证号 */
-  var idNumber: Option[String] = None
-
-  /** 出生日期 */
-  var birthday: Option[LocalDate] = None
-
   /** 性别 */
   var gender: Gender = _
 
   /** 部门 */
   var department: Department = _
 
-  /** 是否在编 */
-  var formalHr: Boolean = _
-
-  /** 在职状态 */
-  var status: WorkStatus = _
-
-  /** 家庭住址 */
-  var homeAddress: Option[String] = None
-
-  /** 家庭电话 */
-  var homePhone: Option[String] = None
-
   /** 移动电话 */
   var mobile: Option[String] = None
 
-  /** 户籍地址 */
-  var residentAddress: Option[String] = None
 }

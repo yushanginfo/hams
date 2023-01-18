@@ -18,11 +18,20 @@
 package net.yushanginfo.hams.wallet.model
 
 import net.yushanginfo.hams.base.model.Inpatient
+import org.beangle.commons.collection.Collections
 import org.beangle.data.model.LongId
 
-object WalletType {
-  val Meal = 1L //餐费
-  val Change = 2L //零用钱
+import java.time.{Instant, YearMonth}
+import scala.collection.mutable
+
+object Wallet {
+  def apply(inpatient: Inpatient, walletType: WalletType): Wallet = {
+    val w = new Wallet
+    w.inpatient = inpatient
+    w.walletType = walletType
+    w.balance = new Yuan(0L)
+    w
+  }
 }
 
 /**
@@ -30,9 +39,63 @@ object WalletType {
  */
 class Wallet extends LongId {
 
+  def this(id: Long) = {
+    this()
+    this.id = id
+  }
+
   /** 病人 */
   var inpatient: Inpatient = _
 
   /** 余额 */
-  var balance: Int = _
+  var balance: Yuan = _
+
+  /** 钱包类型 */
+  var walletType: WalletType = _
+
+  /** 月度统计 */
+  var stats: mutable.Buffer[WalletStat] = Collections.newBuffer[WalletStat]
+
+  /** 起始年月 */
+  var createdOn: YearMonth = _
+
+  /** 初始余额 */
+  var initBalance: Yuan = _
+
+  def addStat(yearMonth: YearMonth, incomes: Yuan, expenses: Yuan): Option[WalletStat] = {
+    stats.find(x => x.yearMonth == yearMonth) match {
+      case None =>
+        if (createdOn == yearMonth) {
+          val ws = new WalletStat
+          ws.wallet = this
+          ws.yearMonth = createdOn
+          ws.startBalance = this.initBalance
+          ws.update(incomes, expenses)
+          Some(ws)
+        } else {
+          None
+        }
+      case Some(w) =>
+        Some(w.update(incomes, expenses))
+    }
+  }
+}
+
+/** 钱包的现金流量表
+ * Statement of Cash Flow
+ */
+class WalletStat extends LongId {
+  var wallet: Wallet = _
+  var yearMonth: YearMonth = _
+  var startBalance: Yuan = _
+  var endBalance: Yuan = _
+  var incomes: Yuan = _
+  var expenses: Yuan = _
+
+  def update(incomes: Yuan, expenses: Yuan): WalletStat = {
+    this.incomes = incomes
+    this.expenses = if expenses.value > 0 then Yuan(0 - expenses.value) else expenses
+    this.endBalance = this.startBalance + this.incomes + this.expenses
+    this
+  }
 }

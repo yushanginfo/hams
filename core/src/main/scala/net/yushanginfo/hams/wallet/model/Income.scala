@@ -17,7 +17,7 @@
 
 package net.yushanginfo.hams.wallet.model
 
-import net.yushanginfo.hams.base.model.{Inpatient, Yuan}
+import net.yushanginfo.hams.base.model.Inpatient
 import org.beangle.data.model.LongId
 import org.beangle.data.model.pojo.Updated
 

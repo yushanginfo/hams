@@ -6,20 +6,12 @@
     [@b.textfield name="staff.name" label="姓名" value=staff.name! required="true" style="width:100px;" maxlength="20"/]
 
     [@b.select name="staff.gender.id" label="性别" value=staff.gender! required="true"  items=genders empty="..."/]
-    [@b.textfield name="staff.idNumber" label="证件号码" value=staff.idNumber! required="false" maxlength="20"/]
-    [@b.date name="staff.birthday" label="出生日期" value=staff.birthday! required="false"/]
 
     [@b.select name="staff.staffType.id" label="职工类别" value=staff.staffType! required="true"  items=staffTypes/]
     [@b.select name="staff.department.id" label="所在部门" value=staff.department! required="true" style="width:200px;" items=departments empty="..."/]
 
-    [@b.radios label="是否在编"  name="staff.formalHr" value=staff.formalHr items="1:common.yes,0:common.no" required="true"/]
-
-    [@b.textfield label="家庭住址"  name="staff.homeAddress" value=staff.homeAddress! required="false" /]
-    [@b.textfield label="家庭电话"  name="staff.homePhone" value=staff.homePhone! required="false" /]
     [@b.textfield label="移动电话"  name="staff.mobile" value=staff.mobile! required="false" /]
-    [@b.textfield label="户籍地址"  name="staff.residentAddress" value=staff.residentAddress! required="false" maxlength="150" style="width:400px"/]
     [@b.startend label="在院时间" name="staff.beginOn,staff.endOn" required="true,false" start=staff.beginOn end=staff.endOn format="date"/]
-    [@b.select name="staff.status.id" label="在职状态" value=staff.status! required="true"  items=statuses/]
     [@b.textfield name="staff.remark" label="备注" value=staff.remark! maxlength="30"/]
     [@b.formfoot]
       [@b.reset/]&nbsp;&nbsp;[@b.submit value="action.submit"/]

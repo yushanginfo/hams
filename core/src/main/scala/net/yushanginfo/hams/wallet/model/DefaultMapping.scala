@@ -17,16 +17,22 @@
 
 package net.yushanginfo.hams.wallet.model
 
+import org.beangle.commons.conversion.impl.DefaultConversion
 import org.beangle.data.orm.{IdGenerator, MappingModule}
 
 class DefaultMapping extends MappingModule {
 
   def binding(): Unit = {
+    DefaultConversion.Instance.addConverter(YuanConverter)
     bind[Bill]
     bind[Income]
     bind[LeaveCategory]
     bind[LeaveApply]
     bind[Visiting]
-    bind[Wallet]
+    bind[Wallet] declare { e =>
+      e.stats is depends("wallet")
+    }
+    bind[WalletStat]
+    bind[WalletSetting]
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014, The OpenURP Software.
+ * Copyright (C) 2005, The Beangle Software.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -20,7 +20,7 @@ package net.yushanginfo.hams.base.web.action
 import net.yushanginfo.hams.base.model.{Department, Staff}
 import net.yushanginfo.hams.base.service.CodeService
 import net.yushanginfo.hams.base.web.helper.{ActiveSearchHelper, StaffImportListener}
-import net.yushanginfo.hams.code.model.{Gender, StaffType, WorkStatus}
+import net.yushanginfo.hams.code.model.{Gender, StaffType}
 import org.beangle.commons.lang.Strings
 import org.beangle.data.dao.{Operation, OqlBuilder}
 import org.beangle.data.excel.schema.ExcelSchema
@@ -49,7 +49,6 @@ class StaffAction extends RestfulAction[Staff] {
     put("departments", entityDao.getAll(classOf[Department]))
     put("genders", codeService.get(classOf[Gender]))
     put("staffTypes", codeService.get(classOf[StaffType]))
-    put("statuses", codeService.get(classOf[WorkStatus]))
     super.editSetting(staff)
   }
 
@@ -90,7 +89,6 @@ class StaffAction extends RestfulAction[Staff] {
     val genders = codeService.get(classOf[Gender]).map(x => x.code + " " + x.name)
     val departs = entityDao.search(OqlBuilder.from(classOf[Department], "bt").orderBy("bt.code")).map(x => x.code + " " + x.name)
     val staffTypes = codeService.get(classOf[StaffType]).map(x => x.code + " " + x.name)
-    val workStatuses = codeService.get(classOf[WorkStatus]).map(x => x.code + " " + x.name)
 
     val schema = new ExcelSchema()
     val sheet = schema.createScheet("数据模板")
@@ -99,19 +97,9 @@ class StaffAction extends RestfulAction[Staff] {
     sheet.add("工号", "staff.code").length(10).required().remark("≤10位")
     sheet.add("姓名", "staff.name").length(100).required()
     sheet.add("性别", "staff.gender.code").ref(genders).required()
-    sheet.add("证件号码", "staff.idNumber").length(18)
-    sheet.add("出生日期", "staff.birthday").date()
-
     sheet.add("教职工类别", "staff.staffType.code").ref(staffTypes).required()
     sheet.add("所在部门", "staff.department.code").ref(departs).required()
-
-    sheet.add("是否在编", "staff.formalHr").bool().required()
-    sheet.add("家庭住址", "staff.homeAddress").length(100)
-    sheet.add("家庭电话", "staff.homePhone").length(100)
     sheet.add("移动电话", "staff.mobile").length(100)
-    sheet.add("户籍地址", "staff.residentAddress").length(100)
-
-    sheet.add("在职状态", "staff.status.code").ref(workStatuses).required()
     val os = new ByteArrayOutputStream()
     schema.generate(os)
     Stream(new ByteArrayInputStream(os.toByteArray), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "职工信息.xlsx")

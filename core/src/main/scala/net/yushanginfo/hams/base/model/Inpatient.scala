@@ -18,10 +18,12 @@
 package net.yushanginfo.hams.base.model
 
 import net.yushanginfo.hams.code.model.{Gender, InpatientStatus}
+import org.beangle.commons.collection.Collections
 import org.beangle.data.model.LongId
 import org.beangle.data.model.pojo.{Coded, Named, TemporalOn}
 
 import java.time.LocalDate
+import scala.collection.mutable
 
 /**
  * 住院病人
@@ -29,11 +31,13 @@ import java.time.LocalDate
  */
 class Inpatient extends LongId, Coded, Named, TemporalOn {
 
+  def this(id: Long) = {
+    this()
+    this.id = id
+  }
+
   /** 性别 */
   var gender: Gender = _
-
-  /** 住院号 */
-  var number: String = _
 
   /** 所在病区 */
   var ward: Ward = _
@@ -41,17 +45,8 @@ class Inpatient extends LongId, Coded, Named, TemporalOn {
   /** 状态 */
   var status: InpatientStatus = _
 
-  /** 家属1姓名 */
-  var familyMember1Name: String = _
-
-  /** 家属1电话 */
-  var familyMember1Mobile: String = _
-
-  /** 家属2姓名 */
-  var familyMember2Name: Option[String] = None
-
-  /** 家属2电话 */
-  var familyMember2Mobile: Option[String] = None
+  /** 家属 */
+  var members: mutable.Buffer[FamilyMember] = Collections.newBuffer[FamilyMember]
 
   /** 请假日期 */
   var leaveOn: Option[LocalDate] = None

@@ -27,7 +27,7 @@ class DefaultMapping extends MappingModule {
     bind[Gender]
     bind[InpatientStatus]
     bind[StaffType]
-    bind[WorkStatus]
+    bind[FamilyRelationship]
     all.cacheAll()
   }
 }

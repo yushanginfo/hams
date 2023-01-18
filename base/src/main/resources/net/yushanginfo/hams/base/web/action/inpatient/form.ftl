@@ -1,0 +1,17 @@
+[#ftl]
+[@b.head/]
+[@b.toolbar title="修改病人信息"]bar.addBack();[/@]
+  [@b.form action=b.rest.save(inpatient) theme="list"]
+    [@b.textfield name="inpatient.code" label="住院号" value=inpatient.code! required="true" style="width:100px;" maxlength="20"/]
+    [@b.textfield name="inpatient.name" label="姓名" value=inpatient.name! required="true" style="width:100px;" maxlength="20"/]
+    [@b.select name="inpatient.gender.id" label="性别" value=inpatient.gender! required="true"  items=genders empty="..."/]
+    [@b.select name="inpatient.ward.id" label="病区" value=inpatient.ward! required="true"  items=wards empty="..."/]
+    [@b.select name="inpatient.status.id" label="状态" value=inpatient.status! required="true"  items=statuses /]
+    [@b.startend label="住院-出院"
+      name="inpatient.beginOn,inpatient.endOn" required="true,false"
+      start=inpatient.beginOn end=inpatient.endOn format="date"/]
+    [@b.formfoot]
+      [@b.reset/]&nbsp;&nbsp;[@b.submit value="action.submit"/]
+    [/@]
+  [/@]
+[@b.foot/]

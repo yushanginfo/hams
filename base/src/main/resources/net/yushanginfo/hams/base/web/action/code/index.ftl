@@ -5,7 +5,7 @@
 [#assign codes=codes+{'性别':'/code/gender'}]
 [#assign codes=codes+{'员工类型':'/code/staff-type'}]
 [#assign codes=codes+{'病人状态':'/code/inpatient-status'}]
-[#assign codes=codes+{'在职状态':'/code/work-status'}]
+[#assign codes=codes+{'在职状态':'/code/family-relationship'}]
 
 <ul class="nav nav-tabs nav-tabs-compact" id="code_nav">
   [#list codes?keys as code]
