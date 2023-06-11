@@ -1,0 +1,16 @@
+[#ftl]
+[@b.head/]
+[@b.toolbar title="修改性别类型"]bar.addBack();[/@]
+  [@b.form action=b.rest.save(criticalLevel) theme="list"]
+    [@b.textfield name="criticalLevel.code" label="代码" value="${criticalLevel.code!}" required="true" maxlength="20"/]
+    [@b.textfield name="criticalLevel.name" label="名称" value="${criticalLevel.name!}" required="true" maxlength="20"/]
+    [@b.textfield name="criticalLevel.enName" label="英文名称" value="${criticalLevel.enName!}" maxlength="100"/]
+    [@b.startend label="有效期限"
+      name="criticalLevel.beginOn,criticalLevel.endOn" required="false,false"
+      start=criticalLevel.beginOn end=criticalLevel.endOn format="date"/]
+    [@b.textfield name="criticalLevel.remark" label="备注" value="${criticalLevel.remark!}" maxlength="3"/]
+    [@b.formfoot]
+      [@b.reset/]&nbsp;&nbsp;[@b.submit value="action.submit"/]
+    [/@]
+  [/@]
+[@b.foot/]

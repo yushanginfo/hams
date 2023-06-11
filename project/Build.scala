@@ -1,18 +1,18 @@
-import _root_.org.beangle.parent.Dependencies._
-import sbt._
+import _root_.org.beangle.parent.Dependencies.*
+import sbt.*
 
 object HisDepends {
-  val commonsVer = "5.4.1"
-  val dataVer = "5.5.4"
-  val cdiVer = "0.4.1"
-  val webVer = "0.3.3"
-  val serializerVer = "0.1.1"
-  val cacheVer = "0.1.1"
-  val templateVer = "0.1.1"
-  val webmvcVer = "0.6.5"
-  val securityVer = "4.3.2"
-  val idsVer = "0.3.3"
-  val emsVer = "4.5.9"
+  val commonsVer = "5.5.3"
+  val dataVer = "5.6.19"
+  val cdiVer = "0.5.4"
+  val webVer = "0.4.2"
+  val serializerVer = "0.1.4"
+  val cacheVer = "0.1.4"
+  val templateVer = "0.1.6"
+  val webmvcVer = "0.9.3"
+  val securityVer = "4.3.7"
+  val idsVer = "0.3.9"
+  val emsVer = "4.6.17"
 
   val commonsCore = "org.beangle.commons" %% "beangle-commons-core" % commonsVer
   val commonsFile = "org.beangle.commons" %% "beangle-commons-file" % commonsVer
@@ -28,9 +28,8 @@ object HisDepends {
   val webAction = "org.beangle.web" %% "beangle-web-action" % webVer
   val webServlet = "org.beangle.web" %% "beangle-web-servlet" % webVer
   val webmvcCore = "org.beangle.webmvc" %% "beangle-webmvc-core" % webmvcVer
-  val webmvcFreemarker = "org.beangle.webmvc" %% "beangle-webmvc-freemarker" % webmvcVer
+  val webmvcView = "org.beangle.webmvc" %% "beangle-webmvc-view" % webmvcVer
   val webmvcSupport = "org.beangle.webmvc" %% "beangle-webmvc-support" % webmvcVer
-  val webmvcBootstrap = "org.beangle.webmvc" %% "beangle-webmvc-bootstrap" % webmvcVer
   val serializerText = "org.beangle.serializer" %% "beangle-serializer-text" % serializerVer
   val securityCore = "org.beangle.security" %% "beangle-security-core" % securityVer
   val securityWeb = "org.beangle.security" %% "beangle-security-web" % securityVer
@@ -40,7 +39,8 @@ object HisDepends {
   val idsWeb = "org.beangle.ids" %% "beangle-ids-web" % idsVer
   val emsApp = "org.beangle.ems" %% "beangle-ems-app" % emsVer
 
-  val appDepends = Seq(commonsCore, commonsFile, logback_classic, logback_core, scalatest, webAction, cdiApi, gson, HikariCP) ++
-    Seq(dataOrm, hibernate_core, dataJdbc, cacheApi, cacheCaffeine, securitySession, securityCas, templateApi, hibernate_jcache) ++
-    Seq(ehcache, jaxb, jaxb_impl, postgresql, emsApp,webmvcSupport,webmvcFreemarker,webmvcBootstrap,serializerText)
+  val appDepends = Seq(commonsCore, commonsFile, logback_classic, logback_core, scalatest, webAction, cdiApi, cdiSpring, gson, HikariCP) ++
+    Seq(dataOrm, hibernate_core, dataJdbc, cacheApi, cacheCaffeine, securitySession, securityCas, templateApi) ++
+    Seq(postgresql, caffeine_jcache, emsApp, hibernate_jcache,webmvcSupport, webmvcView,dataTransfer,serializerText)
+
 }

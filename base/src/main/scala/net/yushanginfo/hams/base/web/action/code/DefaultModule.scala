@@ -23,8 +23,17 @@ class DefaultModule extends BindModule {
 
   override def binding(): Unit = {
     bind(classOf[GenderAction])
+    bind(classOf[IdTypeAction])
+    bind(classOf[NationAction])
+    bind(classOf[CountryAction])
+    bind(classOf[MaritalStatusAction])
+    bind(classOf[RelationshipAction])
+
     bind(classOf[InpatientStatusAction])
     bind(classOf[StaffTypeAction])
-    bind(classOf[FamilyRelationshipAction])
+    bind(classOf[CardTypeAction])
+    bind(classOf[FeeOriginAction])
+    bind(classOf[CriticalLevelAction])
+    bind(classOf[DiseaseTypeAction])
   }
 }

@@ -20,6 +20,14 @@ package net.yushanginfo.hams.code.model
 import org.beangle.data.model.IntId
 import org.beangle.data.model.pojo.*
 
-class Gender extends IntId, Coded, Named, TemporalOn, Updated, Remark {
+class Gender extends CodeBean
 
-}
+class Nation extends CodeBean
+
+class Country extends CodeBean
+
+class Relationship extends CodeBean
+
+class MaritalStatus extends CodeBean
+
+class IdType extends CodeBean

@@ -28,16 +28,16 @@ class WalletServiceImpl extends WalletService {
   var entityDao: EntityDao = _
 
   override def stat(yearMonth: YearMonth, walletType: WalletType): Iterable[WalletStat] = {
-    val first = yearMonth.atDay(1)
-    val last = yearMonth.atEndOfMonth()
+    val first = yearMonth.atDay(1).atTime(0,0,0)
+    val last = yearMonth.atEndOfMonth().atTime(0,0,0)
 
     val iQuery = OqlBuilder.from[Array[Object]](classOf[Income].getName, "income")
-    iQuery.where("income.inpatient.beginOn <=:last and (income.inpatient.endOn is null or income.inpatient.endOn >= :first)", last, first)
+    iQuery.where("income.inpatient.beginAt <=:last and (income.inpatient.endAt is null or income.inpatient.endAt >= :first)", last, first)
     iQuery.groupBy("income.wallet.id").select("income.wallet.id,sum(income.amount)")
     iQuery.where("income.wallet.walletType=:walletType", walletType)
     val incomes = entityDao.search(iQuery).map(x => x(0).asInstanceOf[Number].longValue -> x(1).asInstanceOf[Number].longValue).toMap
     val bQuery = OqlBuilder.from[Array[Object]](classOf[Bill].getName, "bill")
-    bQuery.where("bill.inpatient.beginOn <=:last and (bill.inpatient.endOn is null or bill.inpatient.endOn >= :first)", last, first)
+    bQuery.where("bill.inpatient.beginAt <=:last and (bill.inpatient.endAt is null or bill.inpatient.endAt >= :first)", last, first)
     bQuery.groupBy("bill.wallet.id").select("bill.wallet.id,sum(bill.amount)")
     bQuery.where("bill.wallet.walletType=:walletType", walletType)
     val bills = entityDao.search(bQuery).map(x => x(0).asInstanceOf[Number].longValue -> x(1).asInstanceOf[Number].longValue).toMap

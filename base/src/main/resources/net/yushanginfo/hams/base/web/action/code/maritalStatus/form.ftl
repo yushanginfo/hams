@@ -1,0 +1,16 @@
+[#ftl]
+[@b.head/]
+[@b.toolbar title="修改婚姻状况"]bar.addBack();[/@]
+  [@b.form action=b.rest.save(maritalStatus) theme="list"]
+    [@b.textfield name="maritalStatus.code" label="代码" value="${maritalStatus.code!}" required="true" maxlength="20"/]
+    [@b.textfield name="maritalStatus.name" label="名称" value="${maritalStatus.name!}" required="true" maxlength="20"/]
+    [@b.textfield name="maritalStatus.enName" label="英文名称" value="${maritalStatus.enName!}" maxlength="100"/]
+    [@b.startend label="有效期限"
+      name="maritalStatus.beginOn,maritalStatus.endOn" required="false,false"
+      start=maritalStatus.beginOn end=maritalStatus.endOn format="date"/]
+    [@b.textfield name="maritalStatus.remark" label="备注" value="${maritalStatus.remark!}" maxlength="3"/]
+    [@b.formfoot]
+      [@b.reset/]&nbsp;&nbsp;[@b.submit value="action.submit"/]
+    [/@]
+  [/@]
+[@b.foot/]

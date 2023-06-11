@@ -21,6 +21,8 @@ import org.beangle.commons.conversion.Converter
 import org.beangle.commons.lang.Strings
 import org.beangle.commons.lang.annotation.value
 
+import java.time.LocalDateTime
+
 @value
 class Yuan(val value: Long) extends Serializable with Ordered[Yuan] {
   override def toString(): String = {
@@ -48,6 +50,10 @@ object Yuan {
     if Strings.isEmpty(v) then Zero
     else
       new Yuan((v.toDouble * 100).toLong)
+  }
+
+  def main(args: Array[String]): Unit = {
+    println(LocalDateTime.parse("2021-06-28T11:04:00"))
   }
 }
 

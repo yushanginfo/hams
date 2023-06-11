@@ -5,5 +5,6 @@
   <mapping class="net.yushanginfo.hams.wallet.model.DefaultMapping" name="wallet"/>
   <naming>
     <profile package="net.yushanginfo.hams" pluralize="true" schema="hams"/>
+    <profile package="net.yushanginfo.hams.code" pluralize="true" schema="hams" prefix="c_"/>
   </naming>
 </orm>

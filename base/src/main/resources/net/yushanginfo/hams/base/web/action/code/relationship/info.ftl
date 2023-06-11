@@ -6,27 +6,27 @@
 <table class="infoTable">
   <tr>
     <td class="title" width="20%">代码</td>
-    <td class="content">${familyRelationship.code}</td>
+    <td class="content">${relationship.code}</td>
   </tr>
   <tr>
     <td class="title" width="20%">名称</td>
-    <td class="content">${familyRelationship.name}</td>
+    <td class="content">${relationship.name}</td>
   </tr>
   <tr>
     <td class="title" width="20%">英文名称</td>
-    <td class="content" >${familyRelationship.enName!}</td>
+    <td class="content" >${relationship.enName!}</td>
   </tr>
   <tr>
     <td class="title" width="20%">生效时间</td>
-    <td class="content" >${familyRelationship.beginOn!}</td>
+    <td class="content" >${relationship.beginOn!}</td>
   </tr>
   <tr>
     <td class="title" width="20%">失效时间</td>
-    <td class="content" >${familyRelationship.endOn!}</td>
+    <td class="content" >${relationship.endOn!}</td>
   </tr>
   <tr>
     <td class="title" width="20%">备注</td>
-    <td class="content">${familyRelationship.remark!}</td>
+    <td class="content">${relationship.remark!}</td>
   </tr>
 </table>
 

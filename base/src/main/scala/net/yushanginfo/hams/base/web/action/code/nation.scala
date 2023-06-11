@@ -17,7 +17,17 @@
 
 package net.yushanginfo.hams.base.web.action.code
 
-import net.yushanginfo.hams.code.model.InpatientStatus
+import net.yushanginfo.hams.code.model.*
 import org.beangle.webmvc.support.action.RestfulAction
 
-class InpatientStatusAction extends RestfulAction[InpatientStatus]
+class GenderAction extends RestfulAction[Gender]
+
+class IdTypeAction extends RestfulAction[IdType]
+
+class NationAction extends RestfulAction[Nation]
+
+class CountryAction extends RestfulAction[Country]
+
+class MaritalStatusAction extends RestfulAction[MaritalStatus]
+
+class RelationshipAction extends RestfulAction[Relationship]

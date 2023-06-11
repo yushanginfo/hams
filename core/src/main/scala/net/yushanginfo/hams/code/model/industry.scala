@@ -20,6 +20,18 @@ package net.yushanginfo.hams.code.model
 import org.beangle.data.model.IntId
 import org.beangle.data.model.pojo.*
 
-class FamilyRelationship extends IntId, Coded, Named, TemporalOn, Updated, Remark {
+class DiseaseType extends CodeBean
 
-}
+class FeeOrigin extends CodeBean
+
+class CardType extends CodeBean
+
+class CriticalLevel extends CodeBean
+
+/**
+ * 病人状态
+ * 在院、请假、出院、死亡等
+ */
+class InpatientStatus extends CodeBean
+
+class StaffType extends CodeBean

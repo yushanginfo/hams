@@ -15,9 +15,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.yushanginfo.hams.base.web.action.code
+package net.yushanginfo.hams.code.model
 
-import net.yushanginfo.hams.code.model.FamilyRelationship
-import org.beangle.webmvc.support.action.RestfulAction
+import org.beangle.data.model.IntId
+import org.beangle.data.model.pojo.*
 
-class FamilyRelationshipAction extends RestfulAction[FamilyRelationship]
+abstract class CodeBean extends IntId, Coded, Named, TemporalOn, Updated, Remark {
+
+}

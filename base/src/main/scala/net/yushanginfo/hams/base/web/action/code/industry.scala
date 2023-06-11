@@ -15,17 +15,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.yushanginfo.hams.base.model
+package net.yushanginfo.hams.base.web.action.code
 
-import net.yushanginfo.hams.code.model.FamilyRelationship
-import org.beangle.data.model.LongId
-import org.beangle.data.model.pojo.Named
+import net.yushanginfo.hams.code.model.*
+import org.beangle.webmvc.support.action.RestfulAction
 
-class FamilyMember extends LongId, Named {
-  var inpatient: Inpatient = _
-  var relationship: FamilyRelationship = _
-  var phone: String = _
-  var address: String = _
-  /**街道*/
-  var subdistrict: Option[String] = None
-}
+class InpatientStatusAction extends RestfulAction[InpatientStatus]
+
+class StaffTypeAction extends RestfulAction[StaffType]
+
+class CardTypeAction extends RestfulAction[CardType]
+
+class FeeOriginAction extends RestfulAction[FeeOrigin]
+
+class CriticalLevelAction extends RestfulAction[CriticalLevel]
+
+class DiseaseTypeAction extends RestfulAction[DiseaseType]

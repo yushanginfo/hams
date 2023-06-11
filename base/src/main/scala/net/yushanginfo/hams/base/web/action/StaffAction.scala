@@ -30,13 +30,13 @@ import org.beangle.web.action.annotation.response
 import org.beangle.web.action.context.ActionContext
 import org.beangle.web.action.view.{Stream, View}
 import org.beangle.webmvc.execution.MappingHandler
-import org.beangle.webmvc.support.action.RestfulAction
+import org.beangle.webmvc.support.action.{ImportSupport, RestfulAction}
 import org.beangle.webmvc.support.helper.QueryHelper
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
 import java.time.Instant
 
-class StaffAction extends RestfulAction[Staff] {
+class StaffAction extends RestfulAction[Staff], ImportSupport[Staff] {
 
   var codeService: CodeService = _
   //  var urpUserHelper: UrpUserHelper = _

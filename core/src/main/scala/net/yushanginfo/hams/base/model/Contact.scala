@@ -15,11 +15,31 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.yushanginfo.hams.code.model
+package net.yushanginfo.hams.base.model
 
-import org.beangle.data.model.IntId
-import org.beangle.data.model.pojo.*
+import org.beangle.data.model.LongId
 
-class StaffType extends IntId, Coded, Named, TemporalOn, Updated, Remark {
+/** 联系信息 */
+class Contact extends LongId {
 
+  /** 户籍地址 */
+  var residenceAddress: Option[String] = None
+
+  /** 现住址 */
+  var address: Option[String] = None
+
+  /** 联系电话 */
+  var phone: Option[String] = None
+
+  /** 邮编 */
+  var postcode: Option[String] = None
+
+  /** 单位名称 */
+  var orgName: Option[String] = None
+
+  /** 单位电话 */
+  var orgPhone: Option[String] = None
+
+  /** 单位邮编 */
+  var orgPostcode: Option[String] = None
 }

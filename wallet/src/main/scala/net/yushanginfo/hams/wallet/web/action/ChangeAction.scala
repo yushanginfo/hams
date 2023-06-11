@@ -38,7 +38,7 @@ class ChangeAction extends RestfulAction[Wallet] {
         case Some(i) => wallet.inpatient = i
       }
       if (null == wallet.createdOn) {
-        wallet.createdOn = YearMonth.of(wallet.inpatient.beginOn.getYear, wallet.inpatient.beginOn.getMonth.getValue)
+        wallet.createdOn = YearMonth.of(wallet.inpatient.beginAt.getYear, wallet.inpatient.beginAt.getMonth.getValue)
       }
       wallet.walletType = WalletType.Change
       wallet.balance = wallet.initBalance
@@ -60,7 +60,7 @@ class ChangeAction extends RestfulAction[Wallet] {
   def stat(): View = {
     val thisYear = Year.now
     val query = OqlBuilder.from[YearMonth](classOf[Wallet].getName, "w")
-    query.select("min(w.createdOn)")
+    query.select("w.createdOn")
     val yearMonth = entityDao.search(query).head
     val years = yearMonth.getYear.to(Year.now().getValue)
     put("year", get("year", thisYear.getValue.toString))
@@ -88,8 +88,8 @@ class ChangeAction extends RestfulAction[Wallet] {
     }
     val wardStats = stats.groupBy(w => w.wallet.inpatient.ward)
     put("wardStats", wardStats)
-    put("year",year)
-    put("month",month)
+    put("year", year)
+    put("month", month)
     forward()
   }
 }

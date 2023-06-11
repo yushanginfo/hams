@@ -26,6 +26,7 @@ class CodeServiceImpl extends CodeService {
   def get[T](clazz: Class[T]): Seq[T] = {
     val query = OqlBuilder.from(clazz, "q")
     query.where("q.endOn is null")
+    query.orderBy("q.code")
     query.cacheable()
     entityDao.search(query)
   }

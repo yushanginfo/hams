@@ -7,9 +7,9 @@
     [@b.select name="inpatient.gender.id" label="性别" value=inpatient.gender! required="true"  items=genders empty="..."/]
     [@b.select name="inpatient.ward.id" label="病区" value=inpatient.ward! required="true"  items=wards empty="..."/]
     [@b.select name="inpatient.status.id" label="状态" value=inpatient.status! required="true"  items=statuses /]
-    [@b.startend label="住院-出院"
-      name="inpatient.beginOn,inpatient.endOn" required="true,false"
-      start=inpatient.beginOn end=inpatient.endOn format="date"/]
+    [@b.startend label="住院-出院时间"
+      name="inpatient.beginAt,inpatient.endAt" required="true,false"
+      start=inpatient.beginAt end=inpatient.endAt format="datetime"/]
     [@b.formfoot]
       [@b.reset/]&nbsp;&nbsp;[@b.submit value="action.submit"/]
     [/@]

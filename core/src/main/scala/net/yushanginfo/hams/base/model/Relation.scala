@@ -15,15 +15,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.yushanginfo.hams.code.model
+package net.yushanginfo.hams.base.model
 
-import org.beangle.data.model.IntId
-import org.beangle.data.model.pojo.*
+import net.yushanginfo.hams.code.model.Relationship
+import org.beangle.data.model.LongId
+import org.beangle.data.model.pojo.Named
 
-/**
- * 病人状态
- * 在院、请假、出院、死亡等
+/** 联系人
  */
-class InpatientStatus extends IntId, Coded, Named, TemporalOn, Updated, Remark {
-
+class Relation extends LongId, Named {
+  var inpatient: Inpatient = _
+  var relationship: Relationship = _
+  var phone: Option[String] = None
+  var address: Option[String] = None
 }

@@ -39,7 +39,7 @@ class MealAction extends RestfulAction[Wallet] {
         case Some(i) => wallet.inpatient = i
       }
       if (null == wallet.createdOn) {
-        wallet.createdOn = YearMonth.of(wallet.inpatient.beginOn.getYear, wallet.inpatient.beginOn.getMonth.getValue)
+        wallet.createdOn = YearMonth.of(wallet.inpatient.beginAt.getYear, wallet.inpatient.beginAt.getMonth.getValue)
       }
       wallet.walletType = WalletType.Meal
       wallet.balance = wallet.initBalance

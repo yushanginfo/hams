@@ -13,10 +13,10 @@ ThisBuild / scmInfo := Some(
 
 ThisBuild / developers := List(
   Developer(
-    id    = "chaostone",
-    name  = "Tihua Duan",
+    id = "chaostone",
+    name = "Tihua Duan",
     email = "duantihua@gmail.com",
-    url   = url("http://github.com/duantihua")
+    url = url("http://github.com/duantihua")
   )
 )
 
@@ -26,7 +26,7 @@ ThisBuild / resolvers += Resolver.mavenLocal
 
 lazy val root = (project in file("."))
   .settings()
-  .aggregate(core,base,wallet)
+  .aggregate(core, base, wallet)
 
 lazy val core = (project in file("core"))
   .settings(
@@ -37,7 +37,7 @@ lazy val core = (project in file("core"))
   )
 
 lazy val base = (project in file("base"))
-  .enablePlugins(WarPlugin,TomcatPlugin)
+  .enablePlugins(WarPlugin, TomcatPlugin)
   .settings(
     name := "hams-base",
     common,
@@ -46,7 +46,7 @@ lazy val base = (project in file("base"))
   ).dependsOn(core)
 
 lazy val wallet = (project in file("wallet"))
-  .enablePlugins(WarPlugin,TomcatPlugin)
+  .enablePlugins(WarPlugin, TomcatPlugin)
   .settings(
     name := "hams-wallet",
     common,

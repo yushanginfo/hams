@@ -17,36 +17,60 @@
 
 package net.yushanginfo.hams.base.model
 
-import net.yushanginfo.hams.code.model.{Gender, InpatientStatus}
+import net.yushanginfo.hams.code.model.*
 import org.beangle.commons.collection.Collections
 import org.beangle.data.model.LongId
-import org.beangle.data.model.pojo.{Coded, Named, TemporalOn}
+import org.beangle.data.model.pojo.{Coded, Named, TemporalAt}
 
-import java.time.LocalDate
+import java.time.{LocalDate, LocalDateTime}
 import scala.collection.mutable
 
 /**
  * 住院病人
  * 住院号作为唯一键
  */
-class Inpatient extends LongId, Coded, Named, TemporalOn {
+class Inpatient extends LongId, Coded, Named {
 
   def this(id: Long) = {
     this()
     this.id = id
   }
 
+  /** 病人ID */
+  var patientId: Long = _
+
+  /** 卡号 */
+  var card: Option[String] = None
+
+  /** 卡类型 */
+  var cardType: Option[CardType] = None
+
   /** 性别 */
   var gender: Gender = _
+
+  /** 人员信息 */
+  var person: Person = _
+
+  /** 联系信息 */
+  var contact: Contact = _
 
   /** 所在病区 */
   var ward: Ward = _
 
+  /** 床位号 */
+  var bedNo: Option[String] = None
+
+  /** 床位医生 */
+  var bedDoctor: Option[String] = None
+
+  /** 门诊诊断 */
+  var diseaseType: Option[DiseaseType] = None
+
   /** 状态 */
   var status: InpatientStatus = _
 
-  /** 家属 */
-  var members: mutable.Buffer[FamilyMember] = Collections.newBuffer[FamilyMember]
+  /** 联系人列表 */
+  var relations: mutable.Buffer[Relation] = Collections.newBuffer[Relation]
 
   /** 请假日期 */
   var leaveOn: Option[LocalDate] = None
@@ -54,4 +78,16 @@ class Inpatient extends LongId, Coded, Named, TemporalOn {
   /** 预计销假日期 */
   var backOn: Option[LocalDate] = None
 
+  /** 费用来源 */
+  var feeOrigin: FeeOrigin = _
+
+  /** 危重级别 */
+  var criticalLevel: Option[CriticalLevel] = None
+
+  /** 登记人 */
+  var createdBy: Option[String] = None
+
+  var beginAt: LocalDateTime = _
+
+  var endAt: Option[LocalDateTime] = None
 }

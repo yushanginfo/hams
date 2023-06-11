@@ -18,16 +18,33 @@
 package net.yushanginfo.hams.code.model
 
 import net.yushanginfo.hams.code.model.{Gender, InpatientStatus}
+import org.beangle.data.model.pojo.Updated
 import org.beangle.data.orm.{IdGenerator, MappingModule}
 
 class DefaultMapping extends MappingModule {
 
   def binding(): Unit = {
     defaultCache("code", "read-write")
+    bind[Updated] declare { e =>
+      e.updatedAt is default("current")
+    }
+    bind[CodeBean] declare { e =>
+      e.beginOn is default("current")
+    }
     bind[Gender]
+    bind[Nation]
+    bind[Country]
+    bind[Relationship]
+    bind[MaritalStatus]
+    bind[IdType]
+
+    bind[FeeOrigin]
+    bind[CriticalLevel]
+    bind[CardType]
     bind[InpatientStatus]
     bind[StaffType]
-    bind[FamilyRelationship]
+    bind[DiseaseType]
+
     all.cacheAll()
   }
 }

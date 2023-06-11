@@ -1,0 +1,16 @@
+[#ftl]
+[@b.head/]
+[@b.toolbar title="修改性别类型"]bar.addBack();[/@]
+  [@b.form action=b.rest.save(feeOrigins) theme="list"]
+    [@b.textfield name="feeOrigin.code" label="代码" value="${feeOrigin.code!}" required="true" maxlength="20"/]
+    [@b.textfield name="feeOrigin.name" label="名称" value="${feeOrigin.name!}" required="true" maxlength="20"/]
+    [@b.textfield name="feeOrigin.enName" label="英文名称" value="${feeOrigin.enName!}" maxlength="100"/]
+    [@b.startend label="有效期限"
+      name="feeOrigin.beginOn,feeOrigin.endOn" required="false,false"
+      start=feeOrigin.beginOn end=feeOrigin.endOn format="date"/]
+    [@b.textfield name="feeOrigin.remark" label="备注" value="${feeOrigin.remark!}" maxlength="3"/]
+    [@b.formfoot]
+      [@b.reset/]&nbsp;&nbsp;[@b.submit value="action.submit"/]
+    [/@]
+  [/@]
+[@b.foot/]
