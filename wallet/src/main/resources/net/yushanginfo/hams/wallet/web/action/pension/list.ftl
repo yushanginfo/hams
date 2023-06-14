@@ -20,7 +20,7 @@
     [@b.col width="8%" property="balance" title="余额"/]
     [@b.col width="8%" property="inpatient.ward.name" title="病区"/]
     [@b.col width="5%" property="inpatient.bedNo" title="床号"/]
-    [@b.col width="8%" property="inpatient.beginAt" title="住院日期"]${wallet.inpatient.beginAt?string("yyyy-MM-dd")}[/@]
+    [@b.col width="10%" property="inpatient.beginAt" title="住院日期"]${wallet.inpatient.beginAt?string("yyyy-MM-dd")}[/@]
     [@b.col width="8%" property="inpatient.status.name" title="状态"/]
   [/@]
 [/@]

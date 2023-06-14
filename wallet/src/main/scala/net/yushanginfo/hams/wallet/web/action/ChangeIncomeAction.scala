@@ -18,6 +18,7 @@
 package net.yushanginfo.hams.wallet.web.action
 
 import net.yushanginfo.hams.base.model.{Inpatient, Ward}
+import net.yushanginfo.hams.code.model.IncomeChannel
 import net.yushanginfo.hams.wallet.model.{Income, Wallet, WalletType}
 import org.beangle.commons.lang.Strings
 import org.beangle.data.dao.OqlBuilder
@@ -49,6 +50,11 @@ class ChangeIncomeAction extends RestfulAction[Income], ImportSupport[Income], E
       }
     }
     super.saveAndRedirect(income)
+  }
+
+  override protected def editSetting(entity: Income): Unit = {
+    put("channels", entityDao.getAll(classOf[IncomeChannel]))
+    super.editSetting(entity)
   }
 
   override protected def getQueryBuilder: OqlBuilder[Income] = {
