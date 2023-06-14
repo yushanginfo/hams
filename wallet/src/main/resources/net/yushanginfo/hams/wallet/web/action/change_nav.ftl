@@ -1,5 +1,5 @@
 [@b.nav class="nav-tabs nav-tabs-compact"]
   [@b.navitem href="change"]零用金账户[/@]
-  [@b.navitem href="change-income"]入账明细[/@]
   [@b.navitem href="change-bill"]支出流水[/@]
+  [@b.navitem href="change-income"]入账明细[/@]
 [/@]

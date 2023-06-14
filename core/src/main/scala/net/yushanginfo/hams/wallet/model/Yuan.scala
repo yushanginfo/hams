@@ -34,8 +34,12 @@ class Yuan(val value: Long) extends Serializable with Ordered[Yuan] {
     else if this.value > o.value then 1
     else 0
 
-  def +(o: Yuan) = {
+  def +(o: Yuan): Yuan = {
     new Yuan(this.value + o.value)
+  }
+
+  def -(o: Yuan): Yuan = {
+    new Yuan(this.value - o.value)
   }
 }
 

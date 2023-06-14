@@ -3,7 +3,7 @@
 [#include "../change_nav.ftl"/]
 [@b.toolbar title="零用金管理"]
   bar.addItem("每期汇总",function() {
-    bg.form.submit(document.searchForm, "${b.url("!stat")}", "_blank");
+    bg.form.submit(document.searchForm, "${b.url("change-stat")}", "_blank");
   });
 [/@]
 <div class="search-container">
@@ -11,6 +11,7 @@
     [@b.form name="searchForm" action="!search" target="walletList" title="ui.searchForm" theme="search"]
       [@b.textfields names="wallet.inpatient.code;住院号"/]
       [@b.textfields names="wallet.inpatient.name;姓名"/]
+      [@b.select name="wallet.inpatient.ward.id" label="病区" items=wards empty="..."/]
       <input type="hidden" name="orderBy" value="wallet.inpatient.code"/>
     [/@]
     </div>

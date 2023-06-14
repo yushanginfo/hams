@@ -58,7 +58,7 @@ class Inpatient extends LongId, Coded, Named {
   var ward: Ward = _
 
   /** 床位号 */
-  var bedNo: Option[String] = None
+  var bedNo: String = _
 
   /** 床位医生 */
   var bedDoctor: Option[String] = None

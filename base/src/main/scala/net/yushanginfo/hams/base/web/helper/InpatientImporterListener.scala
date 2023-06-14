@@ -69,6 +69,5 @@ class InpatientImporterListener(entityDao: EntityDao) extends ImportListener {
       entityDao.saveOrUpdate(relation)
     }
 
-
   }
 }

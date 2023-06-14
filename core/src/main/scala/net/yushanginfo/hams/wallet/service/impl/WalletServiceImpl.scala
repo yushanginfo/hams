@@ -22,36 +22,76 @@ import net.yushanginfo.hams.wallet.service.WalletService
 import org.beangle.commons.collection.Collections
 import org.beangle.data.dao.{EntityDao, OqlBuilder}
 
-import java.time.YearMonth
+import java.time.{LocalDate, YearMonth, ZoneId, ZoneOffset}
+import scala.collection.mutable
 
 class WalletServiceImpl extends WalletService {
   var entityDao: EntityDao = _
 
-  override def stat(yearMonth: YearMonth, walletType: WalletType): Iterable[WalletStat] = {
-    val first = yearMonth.atDay(1).atTime(0,0,0)
-    val last = yearMonth.atEndOfMonth().atTime(0,0,0)
+  override def stat(yearMonth: YearMonth, walletType: WalletType, forceStat: Boolean): Seq[WalletStat] = {
+    val q = OqlBuilder.from(classOf[WalletStat], "ws")
+    q.where("ws.yearMonth=:year", yearMonth)
+    q.where("ws.wallet.walletType=:walletType", walletType)
+    val existedStat = entityDao.search(q)
+    if (existedStat.isEmpty || forceStat) {
+      val lastMonth = yearMonth.minusMonths(1)
+      val beginAt = yearMonth.atDay(1).atTime(0, 0, 0)
+      val endAt = yearMonth.atEndOfMonth().atTime(23, 59, 59)
 
-    val iQuery = OqlBuilder.from[Array[Object]](classOf[Income].getName, "income")
-    iQuery.where("income.inpatient.beginAt <=:last and (income.inpatient.endAt is null or income.inpatient.endAt >= :first)", last, first)
-    iQuery.groupBy("income.wallet.id").select("income.wallet.id,sum(income.amount)")
-    iQuery.where("income.wallet.walletType=:walletType", walletType)
-    val incomes = entityDao.search(iQuery).map(x => x(0).asInstanceOf[Number].longValue -> x(1).asInstanceOf[Number].longValue).toMap
-    val bQuery = OqlBuilder.from[Array[Object]](classOf[Bill].getName, "bill")
-    bQuery.where("bill.inpatient.beginAt <=:last and (bill.inpatient.endAt is null or bill.inpatient.endAt >= :first)", last, first)
-    bQuery.groupBy("bill.wallet.id").select("bill.wallet.id,sum(bill.amount)")
-    bQuery.where("bill.wallet.walletType=:walletType", walletType)
-    val bills = entityDao.search(bQuery).map(x => x(0).asInstanceOf[Number].longValue -> x(1).asInstanceOf[Number].longValue).toMap
+      val beginAtZ = beginAt.atZone(ZoneId.systemDefault).toInstant
+      val endAtZ = endAt.atZone(ZoneId.systemDefault).toInstant
 
-    val walletIds = incomes.keySet ++ bills.keySet
-    val wallets = walletIds.map(x => entityDao.get(classOf[Wallet], x))
+      val lq = OqlBuilder.from(classOf[WalletStat], "ws")
+      lq.where("ws.wallet.walletType=:walletType", walletType)
+      lq.where("ws.yearMonth=:last", lastMonth)
+      val lastStats = entityDao.search(lq).map(x => (x.wallet, x)).toMap
 
-    val stats = Collections.newBuffer[WalletStat]
-    wallets foreach { wallet =>
-      wallet.addStat(yearMonth, Yuan(incomes.getOrElse(wallet.id, 0L)), Yuan(bills.getOrElse(wallet.id, 0L))) foreach { w =>
-        stats.addOne(w)
+      //find all meal wallet for active inpatient
+      val q = OqlBuilder.from(classOf[Wallet], "w")
+      q.where("w.inpatient.beginAt <= :endAt", endAt)
+      q.where("w.inpatient.endAt is null or :beginAt >= w.inpatient.endAt", beginAt)
+      q.where("w.walletType=:walletType", walletType)
+      val wallets = entityDao.search(q)
+
+      val walletStats = new mutable.ArrayBuffer[WalletStat]
+
+      val bq = OqlBuilder.from(classOf[Bill], "b")
+      bq.where("b.wallet.walletType=:walletType", walletType)
+      bq.where("b.payAt between :beginAt and :endAt", beginAtZ, endAtZ)
+      val bills = entityDao.search(bq)
+
+      val iq = OqlBuilder.from(classOf[Income], "i")
+      iq.where("i.wallet.walletType=:walletType", walletType)
+      iq.where("i.updatedAt between :beginAt and :endAt", beginAtZ, endAtZ)
+      val incomes = entityDao.search(bq)
+
+      val billStats = bills.groupBy(_.inpatient)
+      val incomeStats = incomes.groupBy(_.inpatient)
+
+      wallets foreach { w =>
+        val walletStat = new WalletStat
+        walletStats.addOne(walletStat)
+        walletStat.wallet = w
+        walletStat.yearMonth = yearMonth
+
+        val incomes = incomeStats.get(w.inpatient) match
+          case None => Yuan(0)
+          case Some(bs) => Yuan(bs.map(_.amount.value).sum)
+
+        val expenses = billStats.get(w.inpatient) match
+          case None => Yuan(0)
+          case Some(bs) => Yuan(bs.map(_.amount.value).sum)
+
+        walletStat.startBalance = lastStats.get(w) match
+          case None => w.initBalance
+          case Some(ws) => ws.endBalance
+
+        walletStat.update(incomes, expenses)
       }
+      entityDao.saveOrUpdate(walletStats)
+      walletStats.toSeq
+    } else {
+      existedStat
     }
-    entityDao.saveOrUpdate(stats)
-    stats
   }
 }

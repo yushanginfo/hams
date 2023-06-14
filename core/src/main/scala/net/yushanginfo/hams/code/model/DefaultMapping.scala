@@ -44,6 +44,7 @@ class DefaultMapping extends MappingModule {
     bind[InpatientStatus]
     bind[StaffType]
     bind[DiseaseType]
+    bind[IncomeChannel]
 
     all.cacheAll()
   }

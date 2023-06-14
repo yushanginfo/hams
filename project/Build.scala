@@ -12,7 +12,7 @@ object HisDepends {
   val webmvcVer = "0.9.3"
   val securityVer = "4.3.7"
   val idsVer = "0.3.9"
-  val emsVer = "4.6.17"
+  val emsVer = "4.6.18"
 
   val commonsCore = "org.beangle.commons" %% "beangle-commons-core" % commonsVer
   val commonsFile = "org.beangle.commons" %% "beangle-commons-file" % commonsVer

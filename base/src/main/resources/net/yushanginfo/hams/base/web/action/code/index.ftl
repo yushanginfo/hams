@@ -14,6 +14,7 @@
 [#assign codes=codes+{'病人状态':'/code/inpatient-status'}]
 [#assign codes=codes+{'门诊诊断':'/code/disease-type'}]
 [#assign codes=codes+{'费用来源':'/code/fee-origin'}]
+[#assign codes=codes+{'收入渠道':'/code/income-channel'}]
 [#assign codes=codes+{'危重级别':'/code/critical-level'}]
 [#assign codes=codes+{'卡类型':'/code/card-type'}]
 [#assign codes=codes+{'员工类型':'/code/staff-type'}]

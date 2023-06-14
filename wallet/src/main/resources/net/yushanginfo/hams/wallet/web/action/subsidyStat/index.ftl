@@ -1,5 +1,6 @@
 [@b.head/]
-<div class="container-fluid">
+<div class="container-fluid text-sm">
+  [@b.toolbar title="养护补贴月度统计"/]
   <div class="row">
     <div class="col-2">
       <div class="card  card-info card-primary card-outline">
@@ -9,9 +10,9 @@
         <div class="card-body" style="padding-top: 0px;">
            <table class="table table-hover table-sm">
             <tbody>
-            [#list months as month]
+            [#list yearMonths as ym]
              <tr>
-              <td>[@b.a href="!statMonth?id="+month target="month_info"]${month} 月[/@]</td>
+              <td>[@b.a href="!stat?yearMonth="+ym?string('yyyy-MM') target="month_info"]${ym?string('yyyy-MM')}[/@]</td>
              </tr>
              [/#list]
             </tbody>
@@ -19,7 +20,7 @@
         </div>
       </div>
     </div>
-    [@b.div href="!statMonth?year=${year}&month="+months?first class="col-10" id="month_info"/]
+    [@b.div href="!stat?yearMonth=${yearMonths?first?string('yyyy-MM')}" class="col-10" id="month_info"/]
   </div>
 </div>
 [@b.foot/]

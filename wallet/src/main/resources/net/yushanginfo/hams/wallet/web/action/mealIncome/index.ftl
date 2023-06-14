@@ -8,6 +8,7 @@
     [@b.form name="searchForm" action="!search" target="incomeList" title="ui.searchForm" theme="search"]
       [@b.textfields names="income.wallet.inpatient.code;住院号"/]
       [@b.textfields names="income.wallet.inpatient.name;姓名"/]
+      [@b.select name="income.inpatient.ward.id" label="病区" items=wards empty="..."/]
       <input type="hidden" name="orderBy" value="income.wallet.inpatient.code"/>
     [/@]
     </div>

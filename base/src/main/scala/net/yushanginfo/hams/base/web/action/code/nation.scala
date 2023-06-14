@@ -31,3 +31,5 @@ class CountryAction extends RestfulAction[Country]
 class MaritalStatusAction extends RestfulAction[MaritalStatus]
 
 class RelationshipAction extends RestfulAction[Relationship]
+
+class IncomeChannelAction extends RestfulAction[IncomeChannel]

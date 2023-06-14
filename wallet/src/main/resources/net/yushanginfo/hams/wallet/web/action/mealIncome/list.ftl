@@ -19,9 +19,9 @@
     [@b.col width="8%" property="inpatient.ward.name" title="病区"/]
     [@b.col width="5%" property="inpatient.bedNo" title="床号"/]
     [@b.col width="8%" property="amount" title="入账金额"/]
-    [@b.col width="8%" property="channel" title="入账渠道"/]
-    [@b.col width="18%" property="updatedAt" title="入账时间"]
-      ${income.updatedAt?string('yyyy-MM-dd HH:mm')}
+    [@b.col width="8%" property="channel.name" title="入账渠道"/]
+    [@b.col width="18%" property="payAt" title="入账时间"]
+      ${income.payAt?string('yyyy-MM-dd HH:mm')}
     [/@]
   [/@]
 [/@]

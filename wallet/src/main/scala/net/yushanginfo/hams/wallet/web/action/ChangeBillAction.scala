@@ -17,17 +17,21 @@
 
 package net.yushanginfo.hams.wallet.web.action
 
-import net.yushanginfo.hams.base.model.Inpatient
+import net.yushanginfo.hams.base.model.{Inpatient, Ward}
 import net.yushanginfo.hams.wallet.model.{Bill, Wallet, WalletType}
 import org.beangle.commons.lang.Strings
 import org.beangle.data.dao.OqlBuilder
 import org.beangle.web.action.view.View
-import org.beangle.webmvc.support.action.RestfulAction
+import org.beangle.webmvc.support.action.{ExportSupport, ImportSupport, RestfulAction}
 
 /**
  * 伙食费支出
  */
-class ChangeBillAction extends RestfulAction[Bill] {
+class ChangeBillAction extends RestfulAction[Bill], ImportSupport[Bill], ExportSupport[Bill] {
+  override protected def indexSetting(): Unit = {
+    put("wards", entityDao.getAll(classOf[Ward]))
+    super.indexSetting()
+  }
 
   override protected def saveAndRedirect(bill: Bill): View = {
     if (!bill.persisted && !Strings.isEmpty(bill.wallet.inpatient.code)) {

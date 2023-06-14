@@ -24,13 +24,19 @@ import org.beangle.commons.collection.Collections
 import org.beangle.commons.lang.Strings
 import org.beangle.data.dao.OqlBuilder
 import org.beangle.web.action.view.View
-import org.beangle.webmvc.support.action.RestfulAction
+import org.beangle.webmvc.support.action.{ExportSupport, ImportSupport, RestfulAction}
 
 import java.time.{LocalDate, Year, YearMonth}
+import scala.collection.mutable
 
-class MealAction extends RestfulAction[Wallet] {
+class MealAction extends RestfulAction[Wallet], ImportSupport[Wallet], ExportSupport[Wallet] {
 
   var walletService: WalletService = _
+
+  override protected def indexSetting(): Unit = {
+    put("wards", entityDao.getAll(classOf[Ward]))
+    super.indexSetting()
+  }
 
   override protected def saveAndRedirect(wallet: Wallet): View = {
     if (!wallet.persisted && !Strings.isEmpty(wallet.inpatient.code)) {
@@ -51,42 +57,6 @@ class MealAction extends RestfulAction[Wallet] {
     val query = super.getQueryBuilder
     query.where("wallet.walletType=:walletType", WalletType.Meal)
     query
-  }
-
-  /**
-   * 统计首页
-   *
-   * @return
-   */
-  def stat(): View = {
-    val thisYear = Year.now
-    val years = List(thisYear.getValue, thisYear.minusYears(1).getValue, thisYear.minusYears(2).getValue)
-    put("year", get("year", thisYear.getValue.toString))
-    put("months", 1.to(12))
-    put("years", years)
-    forward()
-  }
-
-  /**
-   * 月度统计
-   *
-   * @return
-   */
-  def statMonth(): View = {
-    val year = getInt("year", 0)
-    val month = getInt("month", 1)
-    val ym = YearMonth.of(year, month)
-
-    val wards = entityDao.getAll(classOf[Ward])
-    put("wards", wards)
-
-    var stats: Iterable[WalletStat] = entityDao.findBy(classOf[WalletStat], "yearMonth", ym)
-    if (stats.isEmpty) {
-      stats = walletService.stat(ym, WalletType.Meal)
-    }
-    val wardStats = stats.groupBy(w => w.wallet.inpatient.ward)
-    put("wardStats", wardStats)
-    forward()
   }
 
 }

@@ -23,5 +23,5 @@ import java.time.YearMonth
 
 trait WalletService {
 
-  def stat(yearMonth: YearMonth,walletType: WalletType):Iterable[WalletStat]
+  def stat(yearMonth: YearMonth,walletType: WalletType,force:Boolean):Seq[WalletStat]
 }

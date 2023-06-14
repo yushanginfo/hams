@@ -20,6 +20,7 @@ package net.yushanginfo.hams.wallet.model
 import net.yushanginfo.hams.base.model.Inpatient
 import org.beangle.commons.collection.Collections
 import org.beangle.data.model.LongId
+import org.beangle.data.model.pojo.Updated
 
 import java.time.{Instant, YearMonth}
 import scala.collection.mutable
@@ -84,7 +85,7 @@ class Wallet extends LongId {
 /** 钱包的现金流量表
  * Statement of Cash Flow
  */
-class WalletStat extends LongId {
+class WalletStat extends LongId, Updated {
   var wallet: Wallet = _
   var yearMonth: YearMonth = _
   var startBalance: Yuan = _
@@ -96,6 +97,7 @@ class WalletStat extends LongId {
     this.incomes = incomes
     this.expenses = if expenses.value > 0 then Yuan(0 - expenses.value) else expenses
     this.endBalance = this.startBalance + this.incomes + this.expenses
+    this.updatedAt = Instant.now
     this
   }
 }

@@ -35,5 +35,6 @@ class DefaultModule extends BindModule {
     bind(classOf[FeeOriginAction])
     bind(classOf[CriticalLevelAction])
     bind(classOf[DiseaseTypeAction])
+    bind(classOf[IncomeChannelAction])
   }
 }

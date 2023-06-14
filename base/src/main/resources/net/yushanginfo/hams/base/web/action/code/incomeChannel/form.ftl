@@ -1,0 +1,16 @@
+[#ftl]
+[@b.head/]
+[@b.toolbar title="修改收入渠道"]bar.addBack();[/@]
+  [@b.form action=b.rest.save(incomeChannel) theme="list"]
+    [@b.textfield name="incomeChannel.code" label="代码" value="${incomeChannel.code!}" required="true" maxlength="20"/]
+    [@b.textfield name="incomeChannel.name" label="名称" value="${incomeChannel.name!}" required="true" maxlength="20"/]
+    [@b.textfield name="incomeChannel.enName" label="英文名称" value="${incomeChannel.enName!}" maxlength="100"/]
+    [@b.startend label="有效期限"
+      name="incomeChannel.beginOn,incomeChannel.endOn" required="false,false"
+      start=incomeChannel.beginOn end=incomeChannel.endOn format="date"/]
+    [@b.textfield name="incomeChannel.remark" label="备注" value="${incomeChannel.remark!}" maxlength="3"/]
+    [@b.formfoot]
+      [@b.reset/]&nbsp;&nbsp;[@b.submit value="action.submit"/]
+    [/@]
+  [/@]
+[@b.foot/]

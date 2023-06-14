@@ -27,10 +27,26 @@ class DefaultModule extends BindModule {
     bind(classOf[ChangeAction])
     bind(classOf[ChangeBillAction])
     bind(classOf[ChangeIncomeAction])
+    bind(classOf[ChangeStatAction])
 
     bind(classOf[MealAction])
     bind(classOf[MealBillAction])
     bind(classOf[MealIncomeAction])
     bind(classOf[MealSettingAction])
+    bind(classOf[MealStatAction])
+
+    bind(classOf[PensionAction])
+    bind(classOf[PensionBillAction])
+    bind(classOf[PensionIncomeAction])
+    bind(classOf[PensionStatAction])
+
+    bind(classOf[SubsidyAction])
+    bind(classOf[SubsidyBillAction])
+    bind(classOf[SubsidyIncomeAction])
+    bind(classOf[SubsidyStatAction])
+
+    bind(classOf[WalletSearchAction])
+    bind(classOf[BillSearchAction])
+    bind(classOf[IncomeSearchAction])
   }
 }
