@@ -24,7 +24,7 @@
       <td class="title">单位邮编：</td>
       <td>${(contact.orgPostcode)!}</td>
     </tr>
-    [#list inpatient.relations as r]
+    [#list inpatient.relations?sort_by('idx') as r]
     <tr>
       <td class="title">联系人：</td>
       <td>${r.name} (${r.relationship.name})</td>

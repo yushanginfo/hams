@@ -22,6 +22,7 @@ import net.yushanginfo.hams.base.service.CodeService
 import net.yushanginfo.hams.base.web.helper.InpatientImporterListener
 import net.yushanginfo.hams.code.model.*
 import org.beangle.commons.activation.{MediaType, MediaTypes}
+import org.beangle.commons.lang.Strings
 import org.beangle.data.dao.OqlBuilder
 import org.beangle.data.excel.schema.ExcelSchema
 import org.beangle.data.transfer.importer.listener.ForeignerListener
@@ -43,11 +44,18 @@ class InpatientAction extends RestfulAction[Inpatient], ExportSupport[Inpatient]
     put("feeOrigins", codeService.get(classOf[FeeOrigin]))
   }
 
-  override protected def editSetting(entity: Inpatient): Unit = {
+  override protected def editSetting(inpatient: Inpatient): Unit = {
     put("wards", entityDao.getAll(classOf[Ward]))
     put("genders", codeService.get(classOf[Gender]))
     put("statuses", codeService.get(classOf[InpatientStatus]))
-    super.editSetting(entity)
+    put("relationships", codeService.get(classOf[Relationship]))
+
+    val relation1 = inpatient.relations.find(_.idx == 1)
+    val relation2 = inpatient.relations.find(_.idx == 2)
+    put("relation1", relation1)
+    put("relation2", relation2)
+
+    super.editSetting(inpatient)
   }
 
   def downloadTemplate(): View = {
@@ -114,6 +122,26 @@ class InpatientAction extends RestfulAction[Inpatient], ExportSupport[Inpatient]
     val os = new ByteArrayOutputStream()
     schema.generate(os)
     Stream(new ByteArrayInputStream(os.toByteArray), MediaTypes.ApplicationXlsx.toString, "住院信息模板.xlsx")
+  }
+
+  private def processRelation(inpatient: Inpatient, idx: Int): Unit = {
+    val r1 = inpatient.relations.find(_.idx == idx).getOrElse(new Relation)
+    populate(r1, s"relation$idx")
+    r1.idx = idx
+    if (r1.relationship != null && Strings.isNotBlank(r1.name) && (r1.phone.nonEmpty || r1.address.nonEmpty)) {
+      if (!r1.persisted) {
+        r1.inpatient = inpatient
+        inpatient.relations.addOne(r1)
+      }
+    } else {
+      if (r1.persisted) inpatient.relations.subtractOne(r1)
+    }
+  }
+
+  override protected def saveAndRedirect(inpatient: Inpatient): View = {
+    processRelation(inpatient, 1)
+    processRelation(inpatient, 2)
+    super.saveAndRedirect(inpatient)
   }
 
   protected override def configImport(setting: ImportSetting): Unit = {
