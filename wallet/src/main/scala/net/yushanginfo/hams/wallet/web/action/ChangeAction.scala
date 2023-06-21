@@ -18,8 +18,9 @@
 package net.yushanginfo.hams.wallet.web.action
 
 import net.yushanginfo.hams.base.model.{Inpatient, Ward}
-import net.yushanginfo.hams.wallet.model.{Wallet, WalletStat, WalletType}
+import net.yushanginfo.hams.wallet.model.*
 import net.yushanginfo.hams.wallet.service.WalletService
+import org.beangle.commons.collection.Collections
 import org.beangle.commons.lang.Strings
 import org.beangle.data.dao.OqlBuilder
 import org.beangle.web.action.view.View
@@ -36,14 +37,52 @@ class ChangeAction extends RestfulAction[Wallet], ImportSupport[Wallet], ExportS
     super.indexSetting()
   }
 
+  def yearReport(): View = {
+    val inpatient = entityDao.find(classOf[Inpatient], getLongId("inpatient"))
+    val q = OqlBuilder.from(classOf[Wallet], "w")
+    q.where("w.walletType=:walletType", WalletType.Change)
+    q.where("w.inpatient=:inpatient", inpatient)
+    val wallet = entityDao.search(q).head
+
+    val year = getInt("year", Year.now().getValue)
+    val b = OqlBuilder.from(classOf[Bill], "bill")
+    b.where("bill.wallet.inpatient=:inpatient", inpatient)
+    b.where("bill.wallet.walletType=:walletType", WalletType.Change)
+    b.where("year(bill.payAt)=:year", year)
+    val bills = entityDao.search(b)
+
+    val i = OqlBuilder.from(classOf[Income], "income")
+    i.where("income.wallet.inpatient=:inpatient", inpatient)
+    i.where("income.wallet.walletType=:walletType", WalletType.Change)
+    i.where("year(income.payAt)=:year", year)
+    val incomes = entityDao.search(i)
+
+    val logs = Collections.newBuffer[Object]
+    logs.addAll(bills)
+    logs.addAll(incomes)
+    put("logs", logs)
+    put("year", year)
+    put("inpatient", inpatient)
+    forward()
+  }
+
+  def warning(): View = {
+    val setting = entityDao.getAll(classOf[WalletSetting]).head
+    val q = OqlBuilder.from(classOf[Wallet], "w")
+    q.where("w.walletType=:walletType", WalletType.Change)
+    q.where("w.inpatient.endAt is null")
+    q.where("w.balance < :minBalance", setting.warningChangeBalance)
+    q.limit(1, 20)
+    val wallets = entityDao.search(q)
+    put("wallets", wallets)
+    forward()
+  }
+
   override protected def saveAndRedirect(wallet: Wallet): View = {
     if (!wallet.persisted && !Strings.isEmpty(wallet.inpatient.code)) {
       entityDao.findBy(classOf[Inpatient], "code", wallet.inpatient.code).headOption match {
         case None => return redirect("index", "不正确的住院号")
         case Some(i) => wallet.inpatient = i
-      }
-      if (null == wallet.createdOn) {
-        wallet.createdOn = YearMonth.of(wallet.inpatient.beginAt.getYear, wallet.inpatient.beginAt.getMonth.getValue)
       }
       wallet.walletType = WalletType.Change
       wallet.balance = wallet.initBalance

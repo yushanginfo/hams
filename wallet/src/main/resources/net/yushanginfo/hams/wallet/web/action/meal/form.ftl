@@ -6,11 +6,11 @@
       [@b.field label="病人"]
         ${wallet.inpatient.code} ${wallet.inpatient.name}
         [@b.field label="当前余额"]${wallet.balance}元[/@]
-        [@b.field label="起始年月"]${wallet.createdOn?string("YYYY-MM")}[/@]
       [/@]
     [#else]
       [@b.textfield name="wallet.inpatient.code" label="住院号" value="" required="true" maxlength="10"/]
     [/#if]
+    [@b.date name="wallet.createdOn" label="起始日期" value=wallet.createdOn! format="date" required="true" /]
     [@b.textfield name="wallet.initBalance" label="起始余额" value=wallet.initBalance! required="true" comment="元"/]
     [@b.formfoot]
       [@b.reset/]&nbsp;&nbsp;[@b.submit value="action.submit"/]

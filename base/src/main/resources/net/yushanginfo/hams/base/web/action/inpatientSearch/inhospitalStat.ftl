@@ -1,0 +1,22 @@
+[#assign wards=[]/]
+[#assign counts=[]/]
+[#assign total=0/]
+[#list data as d]
+[#assign wards = wards + [d[1]]/]
+[#assign counts = counts + [d[2]]/]
+[#assign total = total + d[2]/]
+[/#list]
+[@b.head/]
+[#include "bars.ftl"/]
+  [@b.card class="card-info card-primary card-outline"]
+    [#assign title]<i class="fa-solid fa-user"></i>在院${total}人 [#if newer>0||discharging>0||leaving>0]今日[/#if][#if newer>0]入院${newer}人[/#if] [#if discharging>0]出院${discharging}人[/#if] [#if leaving>0]请假${leaving}人[/#if] [/#assign]
+    [@b.card_header class="border-transparent" title=title]
+    [/@]
+    [@b.card_body class="p-0"]
+      [@echarts id="chart_1"  height="360" xrotate=0  xname='病区' yname='在院人数'  names=wards values=counts/]
+      <script>
+         require(['echarts'],init_chart_1);
+      </script>
+    [/@]
+  [/@]
+[@b.foot/]

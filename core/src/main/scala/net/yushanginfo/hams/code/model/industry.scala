@@ -37,4 +37,21 @@ class InpatientStatus extends CodeBean
 class StaffType extends CodeBean
 
 /** 收入渠道 */
-class IncomeChannel extends CodeBean
+class IncomeChannel extends CodeBean {
+  def this(id: Int) = {
+    this()
+    this.id = id
+  }
+}
+
+object IncomeChannel {
+  val FromBank = 2
+  val FromPension = 4
+  val FromSubsidy = 5
+}
+
+class BankcardIncomeCategory extends CodeBean
+
+class LeaveCategory extends CodeBean {
+
+}

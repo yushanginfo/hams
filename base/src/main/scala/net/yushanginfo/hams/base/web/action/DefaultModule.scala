@@ -27,5 +27,6 @@ class DefaultModule extends BindModule {
     bind(classOf[WardAction])
     bind(classOf[StaffAction])
     bind(classOf[InpatientAction])
+    bind(classOf[InpatientSearchAction])
   }
 }

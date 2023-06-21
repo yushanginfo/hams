@@ -23,4 +23,3 @@ class ChangeStatAction extends WalletStatAction {
   override def walletType: WalletType = WalletType.Change
 
 }
-

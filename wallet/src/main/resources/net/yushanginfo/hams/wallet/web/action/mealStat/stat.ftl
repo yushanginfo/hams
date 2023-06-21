@@ -24,8 +24,8 @@
       <td>${stat.wallet.inpatient.bedNo!}</td>
       <td>${stat.wallet.inpatient.name}</td>
       <td>${stat.startBalance}</td>
-      <td>[#if stat.incomes.value>0]${stat.incomes}[/#if]</td>
-      <td>[#if stat.expenses.value>0]${stat.expenses}[/#if]</td>
+      <td>[#if stat.incomes.value != 0]${stat.incomes}[/#if]</td>
+      <td>[#if stat.expenses.value != 0]${stat.expenses}[/#if]</td>
       <td>${stat.endBalance}</td>
       <td></td>
     </tr>

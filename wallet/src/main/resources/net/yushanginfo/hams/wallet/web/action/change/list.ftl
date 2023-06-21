@@ -11,7 +11,7 @@
     [@b.boxcol /]
     [@b.col width="10%" property="inpatient.code" title="住院号"]${wallet.inpatient.code}[/@]
     [@b.col property="inpatient.name" title="姓名"]
-      [@b.a href="!info?id=${wallet.id}"]
+      [@b.a href="!yearReport?inpatient.id=${wallet.inpatient.id}" title="个人年度零用金收支明细表" target="_blank"]
         ${wallet.inpatient.name}
       [/@]
     [/@]

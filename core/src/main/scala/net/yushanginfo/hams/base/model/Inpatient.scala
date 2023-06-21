@@ -22,7 +22,7 @@ import org.beangle.commons.collection.Collections
 import org.beangle.data.model.LongId
 import org.beangle.data.model.pojo.{Coded, Named, TemporalAt}
 
-import java.time.{LocalDate, LocalDateTime}
+import java.time.{Instant, LocalDate, LocalDateTime}
 import scala.collection.mutable
 
 /**
@@ -73,10 +73,10 @@ class Inpatient extends LongId, Coded, Named {
   var relations: mutable.Buffer[Relation] = Collections.newBuffer[Relation]
 
   /** 请假日期 */
-  var leaveOn: Option[LocalDate] = None
+  var leaveAt: Option[Instant] = None
 
   /** 预计销假日期 */
-  var backOn: Option[LocalDate] = None
+  var backAt: Option[Instant] = None
 
   /** 费用来源 */
   var feeOrigin: FeeOrigin = _
@@ -87,7 +87,7 @@ class Inpatient extends LongId, Coded, Named {
   /** 登记人 */
   var createdBy: Option[String] = None
 
-  var beginAt: LocalDateTime = _
+  var beginAt: Instant = _
 
-  var endAt: Option[LocalDateTime] = None
+  var endAt: Option[Instant] = None
 }

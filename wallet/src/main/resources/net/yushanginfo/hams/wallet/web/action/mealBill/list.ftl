@@ -21,7 +21,7 @@
     [@b.col width="5%" property="inpatient.bedNo" title="床号"/]
     [@b.col width="8%" property="amount" title="支出金额"/]
     [@b.col width="8%" property="goods" title="消费明细"/]
-    [@b.col width="18%" property="payAt" title="记账时间"]
+    [@b.col width="18%" property="payAt" title="入账时间"]
       ${bill.payAt?string('yyyy-MM-dd HH:mm')}
     [/@]
   [/@]

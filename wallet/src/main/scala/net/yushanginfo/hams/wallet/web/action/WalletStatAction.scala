@@ -17,8 +17,8 @@
 
 package net.yushanginfo.hams.wallet.web.action
 
-import net.yushanginfo.hams.base.model.Ward
-import net.yushanginfo.hams.wallet.model.{Wallet, WalletStat, WalletType, Yuan}
+import net.yushanginfo.hams.base.model.{Ward, Yuan}
+import net.yushanginfo.hams.wallet.model.{Wallet, WalletStat, WalletType}
 import net.yushanginfo.hams.wallet.service.WalletService
 import net.yushanginfo.hams.wallet.service.impl.WalletServiceImpl
 import org.beangle.data.dao.{EntityDao, OqlBuilder}

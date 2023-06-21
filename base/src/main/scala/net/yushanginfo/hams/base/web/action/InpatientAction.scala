@@ -141,6 +141,7 @@ class InpatientAction extends RestfulAction[Inpatient], ExportSupport[Inpatient]
   override protected def saveAndRedirect(inpatient: Inpatient): View = {
     processRelation(inpatient, 1)
     processRelation(inpatient, 2)
+    processRelation(inpatient, 3)
     super.saveAndRedirect(inpatient)
   }
 

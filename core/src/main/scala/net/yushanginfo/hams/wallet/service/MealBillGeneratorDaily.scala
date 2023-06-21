@@ -43,6 +43,7 @@ class MealBillGeneratorDaily extends DaoJob {
       bill.goods = "伙食费"
       bill.updatedAt = Instant.now
       w.balance = w.balance - bill.amount
+      bill.balance = w.balance
       bills.addOne(bill)
     }
     entityDao.saveOrUpdate(bills, wallets)

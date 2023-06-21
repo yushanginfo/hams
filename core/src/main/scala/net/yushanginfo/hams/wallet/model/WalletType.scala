@@ -20,8 +20,4 @@ package net.yushanginfo.hams.wallet.model
 enum WalletType(val id: Int, val name: String) {
   case Meal extends WalletType(1, "伙食费")
   case Change extends WalletType(2, "零用金")
-  case Deposit extends WalletType(3, "住院押金")
-
-  case Subsidy extends WalletType(4, "养护补贴")
-  case Pension extends WalletType(5, "养老金")
 }

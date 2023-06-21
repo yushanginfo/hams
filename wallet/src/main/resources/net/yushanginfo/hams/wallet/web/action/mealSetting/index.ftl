@@ -16,6 +16,10 @@
     <td class="title" width="20%">每日伙食费金额</td>
     <td class="content">${setting.mealPricePerDay}元</td>
   </tr>
+  <tr>
+    <td class="title" width="20%">零用金低于多少时进行提醒</td>
+    <td class="content">${setting.warningChangeBalance}元</td>
+  </tr>
 </table>
 
 [@b.form name="settingEditForm" action="!edit?id=1"/]

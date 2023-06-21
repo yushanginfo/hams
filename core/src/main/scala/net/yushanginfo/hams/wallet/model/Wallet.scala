@@ -17,7 +17,8 @@
 
 package net.yushanginfo.hams.wallet.model
 
-import net.yushanginfo.hams.base.model.Inpatient
+import net.yushanginfo.hams.base.model.{Inpatient, Yuan}
+import net.yushanginfo.hams.code.model.IncomeChannel
 import org.beangle.commons.collection.Collections
 import org.beangle.data.model.LongId
 import org.beangle.data.model.pojo.Updated
@@ -62,6 +63,19 @@ class Wallet extends LongId {
 
   /** 初始余额 */
   var initBalance: Yuan = _
+
+  def income(amount: Yuan, payAt: Instant, channel: IncomeChannel): Income = {
+    val i = new Income
+    i.wallet = this
+    i.amount = amount
+    i.inpatient = this.inpatient
+    i.updatedAt = Instant.now
+    i.payAt = payAt
+    i.balance = this.balance + amount
+    i.channel = channel
+    this.balance = i.balance
+    i
+  }
 
   def addStat(yearMonth: YearMonth, incomes: Yuan, expenses: Yuan): Option[WalletStat] = {
     stats.find(x => x.yearMonth == yearMonth) match {

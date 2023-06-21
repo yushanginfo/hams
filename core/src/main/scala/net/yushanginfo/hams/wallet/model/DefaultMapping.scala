@@ -17,6 +17,8 @@
 
 package net.yushanginfo.hams.wallet.model
 
+import net.yushanginfo.hams.account.model.{Bankcard, BankcardBill, BankcardIncome}
+import net.yushanginfo.hams.base.model.YuanConverter
 import org.beangle.commons.conversion.impl.DefaultConversion
 import org.beangle.data.orm.{IdGenerator, MappingModule}
 
@@ -26,7 +28,6 @@ class DefaultMapping extends MappingModule {
     DefaultConversion.Instance.addConverter(YuanConverter)
     bind[Bill]
     bind[Income]
-    bind[LeaveCategory]
     bind[LeaveApply]
     bind[Visiting]
     bind[Wallet] declare { e =>
@@ -34,5 +35,7 @@ class DefaultMapping extends MappingModule {
     }
     bind[WalletStat]
     bind[WalletSetting]
+    bind[Deposit]
+
   }
 }

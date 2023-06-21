@@ -17,7 +17,7 @@
 
 package net.yushanginfo.hams.wallet.model
 
-import net.yushanginfo.hams.base.model.Inpatient
+import net.yushanginfo.hams.base.model.{Inpatient, Yuan}
 import org.beangle.data.model.LongId
 import org.beangle.data.model.pojo.Updated
 
@@ -33,6 +33,8 @@ class Bill extends LongId, Updated {
   var wallet: Wallet = _
   /** 数量 */
   var amount: Yuan = _
+  /** 结余 */
+  var balance: Yuan = _
   /** 支付时间 */
   var payAt: Instant = _
   /** 商品 */

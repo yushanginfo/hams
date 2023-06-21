@@ -18,10 +18,11 @@
 package net.yushanginfo.hams.wallet.model
 
 import net.yushanginfo.hams.base.model.Inpatient
+import net.yushanginfo.hams.code.model.LeaveCategory
 import org.beangle.data.model.LongId
 import org.beangle.data.model.pojo.{Coded, Updated}
 
-import java.time.LocalDate
+import java.time.{Instant, LocalDate}
 
 /**
  * 请假申请
@@ -31,10 +32,13 @@ class LeaveApply extends LongId, Updated, Coded {
   var inpatient: Inpatient = _
 
   /** 请假起始日期 */
-  var leaveOn: LocalDate = _
+  var leaveAt: Instant = _
+
+  /** 实际销假日期 */
+  var backAt: Option[Instant] = None
 
   /** 预计销假日期 */
-  var backOn: Option[LocalDate] = None
+  var predictBackAt: Option[Instant] = None
 
   /** 事由 */
   var reasons: String = _

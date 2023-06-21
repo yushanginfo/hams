@@ -17,6 +17,7 @@
 
 package net.yushanginfo.hams.wallet.service.impl
 
+import net.yushanginfo.hams.base.model.Yuan
 import net.yushanginfo.hams.wallet.model.*
 import net.yushanginfo.hams.wallet.service.WalletService
 import org.beangle.commons.collection.Collections
@@ -32,8 +33,8 @@ class WalletServiceImpl extends WalletService {
     val q = OqlBuilder.from(classOf[WalletStat], "ws")
     q.where("ws.yearMonth=:year", yearMonth)
     q.where("ws.wallet.walletType=:walletType", walletType)
-    val existedStat = entityDao.search(q)
-    if (existedStat.isEmpty || forceStat) {
+    val existedStats = entityDao.search(q)
+    if (existedStats.isEmpty || forceStat) {
       val lastMonth = yearMonth.minusMonths(1)
       val beginAt = yearMonth.atDay(1).atTime(0, 0, 0)
       val endAt = yearMonth.atEndOfMonth().atTime(23, 59, 59)
@@ -63,13 +64,13 @@ class WalletServiceImpl extends WalletService {
       val iq = OqlBuilder.from(classOf[Income], "i")
       iq.where("i.wallet.walletType=:walletType", walletType)
       iq.where("i.updatedAt between :beginAt and :endAt", beginAtZ, endAtZ)
-      val incomes = entityDao.search(bq)
+      val incomes = entityDao.search(iq)
 
       val billStats = bills.groupBy(_.inpatient)
       val incomeStats = incomes.groupBy(_.inpatient)
 
       wallets foreach { w =>
-        val walletStat = new WalletStat
+        val walletStat = existedStats.find(x => x.wallet == w && x.yearMonth == yearMonth).getOrElse(new WalletStat)
         walletStats.addOne(walletStat)
         walletStat.wallet = w
         walletStat.yearMonth = yearMonth
@@ -91,7 +92,7 @@ class WalletServiceImpl extends WalletService {
       entityDao.saveOrUpdate(walletStats)
       walletStats.toSeq
     } else {
-      existedStat
+      existedStats
     }
   }
 }

@@ -46,6 +46,8 @@ class DefaultMapping extends MappingModule {
     bind[DiseaseType]
     bind[IncomeChannel]
 
+    bind[BankcardIncomeCategory]
+    bind[LeaveCategory]
     all.cacheAll()
   }
 }

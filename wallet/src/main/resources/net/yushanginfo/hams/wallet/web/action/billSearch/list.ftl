@@ -12,7 +12,7 @@
     [@b.col width="8%" property="amount" title="支出金额"/]
     [@b.col width="8%" property="wallet.walletType" title="账户类型"]${bill.wallet.walletType.name}[/@]
     [@b.col width="8%" property="goods" title="消费明细"/]
-    [@b.col width="18%" property="payAt" title="记账时间"]
+    [@b.col width="18%" property="payAt" title="入账时间"]
       ${bill.payAt?string('yyyy-MM-dd HH:mm')}
     [/@]
   [/@]

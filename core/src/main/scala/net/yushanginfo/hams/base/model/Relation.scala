@@ -25,8 +25,14 @@ import org.beangle.data.model.pojo.Named
  */
 class Relation extends LongId, Named {
   var inpatient: Inpatient = _
+  /** 序号，从1开始 */
   var idx: Int = _
+  /** 关系 */
   var relationship: Relationship = _
+  /** 联系电卷 */
   var phone: Option[String] = None
+  /** 联系地址 */
   var address: Option[String] = None
+  /** 街道 */
+  var subdistrict: Option[String] = None
 }

@@ -17,15 +17,28 @@
 
 package net.yushanginfo.hams.wallet.web.action
 
-import net.yushanginfo.hams.wallet.model.{Wallet, WalletType}
+import net.yushanginfo.hams.base.model.{Inpatient, Ward}
+import net.yushanginfo.hams.wallet.model.{Deposit, Wallet, WalletType}
+import org.beangle.commons.lang.Strings
 import org.beangle.data.dao.OqlBuilder
-import org.beangle.webmvc.support.action.RestfulAction
+import org.beangle.web.action.view.View
+import org.beangle.webmvc.support.action.{ExportSupport, ImportSupport, RestfulAction}
 
-class DepositAction extends RestfulAction[Wallet] {
+class DepositAction extends RestfulAction[Deposit], ImportSupport[Deposit], ExportSupport[Deposit] {
 
-  override protected def getQueryBuilder: OqlBuilder[Wallet] = {
-    val query = super.getQueryBuilder
-    query.where("wallet.walletType=:walletType", WalletType.Deposit)
-    query
+  override protected def indexSetting(): Unit = {
+    put("wards", entityDao.getAll(classOf[Ward]))
   }
+
+  override protected def saveAndRedirect(deposit: Deposit): View = {
+    if (!deposit.persisted && !Strings.isEmpty(deposit.inpatient.code)) {
+      entityDao.findBy(classOf[Inpatient], "code", deposit.inpatient.code).headOption match {
+        case None => return redirect("index", "不正确的住院号")
+        case Some(i) => deposit.inpatient = i
+      }
+      deposit.payAt = deposit.inpatient.beginAt
+    }
+    super.saveAndRedirect(deposit)
+  }
+
 }

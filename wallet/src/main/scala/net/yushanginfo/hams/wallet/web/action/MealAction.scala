@@ -38,14 +38,23 @@ class MealAction extends RestfulAction[Wallet], ImportSupport[Wallet], ExportSup
     super.indexSetting()
   }
 
+  def warning(): View = {
+    val setting = entityDao.getAll(classOf[WalletSetting]).head
+    val q = OqlBuilder.from(classOf[Wallet], "w")
+    q.where("w.walletType=:walletType", WalletType.Meal)
+    q.where("w.inpatient.endAt is null")
+    q.where("w.balance < :minBalance", setting.warningMealBalance)
+    q.limit(1, 20)
+    val wallets = entityDao.search(q)
+    put("wallets", wallets)
+    forward()
+  }
+
   override protected def saveAndRedirect(wallet: Wallet): View = {
     if (!wallet.persisted && !Strings.isEmpty(wallet.inpatient.code)) {
       entityDao.findBy(classOf[Inpatient], "code", wallet.inpatient.code).headOption match {
         case None => return redirect("index", "不正确的住院号")
         case Some(i) => wallet.inpatient = i
-      }
-      if (null == wallet.createdOn) {
-        wallet.createdOn = YearMonth.of(wallet.inpatient.beginAt.getYear, wallet.inpatient.beginAt.getMonth.getValue)
       }
       wallet.walletType = WalletType.Meal
       wallet.balance = wallet.initBalance

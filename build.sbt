@@ -26,7 +26,7 @@ ThisBuild / resolvers += Resolver.mavenLocal
 
 lazy val root = (project in file("."))
   .settings()
-  .aggregate(core, base, wallet)
+  .aggregate(core, base, wallet, account, leave)
 
 lazy val core = (project in file("core"))
   .settings(
@@ -49,6 +49,24 @@ lazy val wallet = (project in file("wallet"))
   .enablePlugins(WarPlugin, TomcatPlugin)
   .settings(
     name := "hams-wallet",
+    common,
+    crossPaths := false,
+    libraryDependencies ++= appDepends
+  ).dependsOn(core)
+
+lazy val account = (project in file("account"))
+  .enablePlugins(WarPlugin, TomcatPlugin)
+  .settings(
+    name := "hams-account",
+    common,
+    crossPaths := false,
+    libraryDependencies ++= appDepends
+  ).dependsOn(core)
+
+lazy val leave = (project in file("leave"))
+  .enablePlugins(WarPlugin, TomcatPlugin)
+  .settings(
+    name := "hams-leave",
     common,
     crossPaths := false,
     libraryDependencies ++= appDepends

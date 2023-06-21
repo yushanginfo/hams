@@ -41,6 +41,7 @@ object HisDepends {
 
   val appDepends = Seq(commonsCore, commonsFile, logback_classic, logback_core, scalatest, webAction, cdiApi, cdiSpring, gson, HikariCP) ++
     Seq(dataOrm, hibernate_core, dataJdbc, cacheApi, cacheCaffeine, securitySession, securityCas, templateApi) ++
-    Seq(postgresql, caffeine_jcache, emsApp, hibernate_jcache,webmvcSupport, webmvcView,dataTransfer,serializerText)
+    Seq(postgresql, caffeine_jcache, emsApp, hibernate_jcache, webmvcSupport, webmvcView, dataTransfer, serializerText) ++
+    Seq(templateFreemarker)
 
 }

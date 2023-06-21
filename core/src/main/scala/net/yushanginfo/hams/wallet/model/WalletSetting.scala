@@ -17,6 +17,7 @@
 
 package net.yushanginfo.hams.wallet.model
 
+import net.yushanginfo.hams.base.model.Yuan
 import org.beangle.data.model.IntId
 
 /**
@@ -26,6 +27,9 @@ class WalletSetting extends IntId {
 
   /** 引发伙食费提醒的余额阈值 */
   var warningMealBalance: Yuan = _
+
+  /** 引发零用金提醒的余额阈值 */
+  var warningChangeBalance: Yuan = _
 
   /** 每日伙食费单价 */
   var mealPricePerDay: Yuan = _
