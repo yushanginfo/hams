@@ -5,7 +5,9 @@
     bar.addItem("${b.text("action.new")}",action.add());
     bar.addItem("${b.text("action.modify")}",action.edit());
     bar.addItem("${b.text("action.delete")}",action.remove("确认删除?"));
-    //bar.addItem("导入",action.method('importForm'));
+    bar.addItem("${b.text("action.export")}",action.exportData("inpatient.code:住院号,inpatient.name:姓名,"+
+                 "inpatient.gender.name:性别,inpatient.ward.name:病区,inpatient.bedNo:床号,"+
+                 "balance:余额,bank:银行,cardNo:卡号",null,'fileName=银行卡信息'));
   [/@]
   [@b.row]
     [@b.boxcol /]

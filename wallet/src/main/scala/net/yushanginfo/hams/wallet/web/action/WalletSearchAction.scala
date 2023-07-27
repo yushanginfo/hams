@@ -17,7 +17,7 @@
 
 package net.yushanginfo.hams.wallet.web.action
 
-import net.yushanginfo.hams.wallet.model.{Wallet, WalletType}
+import net.yushanginfo.hams.wallet.model.{Wallet, WalletSetting, WalletType}
 import org.beangle.data.dao.{EntityDao, OqlBuilder}
 import org.beangle.web.action.support.ActionSupport
 import org.beangle.web.action.view.View
@@ -30,6 +30,26 @@ class WalletSearchAction extends ActionSupport, EntityAction[Wallet], ExportSupp
   def index(): View = {
     put("walletTypes", WalletType.values)
     put("wards", entityDao.getAll(classOf[Wallet]))
+    forward()
+  }
+
+  def warning(): View = {
+    val setting = entityDao.getAll(classOf[WalletSetting]).head
+    val walletType = getInt("walletType", 1)
+    val q = OqlBuilder.from(classOf[Wallet], "w")
+    q.where("w.inpatient.endAt is null")
+    if (walletType == 1) {
+      q.where("w.walletType=:walletType", WalletType.Meal)
+      q.where("w.balance < :minBalance", setting.warningMealBalance)
+    } else {
+      q.where("w.walletType=:walletType", WalletType.Change)
+      q.where("w.balance < :minBalance", setting.warningChangeBalance)
+    }
+    q.orderBy("w.inpatient.bedNo")
+    q.limit(1, 20)
+    val wallets = entityDao.search(q)
+    put("wallets", wallets)
+    put("walletType", walletType)
     forward()
   }
 

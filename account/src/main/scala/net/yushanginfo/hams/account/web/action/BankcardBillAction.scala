@@ -17,19 +17,28 @@
 
 package net.yushanginfo.hams.account.web.action
 
-import net.yushanginfo.hams.account.model.{Bankcard, BankcardBill, Pension}
-import net.yushanginfo.hams.base.model.{Inpatient, Ward}
+import net.yushanginfo.hams.account.model.{Bankcard, BankcardBill}
+import net.yushanginfo.hams.base.model.Ward
+import net.yushanginfo.hams.base.service.InpatientService
 import net.yushanginfo.hams.code.model.IncomeChannel
-import net.yushanginfo.hams.wallet.model.{Bill, Deposit, Wallet, WalletType}
+import net.yushanginfo.hams.wallet.model.WalletType
+import net.yushanginfo.hams.wallet.service.WalletService
+import org.beangle.commons.collection.Properties
 import org.beangle.commons.lang.Strings
 import org.beangle.data.dao.OqlBuilder
+import org.beangle.web.action.annotation.response
 import org.beangle.web.action.view.View
 import org.beangle.webmvc.support.action.{ExportSupport, ImportSupport, RestfulAction}
+import org.beangle.webmvc.support.helper.QueryHelper
 
 /**
  * 银行卡支出
  */
 class BankcardBillAction extends RestfulAction[BankcardBill], ImportSupport[BankcardBill], ExportSupport[BankcardBill] {
+  var walletService: WalletService = _
+
+  var inpatientService: InpatientService = _
+
   override protected def simpleEntityName: String = "bill"
 
   override protected def indexSetting(): Unit = {
@@ -42,28 +51,51 @@ class BankcardBillAction extends RestfulAction[BankcardBill], ImportSupport[Bank
     super.editSetting(bill)
   }
 
+  override protected def getQueryBuilder: OqlBuilder[BankcardBill] = {
+    val query = super.getQueryBuilder
+    QueryHelper.dateBetween(query, null, "payAt", "beginAt", "endAt")
+    query
+  }
+
   override protected def saveAndRedirect(bill: BankcardBill): View = {
-    if (!bill.persisted && !Strings.isEmpty(bill.account.cardNo)) {
-      entityDao.findBy(classOf[Bankcard], "cardNo", bill.account.cardNo).headOption match {
-        case None => return redirect("index", "不正确的银行卡号")
-        case Some(i) => bill.account = i
+    if (!bill.persisted && null != bill.account && bill.account.persisted) {
+      bill.account = entityDao.get(classOf[Bankcard], bill.account.id)
+    }
+    if (!bill.persisted) {
+      val bankcard = entityDao.get(classOf[Bankcard], bill.account.id)
+      val newBill = bankcard.newBill(bill.amount, bill.payAt, bill.expenses)
+      entityDao.saveOrUpdate(bankcard, newBill)
+      bill.expenses.trim match
+        case "转零用金" =>
+          walletService.getWallet(bankcard.inpatient.code, WalletType.Change) foreach { w =>
+            val income = w.newIncome(bill.amount, bill.payAt, new IncomeChannel(IncomeChannel.FromBank))
+            entityDao.saveOrUpdate(income, w)
+          }
+          bill.toWallet = Some(WalletType.Change)
+        case _ =>
+      super.saveAndRedirect(newBill)
+    } else {
+      super.saveAndRedirect(bill)
+    }
+  }
+
+  @response
+  def cardNos(): Properties = {
+    val rs = new Properties()
+    val code = get("inpatientCode", "")
+    if (Strings.isNotBlank(code)) {
+      inpatientService.getInpatient(code) foreach { p =>
+        rs.put("person", p.name + " " + p.person.idcard.getOrElse(""))
+        val cards = entityDao.findBy(classOf[Bankcard], "inpatient", p)
+        val cardInfos = cards.map { x =>
+          val p = new Properties(x, "id", "bank", "cardNo")
+          p.put("balance", x.balance.toString())
+          p
+        }
+        rs.put("cards", cardInfos)
       }
     }
-    val bankcard = entityDao.get(classOf[Bankcard], bill.account.id)
-    bill.balance = bankcard.balance - bill.amount
-    bankcard.balance = bill.balance
-    entityDao.saveOrUpdate(bankcard, bill)
-
-    bill.expenses.trim match
-      case "转零用金" =>
-        val wallet = entityDao.findBy(classOf[Wallet], "inpatient" -> bankcard.inpatient, "walletType" -> WalletType.Change).headOption
-        wallet foreach { w =>
-          val income = w.income(bill.amount, bill.payAt, new IncomeChannel(IncomeChannel.FromBank))
-          entityDao.saveOrUpdate(income, wallet)
-        }
-        bill.toWallet = Some(WalletType.Change)
-      case _ =>
-    super.saveAndRedirect(bill)
+    rs
   }
 
 }

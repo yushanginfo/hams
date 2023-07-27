@@ -23,6 +23,7 @@ import org.beangle.commons.lang.Strings
 import org.beangle.data.dao.OqlBuilder
 import org.beangle.web.action.view.View
 import org.beangle.webmvc.support.action.{ExportSupport, ImportSupport, RestfulAction}
+import org.beangle.webmvc.support.helper.QueryHelper
 
 class SubsidyIncomeAction extends RestfulAction[SubsidyIncome], ImportSupport[SubsidyIncome], ExportSupport[SubsidyIncome] {
   override protected def simpleEntityName: String = "income"
@@ -30,6 +31,12 @@ class SubsidyIncomeAction extends RestfulAction[SubsidyIncome], ImportSupport[Su
   override protected def indexSetting(): Unit = {
     put("wards", entityDao.getAll(classOf[Ward]))
     super.indexSetting()
+  }
+
+  override protected def getQueryBuilder: OqlBuilder[SubsidyIncome] = {
+    val query = super.getQueryBuilder
+    QueryHelper.dateBetween(query, null, "payAt", "beginAt", "endAt")
+    query
   }
 
   override protected def saveAndRedirect(income: SubsidyIncome): View = {

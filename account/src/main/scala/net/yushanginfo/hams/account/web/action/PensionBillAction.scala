@@ -25,6 +25,7 @@ import org.beangle.commons.lang.Strings
 import org.beangle.data.dao.OqlBuilder
 import org.beangle.web.action.view.View
 import org.beangle.webmvc.support.action.{ExportSupport, ImportSupport, RestfulAction}
+import org.beangle.webmvc.support.helper.QueryHelper
 
 /**
  * 养老金支出
@@ -37,6 +38,11 @@ class PensionBillAction extends RestfulAction[PensionBill], ImportSupport[Pensio
     super.indexSetting()
   }
 
+  override protected def getQueryBuilder: OqlBuilder[PensionBill] = {
+    val query = super.getQueryBuilder
+    QueryHelper.dateBetween(query, null, "payAt", "beginAt", "endAt")
+    query
+  }
   override protected def saveAndRedirect(bill: PensionBill): View = {
     if (!bill.persisted && !Strings.isEmpty(bill.account.inpatient.code)) {
       entityDao.findBy(classOf[Inpatient], "code", bill.account.inpatient.code).headOption match {
@@ -60,27 +66,17 @@ class PensionBillAction extends RestfulAction[PensionBill], ImportSupport[Pensio
       case "转零用金" =>
         val wallet = entityDao.findBy(classOf[Wallet], "inpatient" -> pension.inpatient, "walletType" -> WalletType.Change).headOption
         wallet foreach { w =>
-          val income = w.income(bill.amount, bill.payAt, new IncomeChannel(IncomeChannel.FromPension))
+          val income = w.newIncome(bill.amount, bill.payAt, new IncomeChannel(IncomeChannel.FromPension))
           entityDao.saveOrUpdate(income, wallet)
         }
         bill.toWallet = Some(WalletType.Change)
       case "转伙食费" =>
         val wallet = entityDao.findBy(classOf[Wallet], "inpatient" -> pension.inpatient, "walletType" -> WalletType.Meal).headOption
         wallet foreach { w =>
-          val income = w.income(bill.amount, bill.payAt, new IncomeChannel(IncomeChannel.FromPension))
+          val income = w.newIncome(bill.amount, bill.payAt, new IncomeChannel(IncomeChannel.FromPension))
           entityDao.saveOrUpdate(income, wallet)
         }
         bill.toWallet = Some(WalletType.Meal)
-      case "转住院押金" =>
-        val deposits = entityDao.findBy(classOf[Deposit], "inpatient" -> pension.inpatient)
-        val deposit =
-          deposits.filter(_.amount.value == 0).headOption match {
-            case None => new Deposit(pension.inpatient, bill.payAt)
-            case Some(d) => d
-          }
-        deposit.amount = bill.balance
-        entityDao.saveOrUpdate(deposit)
-        bill.toDeposit = true
       case _ =>
     super.saveAndRedirect(bill)
   }

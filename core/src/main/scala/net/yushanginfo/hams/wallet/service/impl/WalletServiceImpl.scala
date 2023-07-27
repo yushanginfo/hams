@@ -29,6 +29,12 @@ import scala.collection.mutable
 class WalletServiceImpl extends WalletService {
   var entityDao: EntityDao = _
 
+  def getWallet(code: String, walletType: WalletType): Option[Wallet] = {
+    val q = OqlBuilder.from(classOf[Wallet], "wallet")
+    q.where("wallet.inpatient.code=:inpatient and wallet.walletType=:type", code, walletType)
+    entityDao.search(q).headOption
+  }
+
   override def stat(yearMonth: YearMonth, walletType: WalletType, forceStat: Boolean): Seq[WalletStat] = {
     val q = OqlBuilder.from(classOf[WalletStat], "ws")
     q.where("ws.yearMonth=:year", yearMonth)
@@ -36,11 +42,8 @@ class WalletServiceImpl extends WalletService {
     val existedStats = entityDao.search(q)
     if (existedStats.isEmpty || forceStat) {
       val lastMonth = yearMonth.minusMonths(1)
-      val beginAt = yearMonth.atDay(1).atTime(0, 0, 0)
-      val endAt = yearMonth.atEndOfMonth().atTime(23, 59, 59)
-
-      val beginAtZ = beginAt.atZone(ZoneId.systemDefault).toInstant
-      val endAtZ = endAt.atZone(ZoneId.systemDefault).toInstant
+      val beginAt = yearMonth.atDay(1).atTime(0, 0, 0).atZone(ZoneId.systemDefault).toInstant
+      val endAt = yearMonth.atEndOfMonth().atTime(23, 59, 59).atZone(ZoneId.systemDefault).toInstant
 
       val lq = OqlBuilder.from(classOf[WalletStat], "ws")
       lq.where("ws.wallet.walletType=:walletType", walletType)
@@ -49,7 +52,7 @@ class WalletServiceImpl extends WalletService {
 
       //find all meal wallet for active inpatient
       val q = OqlBuilder.from(classOf[Wallet], "w")
-      q.where("w.inpatient.beginAt <= :endAt", endAt)
+      q.where("w.createdOn<=:yearMonth", yearMonth.atEndOfMonth())
       q.where("w.inpatient.endAt is null or :beginAt >= w.inpatient.endAt", beginAt)
       q.where("w.walletType=:walletType", walletType)
       val wallets = entityDao.search(q)
@@ -58,12 +61,12 @@ class WalletServiceImpl extends WalletService {
 
       val bq = OqlBuilder.from(classOf[Bill], "b")
       bq.where("b.wallet.walletType=:walletType", walletType)
-      bq.where("b.payAt between :beginAt and :endAt", beginAtZ, endAtZ)
+      bq.where("b.payAt between :beginAt and :endAt", beginAt, endAt)
       val bills = entityDao.search(bq)
 
       val iq = OqlBuilder.from(classOf[Income], "i")
       iq.where("i.wallet.walletType=:walletType", walletType)
-      iq.where("i.updatedAt between :beginAt and :endAt", beginAtZ, endAtZ)
+      iq.where("i.updatedAt between :beginAt and :endAt", beginAt, endAt)
       val incomes = entityDao.search(iq)
 
       val billStats = bills.groupBy(_.inpatient)

@@ -1,5 +1,5 @@
-import _root_.org.beangle.parent.Settings._
-import HisDepends._
+import HisDepends.*
+import _root_.org.beangle.parent.Settings.*
 
 ThisBuild / organization := "net.yushanginfo.hams"
 ThisBuild / version := "0.0.1-SNAPSHOT"
@@ -10,7 +10,6 @@ ThisBuild / scmInfo := Some(
     "scm:git@github.com:yushanginfo/hams.git"
   )
 )
-
 ThisBuild / developers := List(
   Developer(
     id = "chaostone",
@@ -23,10 +22,12 @@ ThisBuild / developers := List(
 ThisBuild / description := "HAMS"
 ThisBuild / homepage := Some(url("http://yushanginfo.github.io/hams/index.html"))
 ThisBuild / resolvers += Resolver.mavenLocal
+val beangle_web_action = "org.beangle.web" % "beangle-web-action_3" % "0.4.4-SNAPSHOT"
+val beangle_webmvc_view = "org.beangle.webmvc" % "beangle-webmvc-view_3" % "0.9.6-SNAPSHOT"
 
 lazy val root = (project in file("."))
   .settings()
-  .aggregate(core, base, wallet, account, leave)
+  .aggregate(core, base, wallet, account, leave, ebuy)
 
 lazy val core = (project in file("core"))
   .settings(
@@ -42,7 +43,8 @@ lazy val base = (project in file("base"))
     name := "hams-base",
     common,
     crossPaths := false,
-    libraryDependencies ++= appDepends
+    libraryDependencies ++= appDepends,
+    libraryDependencies ++= Seq(beangle_web_action, beangle_webmvc_view)
   ).dependsOn(core)
 
 lazy val wallet = (project in file("wallet"))
@@ -51,7 +53,8 @@ lazy val wallet = (project in file("wallet"))
     name := "hams-wallet",
     common,
     crossPaths := false,
-    libraryDependencies ++= appDepends
+    libraryDependencies ++= appDepends,
+    libraryDependencies ++= Seq(beangle_web_action, beangle_webmvc_view)
   ).dependsOn(core)
 
 lazy val account = (project in file("account"))
@@ -60,7 +63,8 @@ lazy val account = (project in file("account"))
     name := "hams-account",
     common,
     crossPaths := false,
-    libraryDependencies ++= appDepends
+    libraryDependencies ++= appDepends,
+    libraryDependencies ++= Seq(beangle_web_action, beangle_webmvc_view)
   ).dependsOn(core)
 
 lazy val leave = (project in file("leave"))
@@ -69,7 +73,18 @@ lazy val leave = (project in file("leave"))
     name := "hams-leave",
     common,
     crossPaths := false,
-    libraryDependencies ++= appDepends
+    libraryDependencies ++= appDepends,
+    libraryDependencies ++= Seq(beangle_web_action, beangle_webmvc_view)
+  ).dependsOn(core)
+
+lazy val ebuy = (project in file("ebuy"))
+  .enablePlugins(WarPlugin, TomcatPlugin)
+  .settings(
+    name := "hams-ebuy",
+    common,
+    crossPaths := false,
+    libraryDependencies ++= appDepends,
+    libraryDependencies ++= Seq(beangle_web_action, beangle_webmvc_view)
   ).dependsOn(core)
 
 publish / skip := true

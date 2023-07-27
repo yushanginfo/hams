@@ -22,20 +22,22 @@ import org.beangle.data.model.LongId
 
 import java.time.LocalDate
 
+/** 人员基本信息
+ */
 class Person extends LongId {
   /** 性别 */
   var gender: Gender = _
 
-  /**姓名*/
+  /** 姓名 */
   var name: String = _
 
   /** 姓名拼音 */
   var phoneticName: Option[String] = None
 
-  /**五笔姓名*/
+  /** 五笔姓名 */
   var wubiName: Option[String] = None
 
-  /**职业*/
+  /** 职业 */
   var profession: Option[String] = None
 
   /** 身份证件类型 */
@@ -53,7 +55,7 @@ class Person extends LongId {
   /** 出生日期 */
   var birthday: Option[LocalDate] = None
 
-  /**婚姻状况*/
+  /** 婚姻状况 */
   var maritalStatus: Option[MaritalStatus] = None
 
   /** 出生地(省) */

@@ -17,20 +17,20 @@
 
 package net.yushanginfo.hams.account.model
 
-import net.yushanginfo.hams.base.model.{Inpatient, Yuan}
-import net.yushanginfo.hams.wallet.model.{Wallet, WalletType}
+import net.yushanginfo.hams.base.model.Yuan
+import net.yushanginfo.hams.wallet.model.WalletType
 import org.beangle.data.model.LongId
-import org.beangle.data.model.pojo.Updated
+import org.beangle.data.model.pojo.{Remark, Updated}
 
 import java.time.Instant
 
 /**
  * 养老金消费账单
  */
-class PensionBill extends LongId, Updated {
+class PensionBill extends LongId, Updated, Remark {
   /** 养老金 */
   var account: Pension = _
-  /** 数量 */
+  /** 金额 */
   var amount: Yuan = _
   /** 结余 */
   var balance: Yuan = _
@@ -40,6 +40,4 @@ class PensionBill extends LongId, Updated {
   var expenses: String = _
   /** 转入钱包 */
   var toWallet: Option[WalletType] = None
-  /** 转住院费 */
-  var toDeposit: Boolean = _
 }

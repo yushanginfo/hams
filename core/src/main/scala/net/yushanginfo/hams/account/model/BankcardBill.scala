@@ -24,6 +24,8 @@ import org.beangle.data.model.pojo.Updated
 
 import java.time.Instant
 
+/** 银行卡消费账单
+ */
 class BankcardBill extends LongId, Updated {
 
   var account: Bankcard = _
@@ -40,7 +42,4 @@ class BankcardBill extends LongId, Updated {
 
   /** 转入钱包 */
   var toWallet: Option[WalletType] = None
-
-  /** 转住院费 */
-  var toDeposit: Boolean = _
 }

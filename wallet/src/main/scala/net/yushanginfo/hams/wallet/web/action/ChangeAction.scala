@@ -26,7 +26,7 @@ import org.beangle.data.dao.OqlBuilder
 import org.beangle.web.action.view.View
 import org.beangle.webmvc.support.action.{ExportSupport, ImportSupport, RestfulAction}
 
-import java.time.{Year, YearMonth}
+import java.time.Year
 
 class ChangeAction extends RestfulAction[Wallet], ImportSupport[Wallet], ExportSupport[Wallet] {
 
@@ -38,43 +38,41 @@ class ChangeAction extends RestfulAction[Wallet], ImportSupport[Wallet], ExportS
   }
 
   def yearReport(): View = {
-    val inpatient = entityDao.find(classOf[Inpatient], getLongId("inpatient"))
-    val q = OqlBuilder.from(classOf[Wallet], "w")
-    q.where("w.walletType=:walletType", WalletType.Change)
-    q.where("w.inpatient=:inpatient", inpatient)
-    val wallet = entityDao.search(q).head
-
     val year = getInt("year", Year.now().getValue)
-    val b = OqlBuilder.from(classOf[Bill], "bill")
-    b.where("bill.wallet.inpatient=:inpatient", inpatient)
-    b.where("bill.wallet.walletType=:walletType", WalletType.Change)
-    b.where("year(bill.payAt)=:year", year)
-    val bills = entityDao.search(b)
+    val inpatientIds = getLongIds("inpatient")
+    val inpatients =
+      if null != inpatientIds && inpatientIds.nonEmpty then
+        entityDao.find(classOf[Inpatient], inpatientIds)
+      else
+        entityDao.find(classOf[Wallet], getLongIds("wallet")).map(_.inpatient)
 
-    val i = OqlBuilder.from(classOf[Income], "income")
-    i.where("income.wallet.inpatient=:inpatient", inpatient)
-    i.where("income.wallet.walletType=:walletType", WalletType.Change)
-    i.where("year(income.payAt)=:year", year)
-    val incomes = entityDao.search(i)
+    val inpatientLogs = Collections.newMap[Inpatient, Object]
+    inpatients foreach { inpatient =>
+      val q = OqlBuilder.from(classOf[Wallet], "w")
+      q.where("w.walletType=:walletType", WalletType.Change)
+      q.where("w.inpatient=:inpatient", inpatient)
+      val wallet = entityDao.search(q).head
 
-    val logs = Collections.newBuffer[Object]
-    logs.addAll(bills)
-    logs.addAll(incomes)
-    put("logs", logs)
+      val b = OqlBuilder.from(classOf[Bill], "bill")
+      b.where("bill.wallet.inpatient=:inpatient", inpatient)
+      b.where("bill.wallet.walletType=:walletType", WalletType.Change)
+      b.where("year(bill.payAt)=:year", year)
+      val bills = entityDao.search(b)
+
+      val i = OqlBuilder.from(classOf[Income], "income")
+      i.where("income.wallet.inpatient=:inpatient", inpatient)
+      i.where("income.wallet.walletType=:walletType", WalletType.Change)
+      i.where("year(income.payAt)=:year", year)
+      val incomes = entityDao.search(i)
+
+      val logs = Collections.newBuffer[Object]
+      logs.addAll(bills)
+      logs.addAll(incomes)
+      inpatientLogs.put(inpatient, logs)
+    }
+    put("inpatientLogs", inpatientLogs)
     put("year", year)
-    put("inpatient", inpatient)
-    forward()
-  }
-
-  def warning(): View = {
-    val setting = entityDao.getAll(classOf[WalletSetting]).head
-    val q = OqlBuilder.from(classOf[Wallet], "w")
-    q.where("w.walletType=:walletType", WalletType.Change)
-    q.where("w.inpatient.endAt is null")
-    q.where("w.balance < :minBalance", setting.warningChangeBalance)
-    q.limit(1, 20)
-    val wallets = entityDao.search(q)
-    put("wallets", wallets)
+    put("inpatients", inpatients)
     forward()
   }
 

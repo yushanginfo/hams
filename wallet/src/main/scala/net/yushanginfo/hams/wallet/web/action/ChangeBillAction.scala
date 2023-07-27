@@ -19,15 +19,19 @@ package net.yushanginfo.hams.wallet.web.action
 
 import net.yushanginfo.hams.base.model.{Inpatient, Ward}
 import net.yushanginfo.hams.wallet.model.{Bill, Wallet, WalletType}
+import net.yushanginfo.hams.wallet.service.WalletService
 import org.beangle.commons.lang.Strings
 import org.beangle.data.dao.OqlBuilder
 import org.beangle.web.action.view.View
 import org.beangle.webmvc.support.action.{ExportSupport, ImportSupport, RestfulAction}
+import org.beangle.webmvc.support.helper.QueryHelper
 
 /**
  * 伙食费支出
  */
 class ChangeBillAction extends RestfulAction[Bill], ImportSupport[Bill], ExportSupport[Bill] {
+  var walletService: WalletService = _
+
   override protected def indexSetting(): Unit = {
     put("wards", entityDao.getAll(classOf[Ward]))
     super.indexSetting()
@@ -35,27 +39,22 @@ class ChangeBillAction extends RestfulAction[Bill], ImportSupport[Bill], ExportS
 
   override protected def saveAndRedirect(bill: Bill): View = {
     if (!bill.persisted && !Strings.isEmpty(bill.wallet.inpatient.code)) {
-      entityDao.findBy(classOf[Inpatient], "code", bill.wallet.inpatient.code).headOption match {
-        case None => return redirect("index", "不正确的住院号")
-        case Some(i) =>
-          val q = OqlBuilder.from(classOf[Wallet], "wallet")
-          q.where("wallet.inpatient=:inpatient and wallet.walletType=:type", i, WalletType.Change)
-          val wallet = entityDao.search(q).headOption match {
-            case Some(w) => w
-            case None =>
-              val w = Wallet(i, WalletType.Change)
-              entityDao.saveOrUpdate(w)
-              w
-          }
-          bill.inpatient = i
-          bill.wallet = wallet
+      val wallet = walletService.getWallet(bill.wallet.inpatient.code, WalletType.Change)
+      wallet match {
+        case None => return redirect("index", "没有对应住院号的零用金账户")
+        case Some(w) =>
+          val nbill = w.newBill(bill.amount, bill.payAt, bill.goods)
+          entityDao.saveOrUpdate(wallet, nbill)
+          super.saveAndRedirect(nbill)
       }
+    } else {
+      super.saveAndRedirect(bill)
     }
-    super.saveAndRedirect(bill)
   }
 
   override protected def getQueryBuilder: OqlBuilder[Bill] = {
     val query = super.getQueryBuilder
+    QueryHelper.dateBetween(query, null, "payAt", "beginAt", "endAt")
     query.where("bill.wallet.walletType=:walletType", WalletType.Change)
     query
   }

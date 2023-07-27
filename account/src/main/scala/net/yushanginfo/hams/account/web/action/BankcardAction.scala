@@ -20,15 +20,17 @@ package net.yushanginfo.hams.account.web.action
 import net.yushanginfo.hams.account.model.Bankcard
 import net.yushanginfo.hams.account.service.BankcardService
 import net.yushanginfo.hams.base.model.{Inpatient, Ward}
+import net.yushanginfo.hams.base.service.InpatientService
+import org.beangle.commons.collection.Properties
 import org.beangle.commons.lang.Strings
+import org.beangle.web.action.annotation.response
 import org.beangle.web.action.view.View
 import org.beangle.webmvc.support.action.{ExportSupport, ImportSupport, RestfulAction}
-
-import java.time.YearMonth
 
 class BankcardAction extends RestfulAction[Bankcard], ImportSupport[Bankcard], ExportSupport[Bankcard] {
 
   var bankcardService: BankcardService = _
+  var inpatientService: InpatientService = _
 
   override protected def indexSetting(): Unit = {
     put("wards", entityDao.getAll(classOf[Ward]))
@@ -46,4 +48,16 @@ class BankcardAction extends RestfulAction[Bankcard], ImportSupport[Bankcard], E
     super.saveAndRedirect(bankcard)
   }
 
+  @response
+  def inpatients(): Properties = {
+    val rs = new Properties()
+    val code = get("inpatientCode", "")
+    if (Strings.isNotBlank(code)) {
+      inpatientService.getInpatient(code) foreach { p =>
+        rs.put("id", p.id.toString)
+        rs.put("person", p.name + " " + p.person.idcard.getOrElse(""))
+      }
+    }
+    rs
+  }
 }

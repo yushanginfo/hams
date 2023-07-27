@@ -18,6 +18,7 @@
 package net.yushanginfo.hams.account.model
 
 import net.yushanginfo.hams.base.model.{Inpatient, Yuan}
+import net.yushanginfo.hams.code.model.BankcardIncomeCategory
 import org.beangle.commons.collection.Collections
 import org.beangle.data.model.LongId
 import org.beangle.data.model.pojo.Updated
@@ -36,7 +37,7 @@ class Bankcard extends LongId, Updated {
   /** 卡号 */
   var cardNo: String = _
   /** 是否是存折 */
-  var bankBook: Boolean = _
+  var bankbook: Boolean = _
   /** 余额 */
   var balance: Yuan = _
   /** 起始年月 */
@@ -45,6 +46,30 @@ class Bankcard extends LongId, Updated {
   var initBalance: Yuan = _
   /** 月度统计 */
   var stats: mutable.Buffer[BankcardStat] = Collections.newBuffer[BankcardStat]
+
+  def newBill(amount: Yuan, payAt: Instant, expenses: String): BankcardBill = {
+    val i = new BankcardBill
+    i.account = this
+    i.amount = amount
+    i.updatedAt = Instant.now
+    i.payAt = payAt
+    i.balance = this.balance - amount
+    i.expenses = expenses
+    this.balance = i.balance
+    i
+  }
+
+  def newIncome(amount: Yuan, payAt: Instant, category: BankcardIncomeCategory): BankcardIncome = {
+    val i = new BankcardIncome
+    i.account = this
+    i.amount = amount
+    i.updatedAt = Instant.now
+    i.payAt = payAt
+    i.balance = this.balance + amount
+    i.category = category
+    this.balance = i.balance
+    i
+  }
 
   def addStat(yearMonth: YearMonth, incomes: Yuan, expenses: Yuan): Option[BankcardStat] = {
     stats.find(x => x.yearMonth == yearMonth) match {

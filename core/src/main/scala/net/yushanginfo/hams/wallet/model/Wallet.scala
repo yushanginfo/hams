@@ -23,7 +23,7 @@ import org.beangle.commons.collection.Collections
 import org.beangle.data.model.LongId
 import org.beangle.data.model.pojo.Updated
 
-import java.time.{Instant, YearMonth}
+import java.time.{Instant, LocalDate, YearMonth}
 import scala.collection.mutable
 
 object Wallet {
@@ -59,12 +59,25 @@ class Wallet extends LongId {
   var stats: mutable.Buffer[WalletStat] = Collections.newBuffer[WalletStat]
 
   /** 起始年月 */
-  var createdOn: YearMonth = _
+  var createdOn: LocalDate = _
 
   /** 初始余额 */
   var initBalance: Yuan = _
 
-  def income(amount: Yuan, payAt: Instant, channel: IncomeChannel): Income = {
+  def newBill(amount: Yuan, payAt: Instant, goods: String): Bill = {
+    val i = new Bill
+    i.wallet = this
+    i.amount = amount
+    i.inpatient = this.inpatient
+    i.updatedAt = Instant.now
+    i.payAt = payAt
+    i.balance = this.balance - amount
+    i.goods = goods
+    this.balance = i.balance
+    i
+  }
+
+  def newIncome(amount: Yuan, payAt: Instant, channel: IncomeChannel): Income = {
     val i = new Income
     i.wallet = this
     i.amount = amount
@@ -80,10 +93,11 @@ class Wallet extends LongId {
   def addStat(yearMonth: YearMonth, incomes: Yuan, expenses: Yuan): Option[WalletStat] = {
     stats.find(x => x.yearMonth == yearMonth) match {
       case None =>
-        if (createdOn == yearMonth) {
+        val initYearMonth = YearMonth.from(createdOn)
+        if (initYearMonth == yearMonth) {
           val ws = new WalletStat
           ws.wallet = this
-          ws.yearMonth = createdOn
+          ws.yearMonth = initYearMonth
           ws.startBalance = this.initBalance
           ws.update(incomes, expenses)
           Some(ws)

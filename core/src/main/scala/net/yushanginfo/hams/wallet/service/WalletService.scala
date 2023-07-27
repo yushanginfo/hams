@@ -17,11 +17,13 @@
 
 package net.yushanginfo.hams.wallet.service
 
-import net.yushanginfo.hams.wallet.model.{WalletStat, WalletType}
+import net.yushanginfo.hams.wallet.model.{Wallet, WalletStat, WalletType}
 
 import java.time.YearMonth
 
 trait WalletService {
 
-  def stat(yearMonth: YearMonth,walletType: WalletType,force:Boolean):Seq[WalletStat]
+  def getWallet(code: String, walletType: WalletType): Option[Wallet]
+
+  def stat(yearMonth: YearMonth, walletType: WalletType, force: Boolean): Seq[WalletStat]
 }

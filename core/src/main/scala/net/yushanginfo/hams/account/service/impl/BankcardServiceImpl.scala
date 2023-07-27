@@ -35,11 +35,8 @@ class BankcardServiceImpl extends BankcardService {
     val existedStats = entityDao.search(q)
     if (existedStats.isEmpty || forceStat) {
       val lastMonth = yearMonth.minusMonths(1)
-      val beginAt = yearMonth.atDay(1).atTime(0, 0, 0)
-      val endAt = yearMonth.atEndOfMonth().atTime(23, 59, 59)
-
-      val beginAtZ = beginAt.atZone(ZoneId.systemDefault).toInstant
-      val endAtZ = endAt.atZone(ZoneId.systemDefault).toInstant
+      val beginAt = yearMonth.atDay(1).atTime(0, 0, 0).atZone(ZoneId.systemDefault).toInstant
+      val endAt = yearMonth.atEndOfMonth().atTime(23, 59, 59).atZone(ZoneId.systemDefault).toInstant
 
       val lq = OqlBuilder.from(classOf[BankcardStat], "ws")
       lq.where("ws.yearMonth=:last", lastMonth)
@@ -55,11 +52,11 @@ class BankcardServiceImpl extends BankcardService {
       val stats = new mutable.ArrayBuffer[BankcardStat]
 
       val bq = OqlBuilder.from(classOf[BankcardBill], "b")
-      bq.where("b.payAt between :beginAt and :endAt", beginAtZ, endAtZ)
+      bq.where("b.payAt between :beginAt and :endAt", beginAt, endAt)
       val bills = entityDao.search(bq)
 
       val iq = OqlBuilder.from(classOf[BankcardIncome], "i")
-      iq.where("i.updatedAt between :beginAt and :endAt", beginAtZ, endAtZ)
+      iq.where("i.updatedAt between :beginAt and :endAt", beginAt, endAt)
       val incomes = entityDao.search(iq)
 
       val billStats = bills.groupBy(_.account.inpatient)

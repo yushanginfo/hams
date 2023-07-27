@@ -23,6 +23,7 @@ import org.beangle.commons.lang.Strings
 import org.beangle.data.dao.OqlBuilder
 import org.beangle.web.action.view.View
 import org.beangle.webmvc.support.action.{ExportSupport, ImportSupport, RestfulAction}
+import org.beangle.webmvc.support.helper.QueryHelper
 
 /**
  * 伙食费支出
@@ -56,6 +57,7 @@ class MealBillAction extends RestfulAction[Bill], ImportSupport[Bill], ExportSup
 
   override protected def getQueryBuilder: OqlBuilder[Bill] = {
     val query = super.getQueryBuilder
+    QueryHelper.dateBetween(query, null, "payAt", "beginAt", "endAt")
     query.where("bill.wallet.walletType=:walletType", WalletType.Meal)
     query
   }

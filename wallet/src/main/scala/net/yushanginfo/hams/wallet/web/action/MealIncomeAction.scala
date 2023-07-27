@@ -20,12 +20,16 @@ package net.yushanginfo.hams.wallet.web.action
 import net.yushanginfo.hams.base.model.{Inpatient, Ward}
 import net.yushanginfo.hams.code.model.IncomeChannel
 import net.yushanginfo.hams.wallet.model.{Income, Wallet, WalletType}
+import net.yushanginfo.hams.wallet.service.WalletService
 import org.beangle.commons.lang.Strings
 import org.beangle.data.dao.OqlBuilder
 import org.beangle.web.action.view.View
 import org.beangle.webmvc.support.action.{ExportSupport, ImportSupport, RestfulAction}
+import org.beangle.webmvc.support.helper.QueryHelper
 
 class MealIncomeAction extends RestfulAction[Income], ImportSupport[Income], ExportSupport[Income] {
+  var walletService: WalletService = _
+
   override protected def indexSetting(): Unit = {
     put("wards", entityDao.getAll(classOf[Ward]))
     super.indexSetting()
@@ -33,23 +37,17 @@ class MealIncomeAction extends RestfulAction[Income], ImportSupport[Income], Exp
 
   override protected def saveAndRedirect(income: Income): View = {
     if (!income.persisted && !Strings.isEmpty(income.wallet.inpatient.code)) {
-      entityDao.findBy(classOf[Inpatient], "code", income.wallet.inpatient.code).headOption match {
-        case None => return redirect("index", "不正确的住院号")
-        case Some(i) =>
-          val q = OqlBuilder.from(classOf[Wallet], "wallet")
-          q.where("wallet.inpatient=:inpatient and wallet.walletType=:type", i, WalletType.Meal)
-          val wallet = entityDao.search(q).headOption match {
-            case Some(w) => w
-            case None =>
-              val w = Wallet(i, WalletType.Meal)
-              entityDao.saveOrUpdate(w)
-              w
-          }
-          income.inpatient = i
-          income.wallet = wallet
+      val wallet = walletService.getWallet(income.wallet.inpatient.code, WalletType.Meal)
+      wallet match {
+        case None => return redirect("index", "没有对应住院号的伙食费账户")
+        case Some(w) =>
+          val nincome = w.newIncome(income.amount, income.payAt, income.channel)
+          entityDao.saveOrUpdate(wallet, nincome)
+          super.saveAndRedirect(nincome)
       }
+    } else {
+      super.saveAndRedirect(income)
     }
-    super.saveAndRedirect(income)
   }
 
   override protected def editSetting(entity: Income): Unit = {
@@ -59,6 +57,7 @@ class MealIncomeAction extends RestfulAction[Income], ImportSupport[Income], Exp
 
   override protected def getQueryBuilder: OqlBuilder[Income] = {
     val query = super.getQueryBuilder
+    QueryHelper.dateBetween(query, null, "payAt", "beginAt", "endAt")
     query.where("income.wallet.walletType=:walletType", WalletType.Meal)
     query
   }

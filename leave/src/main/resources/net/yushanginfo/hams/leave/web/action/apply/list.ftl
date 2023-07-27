@@ -2,9 +2,9 @@
 [@b.head/]
 [@b.grid items=applies var="apply"]
   [@b.gridbar]
-    bar.addItem("${b.text("action.new")}",action.add());
-    bar.addItem("${b.text("action.modify")}",action.edit());
-    bar.addItem("${b.text("action.delete")}",action.remove("确认删除?"));
+    bar.addItem("离院办理",action.add());
+    bar.addItem("销假",action.edit());
+    //bar.addItem("${b.text("action.delete")}",action.remove("确认删除?"));
   [/@]
   [@b.row]
     [@b.boxcol /]

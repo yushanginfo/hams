@@ -1,0 +1,645 @@
+<?xml version="1.0"?>
+<db engine="PostgreSQL" version="UNDEFINED">
+<schemas>
+<schema name="hams">
+<tables>
+<table name="bankcard_bills" comment="银行卡消费账单@account">
+<columns>
+<column name="id" type="bigint" nullable="false" comment="非业务主键:datetime"/>
+<column name="account_id" type="bigint" nullable="false" comment="银行卡ID"/>
+<column name="amount" type="bigint" nullable="false" comment="金额"/>
+<column name="balance" type="bigint" nullable="false" comment="结余"/>
+<column name="expenses" type="varchar(255)" nullable="false" comment="资金去向"/>
+<column name="pay_at" type="timestamptz" nullable="false" comment="支付时间"/>
+<column name="to_wallet" type="integer" comment="转入钱包"/>
+<column name="updated_at" type="timestamptz" nullable="false" defaultValue="current_timestamp" comment="更新时间"/>
+</columns>
+<primary-key name="pk_qjyxm935duemd3b8lmcke8rg6" columns="id"/>
+<foreign-keys>
+<foreign-key name="fk_nxvrsw1veh3rr5foc0crnklvf" column="account_id" referenced-table="hams.bankcards" referenced-column="id"/>
+</foreign-keys>
+</table>
+<table name="bankcard_incomes" comment="银行卡入账流水@account">
+<columns>
+<column name="id" type="bigint" nullable="false" comment="非业务主键:datetime"/>
+<column name="account_id" type="bigint" nullable="false" comment="银行卡ID"/>
+<column name="amount" type="bigint" nullable="false" comment="金额"/>
+<column name="balance" type="bigint" nullable="false" comment="结余"/>
+<column name="category_id" type="integer" nullable="false" comment="银行卡收入类别ID"/>
+<column name="pay_at" type="timestamptz" nullable="false" comment="支付时间"/>
+<column name="updated_at" type="timestamptz" nullable="false" defaultValue="current_timestamp" comment="更新时间"/>
+</columns>
+<primary-key name="pk_7umxrcgn47139g6i5pw7koeyh" columns="id"/>
+<foreign-keys>
+<foreign-key name="fk_hwqky470l1co0e7rwvntiwp2o" column="category_id" referenced-table="hams.c_bankcard_income_categories" referenced-column="id"/>
+<foreign-key name="fk_kal9ewans32f8o3k5212ty33n" column="account_id" referenced-table="hams.bankcards" referenced-column="id"/>
+</foreign-keys>
+</table>
+<table name="bankcard_stats" comment="银行卡月度统计@account">
+<columns>
+<column name="id" type="bigint" nullable="false" comment="非业务主键:datetime"/>
+<column name="account_id" type="bigint" nullable="false" comment="银行卡ID"/>
+<column name="end_balance" type="bigint" nullable="false" comment="本期结余"/>
+<column name="expenses" type="bigint" nullable="false" comment="本期支出"/>
+<column name="incomes" type="bigint" nullable="false" comment="本期收入"/>
+<column name="start_balance" type="bigint" nullable="false" comment="期初结余"/>
+<column name="updated_at" type="timestamptz" nullable="false" defaultValue="current_timestamp" comment="更新时间"/>
+<column name="year_month" type="date" nullable="false" comment="年月"/>
+</columns>
+<primary-key name="pk_old5sww63tgj171p93nwwaxhu" columns="id"/>
+<foreign-keys>
+<foreign-key name="fk_fdxpofrnve139udh5kic2txw7" column="account_id" referenced-table="hams.bankcards" referenced-column="id"/>
+</foreign-keys>
+<indexes>
+<index name="idx_cbejonk9nh4ha24667lj82b63" columns="account_id"/>
+</indexes>
+</table>
+<table name="bankcards" comment="银行卡@account">
+<columns>
+<column name="id" type="bigint" nullable="false" comment="非业务主键:datetime"/>
+<column name="balance" type="bigint" nullable="false" comment="余额"/>
+<column name="bank" type="varchar(255)" nullable="false" comment="银行"/>
+<column name="bank_book" type="boolean" nullable="false" defaultValue="false" comment="是否是存折"/>
+<column name="card_no" type="varchar(255)" nullable="false" comment="卡号"/>
+<column name="created_on" type="date" nullable="false" comment="起始年月"/>
+<column name="init_balance" type="bigint" nullable="false" comment="初始余额"/>
+<column name="inpatient_id" type="bigint" nullable="false" comment="病人信息ID"/>
+<column name="updated_at" type="timestamptz" nullable="false" defaultValue="current_timestamp" comment="更新时间"/>
+</columns>
+<primary-key name="pk_59kgvmu3cjrfv9x5x7ltel3tu" columns="id"/>
+<foreign-keys>
+<foreign-key name="fk_8uyuq5vu7pqfvruydfrlrut8o" column="inpatient_id" referenced-table="hams.inpatients" referenced-column="id"/>
+</foreign-keys>
+</table>
+<table name="bills" comment="消费账单@wallet">
+<columns>
+<column name="id" type="bigint" nullable="false" comment="非业务主键:datetime"/>
+<column name="amount" type="bigint" nullable="false" comment="金额"/>
+<column name="balance" type="bigint" nullable="false" comment="结余"/>
+<column name="goods" type="varchar(255)" nullable="false" comment="商品"/>
+<column name="inpatient_id" type="bigint" nullable="false" comment="病人信息ID"/>
+<column name="pay_at" type="timestamptz" nullable="false" comment="支付时间"/>
+<column name="updated_at" type="timestamptz" nullable="false" defaultValue="current_timestamp" comment="更新时间"/>
+<column name="wallet_id" type="bigint" nullable="false" comment="钱包ID"/>
+</columns>
+<primary-key name="pk_l2ycbilgr05krq0lg8r6qxnsp" columns="id"/>
+<foreign-keys>
+<foreign-key name="fk_80ll1ydwsfes2hu4y5a12kxxy" column="wallet_id" referenced-table="hams.wallets" referenced-column="id"/>
+<foreign-key name="fk_3bx3n4di4nf2i92ke3xerx7je" column="inpatient_id" referenced-table="hams.inpatients" referenced-column="id"/>
+</foreign-keys>
+</table>
+<table name="c_bankcard_income_categories" comment="银行卡收入类别@code">
+<columns>
+<column name="id" type="integer" nullable="false" comment="非业务主键:auto_increment"/>
+<column name="begin_on" type="date" nullable="false" defaultValue="current_date" comment="生效日期"/>
+<column name="code" type="varchar(255)" nullable="false" comment="代码"/>
+<column name="end_on" type="date" comment="失效日期"/>
+<column name="name" type="varchar(255)" nullable="false" comment="名称"/>
+<column name="remark" type="varchar(255)" comment="备注"/>
+<column name="updated_at" type="timestamptz" nullable="false" defaultValue="current_timestamp" comment="更新时间"/>
+</columns>
+<primary-key name="pk_6tg61jin4rpaonnrr2wobff8y" columns="id"/>
+</table>
+<table name="c_card_types" comment="卡类型@code">
+<columns>
+<column name="id" type="integer" nullable="false" comment="非业务主键:auto_increment"/>
+<column name="begin_on" type="date" nullable="false" defaultValue="current_date" comment="生效日期"/>
+<column name="code" type="varchar(255)" nullable="false" comment="代码"/>
+<column name="end_on" type="date" comment="失效日期"/>
+<column name="name" type="varchar(255)" nullable="false" comment="名称"/>
+<column name="remark" type="varchar(255)" comment="备注"/>
+<column name="updated_at" type="timestamptz" nullable="false" defaultValue="current_timestamp" comment="更新时间"/>
+</columns>
+<primary-key name="pk_bu81tdj9fdd1tij8sup86b4ym" columns="id"/>
+</table>
+<table name="c_countries" comment="国家地区@code">
+<columns>
+<column name="id" type="integer" nullable="false" comment="非业务主键:auto_increment"/>
+<column name="begin_on" type="date" nullable="false" defaultValue="current_date" comment="生效日期"/>
+<column name="code" type="varchar(255)" nullable="false" comment="代码"/>
+<column name="end_on" type="date" comment="失效日期"/>
+<column name="name" type="varchar(255)" nullable="false" comment="名称"/>
+<column name="remark" type="varchar(255)" comment="备注"/>
+<column name="updated_at" type="timestamptz" nullable="false" defaultValue="current_timestamp" comment="更新时间"/>
+</columns>
+<primary-key name="pk_peva4x42gf42xp1w7eehf59q8" columns="id"/>
+</table>
+<table name="c_critical_levels" comment="危重级别@code">
+<columns>
+<column name="id" type="integer" nullable="false" comment="非业务主键:auto_increment"/>
+<column name="begin_on" type="date" nullable="false" defaultValue="current_date" comment="生效日期"/>
+<column name="code" type="varchar(255)" nullable="false" comment="代码"/>
+<column name="end_on" type="date" comment="失效日期"/>
+<column name="name" type="varchar(255)" nullable="false" comment="名称"/>
+<column name="remark" type="varchar(255)" comment="备注"/>
+<column name="updated_at" type="timestamptz" nullable="false" defaultValue="current_timestamp" comment="更新时间"/>
+</columns>
+<primary-key name="pk_i7fi8bc9de7w2835vqvxx8mwc" columns="id"/>
+</table>
+<table name="c_disease_types" comment="临床诊断@code">
+<columns>
+<column name="id" type="integer" nullable="false" comment="非业务主键:auto_increment"/>
+<column name="begin_on" type="date" nullable="false" defaultValue="current_date" comment="生效日期"/>
+<column name="code" type="varchar(255)" nullable="false" comment="代码"/>
+<column name="end_on" type="date" comment="失效日期"/>
+<column name="name" type="varchar(255)" nullable="false" comment="名称"/>
+<column name="remark" type="varchar(255)" comment="备注"/>
+<column name="updated_at" type="timestamptz" nullable="false" defaultValue="current_timestamp" comment="更新时间"/>
+</columns>
+<primary-key name="pk_sfqw2j58197osdewi2vvh14rb" columns="id"/>
+</table>
+<table name="c_fee_origins" comment="费用来源@code">
+<columns>
+<column name="id" type="integer" nullable="false" comment="非业务主键:auto_increment"/>
+<column name="begin_on" type="date" nullable="false" defaultValue="current_date" comment="生效日期"/>
+<column name="code" type="varchar(255)" nullable="false" comment="代码"/>
+<column name="end_on" type="date" comment="失效日期"/>
+<column name="name" type="varchar(255)" nullable="false" comment="名称"/>
+<column name="remark" type="varchar(255)" comment="备注"/>
+<column name="updated_at" type="timestamptz" nullable="false" defaultValue="current_timestamp" comment="更新时间"/>
+</columns>
+<primary-key name="pk_5v31icnnqwpkttrtn2q7bkbk" columns="id"/>
+</table>
+<table name="c_genders" comment="性别@code">
+<columns>
+<column name="id" type="integer" nullable="false" comment="非业务主键:auto_increment"/>
+<column name="begin_on" type="date" nullable="false" defaultValue="current_date" comment="生效日期"/>
+<column name="code" type="varchar(255)" nullable="false" comment="代码"/>
+<column name="end_on" type="date" comment="失效日期"/>
+<column name="name" type="varchar(255)" nullable="false" comment="名称"/>
+<column name="remark" type="varchar(255)" comment="备注"/>
+<column name="updated_at" type="timestamptz" nullable="false" defaultValue="current_timestamp" comment="更新时间"/>
+</columns>
+<primary-key name="pk_1gpoo35u962k06tnq4keoahaf" columns="id"/>
+</table>
+<table name="c_id_types" comment="证件类型@code">
+<columns>
+<column name="id" type="integer" nullable="false" comment="非业务主键:auto_increment"/>
+<column name="begin_on" type="date" nullable="false" defaultValue="current_date" comment="生效日期"/>
+<column name="code" type="varchar(255)" nullable="false" comment="代码"/>
+<column name="end_on" type="date" comment="失效日期"/>
+<column name="name" type="varchar(255)" nullable="false" comment="名称"/>
+<column name="remark" type="varchar(255)" comment="备注"/>
+<column name="updated_at" type="timestamptz" nullable="false" defaultValue="current_timestamp" comment="更新时间"/>
+</columns>
+<primary-key name="pk_cgo85dbgp109mqg85dvx6v0qr" columns="id"/>
+</table>
+<table name="c_income_channels" comment="收入渠道@code">
+<columns>
+<column name="id" type="integer" nullable="false" comment="非业务主键:auto_increment"/>
+<column name="begin_on" type="date" nullable="false" defaultValue="current_date" comment="生效日期"/>
+<column name="code" type="varchar(255)" nullable="false" comment="代码"/>
+<column name="end_on" type="date" comment="失效日期"/>
+<column name="name" type="varchar(255)" nullable="false" comment="名称"/>
+<column name="remark" type="varchar(255)" comment="备注"/>
+<column name="updated_at" type="timestamptz" nullable="false" defaultValue="current_timestamp" comment="更新时间"/>
+</columns>
+<primary-key name="pk_lvkcq8bu28e55u50acbec6gbh" columns="id"/>
+</table>
+<table name="c_inpatient_statuses" comment="病人状态@code">
+<columns>
+<column name="id" type="integer" nullable="false" comment="非业务主键:auto_increment"/>
+<column name="begin_on" type="date" nullable="false" defaultValue="current_date" comment="生效日期"/>
+<column name="code" type="varchar(255)" nullable="false" comment="代码"/>
+<column name="end_on" type="date" comment="失效日期"/>
+<column name="name" type="varchar(255)" nullable="false" comment="名称"/>
+<column name="remark" type="varchar(255)" comment="备注"/>
+<column name="updated_at" type="timestamptz" nullable="false" defaultValue="current_timestamp" comment="更新时间"/>
+</columns>
+<primary-key name="pk_oyvjwpqdknt9hofi9h1uno4pj" columns="id"/>
+</table>
+<table name="c_leave_categories" comment="请假分类@code">
+<columns>
+<column name="id" type="integer" nullable="false" comment="非业务主键:auto_increment"/>
+<column name="begin_on" type="date" nullable="false" defaultValue="current_date" comment="生效日期"/>
+<column name="code" type="varchar(255)" nullable="false" comment="代码"/>
+<column name="end_on" type="date" comment="失效日期"/>
+<column name="name" type="varchar(255)" nullable="false" comment="名称"/>
+<column name="remark" type="varchar(255)" comment="备注"/>
+<column name="updated_at" type="timestamptz" nullable="false" defaultValue="current_timestamp" comment="更新时间"/>
+</columns>
+<primary-key name="pk_4sk6904oktp9et89nb6kwli71" columns="id"/>
+</table>
+<table name="c_marital_statuses" comment="婚姻状况@code">
+<columns>
+<column name="id" type="integer" nullable="false" comment="非业务主键:auto_increment"/>
+<column name="begin_on" type="date" nullable="false" defaultValue="current_date" comment="生效日期"/>
+<column name="code" type="varchar(255)" nullable="false" comment="代码"/>
+<column name="end_on" type="date" comment="失效日期"/>
+<column name="name" type="varchar(255)" nullable="false" comment="名称"/>
+<column name="remark" type="varchar(255)" comment="备注"/>
+<column name="updated_at" type="timestamptz" nullable="false" defaultValue="current_timestamp" comment="更新时间"/>
+</columns>
+<primary-key name="pk_462a9ri3y27m1cnsnqv4gfsn1" columns="id"/>
+</table>
+<table name="c_nations" comment="民族@code">
+<columns>
+<column name="id" type="integer" nullable="false" comment="非业务主键:auto_increment"/>
+<column name="begin_on" type="date" nullable="false" defaultValue="current_date" comment="生效日期"/>
+<column name="code" type="varchar(255)" nullable="false" comment="代码"/>
+<column name="end_on" type="date" comment="失效日期"/>
+<column name="name" type="varchar(255)" nullable="false" comment="名称"/>
+<column name="remark" type="varchar(255)" comment="备注"/>
+<column name="updated_at" type="timestamptz" nullable="false" defaultValue="current_timestamp" comment="更新时间"/>
+</columns>
+<primary-key name="pk_fanhm7ips9r5yubiah4vf4m5w" columns="id"/>
+</table>
+<table name="c_relationships" comment="社会关系@code">
+<columns>
+<column name="id" type="integer" nullable="false" comment="非业务主键:auto_increment"/>
+<column name="begin_on" type="date" nullable="false" defaultValue="current_date" comment="生效日期"/>
+<column name="code" type="varchar(255)" nullable="false" comment="代码"/>
+<column name="end_on" type="date" comment="失效日期"/>
+<column name="name" type="varchar(255)" nullable="false" comment="名称"/>
+<column name="remark" type="varchar(255)" comment="备注"/>
+<column name="updated_at" type="timestamptz" nullable="false" defaultValue="current_timestamp" comment="更新时间"/>
+</columns>
+<primary-key name="pk_9yk2ixur2oema96xpu2g44i3g" columns="id"/>
+</table>
+<table name="c_staff_types" comment="员工类别@code">
+<columns>
+<column name="id" type="integer" nullable="false" comment="非业务主键:auto_increment"/>
+<column name="begin_on" type="date" nullable="false" defaultValue="current_date" comment="生效日期"/>
+<column name="code" type="varchar(255)" nullable="false" comment="代码"/>
+<column name="end_on" type="date" comment="失效日期"/>
+<column name="name" type="varchar(255)" nullable="false" comment="名称"/>
+<column name="remark" type="varchar(255)" comment="备注"/>
+<column name="updated_at" type="timestamptz" nullable="false" defaultValue="current_timestamp" comment="更新时间"/>
+</columns>
+<primary-key name="pk_5wj6hrtp2qu67dau7ik9oxggb" columns="id"/>
+</table>
+<table name="contacts" comment="联系信息@base">
+<columns>
+<column name="id" type="bigint" nullable="false" comment="非业务主键:datetime"/>
+<column name="address" type="varchar(255)" comment="现住址"/>
+<column name="org_name" type="varchar(255)" comment="单位名称"/>
+<column name="org_phone" type="varchar(255)" comment="单位电话"/>
+<column name="org_postcode" type="varchar(255)" comment="单位邮编"/>
+<column name="phone" type="varchar(255)" comment="联系电话"/>
+<column name="postcode" type="varchar(255)" comment="邮编"/>
+<column name="residence_address" type="varchar(255)" comment="户籍地址"/>
+</columns>
+<primary-key name="pk_7ko2w4r57qng8yfiyi7n9snh4" columns="id"/>
+</table>
+<table name="departments" comment="部门@base">
+<columns>
+<column name="id" type="integer" nullable="false" comment="非业务主键:auto_increment"/>
+<column name="begin_on" type="date" nullable="false" comment="生效日期"/>
+<column name="code" type="varchar(255)" nullable="false" comment="代码"/>
+<column name="end_on" type="date" comment="失效日期"/>
+<column name="indexno" type="varchar(20)" nullable="false" comment="顺序号"/>
+<column name="name" type="varchar(100)" nullable="false" comment="名称"/>
+<column name="parent_id" type="integer" comment="部门ID"/>
+</columns>
+<primary-key name="pk_njmudssqklm265fj3qxrl6v4i" columns="id"/>
+<foreign-keys>
+<foreign-key name="fk_63q917a0aq92i7gcw6h7f1jrv" column="parent_id" referenced-table="hams.departments" referenced-column="id"/>
+</foreign-keys>
+<unique-keys>
+<unique-key name="uk_8ep04hrjh80dr54audhhk2jt3" columns="indexno"/>
+</unique-keys>
+<indexes>
+<index name="idx_lloboi12ir2a1q541ntsr7kao" columns="parent_id"/>
+</indexes>
+</table>
+<table name="deposits" comment="住院押金@wallet">
+<columns>
+<column name="id" type="bigint" nullable="false" comment="非业务主键:datetime"/>
+<column name="amount" type="bigint" nullable="false" comment="金额"/>
+<column name="inpatient_id" type="bigint" nullable="false" comment="病人信息ID"/>
+<column name="pay_at" type="timestamptz" nullable="false" comment="支付时间"/>
+<column name="refund_at" type="timestamptz" comment="退回时间"/>
+<column name="updated_at" type="timestamptz" nullable="false" defaultValue="current_timestamp" comment="更新时间"/>
+</columns>
+<primary-key name="pk_mv7xm2vgwa8xsi69y97hx64g9" columns="id"/>
+<foreign-keys>
+<foreign-key name="fk_r0asi7064tkj3utv0d5y0tfdx" column="inpatient_id" referenced-table="hams.inpatients" referenced-column="id"/>
+</foreign-keys>
+</table>
+<table name="incomes" comment="收入明细@wallet">
+<columns>
+<column name="id" type="bigint" nullable="false" comment="非业务主键:datetime"/>
+<column name="amount" type="bigint" nullable="false" comment="金额"/>
+<column name="balance" type="bigint" nullable="false" comment="结余"/>
+<column name="channel_id" type="integer" nullable="false" comment="渠道ID"/>
+<column name="inpatient_id" type="bigint" nullable="false" comment="病人信息ID"/>
+<column name="pay_at" type="timestamptz" nullable="false" comment="支付时间"/>
+<column name="updated_at" type="timestamptz" nullable="false" defaultValue="current_timestamp" comment="更新时间"/>
+<column name="wallet_id" type="bigint" nullable="false" comment="钱包ID"/>
+</columns>
+<primary-key name="pk_o0dlg1k37nd13yjd8rmj87qxe" columns="id"/>
+<foreign-keys>
+<foreign-key name="fk_cepqghg5b09u5crd6xpesv3kg" column="wallet_id" referenced-table="hams.wallets" referenced-column="id"/>
+<foreign-key name="fk_ke0xqgpojpcv6e7g7561l22nb" column="inpatient_id" referenced-table="hams.inpatients" referenced-column="id"/>
+<foreign-key name="fk_30l2p2w249cvu3scedbr1k10i" column="channel_id" referenced-table="hams.c_income_channels" referenced-column="id"/>
+</foreign-keys>
+</table>
+<table name="inpatients" comment="病人信息@base">
+<columns>
+<column name="id" type="bigint" nullable="false" comment="非业务主键:datetime"/>
+<column name="back_at" type="timestamptz" comment="预计销假日期"/>
+<column name="bed_doctor" type="varchar(255)" comment="床位医生"/>
+<column name="bed_no" type="varchar(255)" nullable="false" comment="床位号"/>
+<column name="begin_at" type="timestamptz" nullable="false" comment="入院时间"/>
+<column name="card" type="varchar(255)" comment="卡号"/>
+<column name="card_type_id" type="integer" comment="卡类型ID"/>
+<column name="code" type="varchar(255)" nullable="false" comment="代码"/>
+<column name="contact_id" type="bigint" nullable="false" comment="联系信息ID"/>
+<column name="created_by" type="varchar(255)" comment="登记人"/>
+<column name="critical_level_id" type="integer" comment="危重级别ID"/>
+<column name="disease_type_id" type="integer" comment="门诊诊断ID"/>
+<column name="end_at" type="timestamptz" comment="出院时间"/>
+<column name="fee_origin_id" type="integer" nullable="false" comment="费用来源ID"/>
+<column name="gender_id" type="integer" nullable="false" comment="性别ID"/>
+<column name="leave_at" type="timestamptz" comment="请假日期"/>
+<column name="name" type="varchar(255)" nullable="false" comment="名称"/>
+<column name="patient_id" type="bigint" nullable="false" defaultValue="0" comment="病人ID"/>
+<column name="person_id" type="bigint" nullable="false" comment="人员基本信息ID"/>
+<column name="status_id" type="integer" nullable="false" comment="状态ID"/>
+<column name="ward_id" type="integer" nullable="false" comment="所在病区ID"/>
+</columns>
+<primary-key name="pk_5jef1mvte2axht88htrm57eup" columns="id"/>
+<foreign-keys>
+<foreign-key name="fk_jyv2natc9xeeq9fb8777sk8ub" column="gender_id" referenced-table="hams.c_genders" referenced-column="id"/>
+<foreign-key name="fk_nyuop3jwecw127oelptqvuad8" column="card_type_id" referenced-table="hams.c_card_types" referenced-column="id"/>
+<foreign-key name="fk_a2qfkqepybd1w8nt2yt8lt7up" column="ward_id" referenced-table="hams.wards" referenced-column="id"/>
+<foreign-key name="fk_pngsxx23f1annc5sfifgc1qss" column="disease_type_id" referenced-table="hams.c_disease_types" referenced-column="id"/>
+<foreign-key name="fk_4b1tgq5ecia5k1w6camukn4gt" column="critical_level_id" referenced-table="hams.c_critical_levels" referenced-column="id"/>
+<foreign-key name="fk_aeurrfduixeas45xj5cb60tus" column="person_id" referenced-table="hams.people" referenced-column="id"/>
+<foreign-key name="fk_uj23l1kwxev1wi0cnc04tw8p" column="contact_id" referenced-table="hams.contacts" referenced-column="id"/>
+<foreign-key name="fk_le0kg2keixwytfqqxg0fyok5u" column="fee_origin_id" referenced-table="hams.c_fee_origins" referenced-column="id"/>
+<foreign-key name="fk_cuh38ccdknvsd7xglx5hialu6" column="status_id" referenced-table="hams.c_inpatient_statuses" referenced-column="id"/>
+</foreign-keys>
+</table>
+<table name="leave_applies" comment="出院办理@wallet">
+<columns>
+<column name="id" type="bigint" nullable="false" comment="非业务主键:datetime"/>
+<column name="back_at" type="timestamptz" comment="实际销假日期"/>
+<column name="category_id" type="integer" nullable="false" comment="请假分类ID"/>
+<column name="code" type="varchar(255)" nullable="false" comment="代码"/>
+<column name="inpatient_id" type="bigint" nullable="false" comment="病人信息ID"/>
+<column name="leave_at" type="timestamptz" nullable="false" comment="请假起始日期"/>
+<column name="predict_back_at" type="timestamptz" comment="预计销假日期"/>
+<column name="reasons" type="varchar(255)" nullable="false" comment="事由"/>
+<column name="updated_at" type="timestamptz" nullable="false" defaultValue="current_timestamp" comment="更新时间"/>
+</columns>
+<primary-key name="pk_fyf78v64ifgxiep8i8swhojw" columns="id"/>
+<foreign-keys>
+<foreign-key name="fk_dee1efj7co6eci8nvh0akvx5u" column="inpatient_id" referenced-table="hams.inpatients" referenced-column="id"/>
+<foreign-key name="fk_j7wh0bvc2c9udjnm2f4ygeou4" column="category_id" referenced-table="hams.c_leave_categories" referenced-column="id"/>
+</foreign-keys>
+</table>
+<table name="pension_bills" comment="养老金消费账单@account">
+<columns>
+<column name="id" type="bigint" nullable="false" comment="非业务主键:datetime"/>
+<column name="account_id" type="bigint" nullable="false" comment="养老金ID"/>
+<column name="amount" type="bigint" nullable="false" comment="金额"/>
+<column name="balance" type="bigint" nullable="false" comment="结余"/>
+<column name="expenses" type="varchar(255)" nullable="false" comment="资金去向"/>
+<column name="pay_at" type="timestamptz" nullable="false" comment="支付时间"/>
+<column name="to_wallet" type="integer" comment="转入钱包"/>
+<column name="updated_at" type="timestamptz" nullable="false" defaultValue="current_timestamp" comment="更新时间"/>
+</columns>
+<primary-key name="pk_3syhw0hilqi4m5m4a0elxp6g2" columns="id"/>
+<foreign-keys>
+<foreign-key name="fk_thoryp6nfe3jme97epauds8bm" column="account_id" referenced-table="hams.pensions" referenced-column="id"/>
+</foreign-keys>
+</table>
+<table name="pension_incomes" comment="养老金收入明细@account">
+<columns>
+<column name="id" type="bigint" nullable="false" comment="非业务主键:datetime"/>
+<column name="account_id" type="bigint" nullable="false" comment="养老金ID"/>
+<column name="amount" type="bigint" nullable="false" comment="金额"/>
+<column name="balance" type="bigint" nullable="false" comment="结余"/>
+<column name="channel" type="varchar(255)" nullable="false" comment="渠道"/>
+<column name="pay_at" type="timestamptz" nullable="false" comment="支付日期"/>
+<column name="updated_at" type="timestamptz" nullable="false" defaultValue="current_timestamp" comment="更新时间"/>
+</columns>
+<primary-key name="pk_gtqa8t09br4ktxbqwjqhpr3f7" columns="id"/>
+<foreign-keys>
+<foreign-key name="fk_sugu8yke6dge9vw33y7vwi27b" column="account_id" referenced-table="hams.pensions" referenced-column="id"/>
+</foreign-keys>
+</table>
+<table name="pension_stats" comment="养老金月度统计@account">
+<columns>
+<column name="id" type="bigint" nullable="false" comment="非业务主键:datetime"/>
+<column name="account_id" type="bigint" nullable="false" comment="养老金ID"/>
+<column name="end_balance" type="bigint" nullable="false" comment="本期结余"/>
+<column name="expenses" type="bigint" nullable="false" comment="本期支出"/>
+<column name="incomes" type="bigint" nullable="false" comment="本期收入"/>
+<column name="start_balance" type="bigint" nullable="false" comment="期初结余"/>
+<column name="updated_at" type="timestamptz" nullable="false" defaultValue="current_timestamp" comment="更新时间"/>
+<column name="year_month" type="date" nullable="false" comment="年月"/>
+</columns>
+<primary-key name="pk_qrg288g0yo7yuu6j8vkx66ppd" columns="id"/>
+<foreign-keys>
+<foreign-key name="fk_8b93v0djyvd7iv14virlhx944" column="account_id" referenced-table="hams.pensions" referenced-column="id"/>
+</foreign-keys>
+<indexes>
+<index name="idx_qt6un0f4vm2nrq7jtm1thsbb0" columns="account_id"/>
+</indexes>
+</table>
+<table name="pensions" comment="养老金@account">
+<columns>
+<column name="id" type="bigint" nullable="false" comment="非业务主键:datetime"/>
+<column name="balance" type="bigint" nullable="false" comment="余额"/>
+<column name="created_on" type="date" nullable="false" comment="起始年月"/>
+<column name="init_balance" type="bigint" nullable="false" comment="初始余额"/>
+<column name="inpatient_id" type="bigint" nullable="false" comment="病人信息ID"/>
+</columns>
+<primary-key name="pk_f38v6ye021s4bf9l87syowlnn" columns="id"/>
+<foreign-keys>
+<foreign-key name="fk_kify6ojpeswibpg8ppfv0m8he" column="inpatient_id" referenced-table="hams.inpatients" referenced-column="id"/>
+</foreign-keys>
+</table>
+<table name="people" comment="人员基本信息@base">
+<columns>
+<column name="id" type="bigint" nullable="false" comment="非业务主键:datetime"/>
+<column name="birth_district" type="varchar(255)" comment="出生地(区、县)"/>
+<column name="birth_province" type="varchar(255)" comment="出生地(省)"/>
+<column name="birthday" type="date" comment="出生日期"/>
+<column name="country_id" type="integer" comment="国家地区ID"/>
+<column name="gender_id" type="integer" nullable="false" comment="性别ID"/>
+<column name="home_town" type="varchar(255)" comment="籍贯"/>
+<column name="id_type_id" type="integer" nullable="false" comment="身份证件类型ID"/>
+<column name="idcard" type="varchar(255)" comment="证件号码"/>
+<column name="marital_status_id" type="integer" comment="婚姻状况ID"/>
+<column name="name" type="varchar(255)" nullable="false" comment="姓名"/>
+<column name="nation_id" type="integer" comment="民族ID"/>
+<column name="phonetic_name" type="varchar(255)" comment="姓名拼音"/>
+<column name="profession" type="varchar(255)" comment="职业"/>
+<column name="wubi_name" type="varchar(255)" comment="五笔姓名"/>
+</columns>
+<primary-key name="pk_25uwl12dj9en3iflug9w23r1q" columns="id"/>
+<foreign-keys>
+<foreign-key name="fk_8hiyj8symiau6y0o1y3vlu0r7" column="country_id" referenced-table="hams.c_countries" referenced-column="id"/>
+<foreign-key name="fk_lqfi10nbfs1v1ir5rbn0bxnym" column="id_type_id" referenced-table="hams.c_id_types" referenced-column="id"/>
+<foreign-key name="fk_e3dyr4fu01wk7tlurmjuf5bde" column="gender_id" referenced-table="hams.c_genders" referenced-column="id"/>
+<foreign-key name="fk_g8dy1koc5wgxgkenrl62gt9jt" column="nation_id" referenced-table="hams.c_nations" referenced-column="id"/>
+<foreign-key name="fk_oyji6e86mbfteskd4la3y4bjn" column="marital_status_id" referenced-table="hams.c_marital_statuses" referenced-column="id"/>
+</foreign-keys>
+</table>
+<table name="relations" comment="联系人@base">
+<columns>
+<column name="id" type="bigint" nullable="false" comment="非业务主键:datetime"/>
+<column name="address" type="varchar(255)" comment="联系地址"/>
+<column name="idx" type="integer" nullable="false" defaultValue="0" comment="序号(从1开始)"/>
+<column name="inpatient_id" type="bigint" nullable="false" comment="病人信息ID"/>
+<column name="name" type="varchar(255)" nullable="false" comment="名称"/>
+<column name="phone" type="varchar(255)" comment="联系电话"/>
+<column name="relationship_id" type="integer" nullable="false" comment="关系ID"/>
+<column name="subdistrict" type="varchar(255)" comment="街道"/>
+</columns>
+<primary-key name="pk_rknv0kl0csx1vt9ic96y7dqi" columns="id"/>
+<foreign-keys>
+<foreign-key name="fk_dm1hp0u255ghblqmtu2tffh2s" column="inpatient_id" referenced-table="hams.inpatients" referenced-column="id"/>
+<foreign-key name="fk_fp34getch38kwfe7xm848411d" column="relationship_id" referenced-table="hams.c_relationships" referenced-column="id"/>
+</foreign-keys>
+<indexes>
+<index name="idx_7olreiwpy6f9aqi3vk8aicah8" columns="inpatient_id"/>
+</indexes>
+</table>
+<table name="staffs" comment="员工@base">
+<columns>
+<column name="id" type="bigint" nullable="false" comment="非业务主键:datetime"/>
+<column name="begin_on" type="date" nullable="false" comment="生效日期"/>
+<column name="code" type="varchar(255)" nullable="false" comment="代码"/>
+<column name="department_id" type="integer" nullable="false" comment="部门ID"/>
+<column name="end_on" type="date" comment="失效日期"/>
+<column name="gender_id" type="integer" nullable="false" comment="性别ID"/>
+<column name="mobile" type="varchar(255)" comment="移动电话"/>
+<column name="name" type="varchar(255)" nullable="false" comment="名称"/>
+<column name="remark" type="varchar(255)" comment="备注"/>
+<column name="staff_type_id" type="integer" nullable="false" comment="员工类型ID"/>
+<column name="updated_at" type="timestamptz" nullable="false" defaultValue="current_timestamp" comment="更新时间"/>
+</columns>
+<primary-key name="pk_qi7hj56hag2uu4e5eu4egoxrl" columns="id"/>
+<foreign-keys>
+<foreign-key name="fk_n8afgxrh8cuajwb0kws2ovcwp" column="gender_id" referenced-table="hams.c_genders" referenced-column="id"/>
+<foreign-key name="fk_jjqi6bype1g456aioke276g5m" column="staff_type_id" referenced-table="hams.c_staff_types" referenced-column="id"/>
+<foreign-key name="fk_1fvbesq01b23ayv2ksysfhf6j" column="department_id" referenced-table="hams.departments" referenced-column="id"/>
+</foreign-keys>
+</table>
+<table name="subsidies" comment="养护补贴@account">
+<columns>
+<column name="id" type="bigint" nullable="false" comment="非业务主键:datetime"/>
+<column name="balance" type="bigint" nullable="false" comment="余额"/>
+<column name="created_on" type="date" nullable="false" comment="起始年月"/>
+<column name="init_balance" type="bigint" nullable="false" comment="初始余额"/>
+<column name="inpatient_id" type="bigint" nullable="false" comment="病人信息ID"/>
+</columns>
+<primary-key name="pk_ffxriytvh609pv6snxy3w4ruo" columns="id"/>
+<foreign-keys>
+<foreign-key name="fk_a34qmqx6r573ov211il52ntxg" column="inpatient_id" referenced-table="hams.inpatients" referenced-column="id"/>
+</foreign-keys>
+</table>
+<table name="subsidy_bills" comment="养护补贴消费账单@account">
+<columns>
+<column name="id" type="bigint" nullable="false" comment="非业务主键:datetime"/>
+<column name="account_id" type="bigint" nullable="false" comment="养护补贴ID"/>
+<column name="amount" type="bigint" nullable="false" comment="金额"/>
+<column name="balance" type="bigint" nullable="false" comment="结余"/>
+<column name="expenses" type="varchar(255)" nullable="false" comment="资金去向"/>
+<column name="pay_at" type="timestamptz" nullable="false" comment="支付时间"/>
+<column name="to_wallet" type="integer" comment="转入钱包"/>
+<column name="updated_at" type="timestamptz" nullable="false" defaultValue="current_timestamp" comment="更新时间"/>
+</columns>
+<primary-key name="pk_dqyyvyrqdq8cdyxg559vhhq1f" columns="id"/>
+<foreign-keys>
+<foreign-key name="fk_fq9r8utnd1o6oojbnqqic7sk2" column="account_id" referenced-table="hams.subsidies" referenced-column="id"/>
+</foreign-keys>
+</table>
+<table name="subsidy_incomes" comment="养护补贴收入明细@account">
+<columns>
+<column name="id" type="bigint" nullable="false" comment="非业务主键:datetime"/>
+<column name="account_id" type="bigint" nullable="false" comment="养护补贴ID"/>
+<column name="amount" type="bigint" nullable="false" comment="金额"/>
+<column name="balance" type="bigint" nullable="false" comment="结余"/>
+<column name="channel" type="varchar(255)" nullable="false" comment="渠道"/>
+<column name="inpatient_id" type="bigint" nullable="false" comment="病人信息ID"/>
+<column name="pay_at" type="timestamptz" nullable="false" comment="支付日期"/>
+<column name="updated_at" type="timestamptz" nullable="false" defaultValue="current_timestamp" comment="更新时间"/>
+</columns>
+<primary-key name="pk_nnxb73sc9x9recynhm72c78o8" columns="id"/>
+<foreign-keys>
+<foreign-key name="fk_92uxid0x9i7b6vn2jx77o4meu" column="inpatient_id" referenced-table="hams.inpatients" referenced-column="id"/>
+<foreign-key name="fk_afjfte441j6yf8jh0q4rwk3w5" column="account_id" referenced-table="hams.subsidies" referenced-column="id"/>
+</foreign-keys>
+</table>
+<table name="subsidy_stats" comment="养护补贴月度统计@account">
+<columns>
+<column name="id" type="bigint" nullable="false" comment="非业务主键:datetime"/>
+<column name="account_id" type="bigint" nullable="false" comment="养护补贴ID"/>
+<column name="end_balance" type="bigint" nullable="false" comment="本期结余"/>
+<column name="expenses" type="bigint" nullable="false" comment="本期支出"/>
+<column name="incomes" type="bigint" nullable="false" comment="本期收入"/>
+<column name="start_balance" type="bigint" nullable="false" comment="期初结余"/>
+<column name="updated_at" type="timestamptz" nullable="false" defaultValue="current_timestamp" comment="更新时间"/>
+<column name="year_month" type="date" nullable="false" comment="年月"/>
+</columns>
+<primary-key name="pk_j1umc5tw01r7degv5jgdrhv8t" columns="id"/>
+<foreign-keys>
+<foreign-key name="fk_cbmftc9whowm7jvf5028dcdp5" column="account_id" referenced-table="hams.subsidies" referenced-column="id"/>
+</foreign-keys>
+<indexes>
+<index name="idx_ajbathocg1wubs3xqfuhghwwg" columns="account_id"/>
+</indexes>
+</table>
+<table name="wallet_settings" comment="钱包设定@wallet">
+<columns>
+<column name="id" type="integer" nullable="false" comment="非业务主键:auto_increment"/>
+<column name="meal_price_per_day" type="bigint" nullable="false" comment="每日伙食费单价"/>
+<column name="warning_change_balance" type="bigint" nullable="false" comment="引发零用金提醒的余额阈值"/>
+<column name="warning_meal_balance" type="bigint" nullable="false" comment="引发伙食费提醒的余额阈值"/>
+</columns>
+<primary-key name="pk_lbwkrb87ii3rp21d2r5s50ayj" columns="id"/>
+</table>
+<table name="wallet_stats" comment="钱包月度统计@wallet">
+<columns>
+<column name="id" type="bigint" nullable="false" comment="非业务主键:datetime"/>
+<column name="end_balance" type="bigint" nullable="false" comment="本期结余"/>
+<column name="expenses" type="bigint" nullable="false" comment="本期支出"/>
+<column name="incomes" type="bigint" nullable="false" comment="本期收入"/>
+<column name="start_balance" type="bigint" nullable="false" comment="期初结余"/>
+<column name="updated_at" type="timestamptz" nullable="false" defaultValue="current_timestamp" comment="更新时间"/>
+<column name="wallet_id" type="bigint" nullable="false" comment="钱包ID"/>
+<column name="year_month" type="date" nullable="false" comment="年月"/>
+</columns>
+<primary-key name="pk_kqa7wpffhngp6gln8lyjxx4ap" columns="id"/>
+<foreign-keys>
+<foreign-key name="fk_eewrjfmpbrl4371h5tr928159" column="wallet_id" referenced-table="hams.wallets" referenced-column="id"/>
+</foreign-keys>
+<indexes>
+<index name="idx_1ismlvmnwfevqql5m34a4iqfx" columns="wallet_id"/>
+</indexes>
+</table>
+<table name="wallets" comment="钱包@wallet">
+<columns>
+<column name="id" type="bigint" nullable="false" comment="非业务主键:datetime"/>
+<column name="balance" type="bigint" nullable="false" comment="余额"/>
+<column name="created_on" type="date" nullable="false" comment="起始年月"/>
+<column name="init_balance" type="bigint" nullable="false" comment="初始余额"/>
+<column name="inpatient_id" type="bigint" nullable="false" comment="病人信息ID"/>
+<column name="wallet_type" type="integer" nullable="false" comment="钱包类型"/>
+</columns>
+<primary-key name="pk_gtiy1cag1lhmvg5lcxxrc1yjo" columns="id"/>
+<foreign-keys>
+<foreign-key name="fk_gdvo9rxeo6it7wimqgu3ed1m7" column="inpatient_id" referenced-table="hams.inpatients" referenced-column="id"/>
+</foreign-keys>
+</table>
+<table name="wards" comment="病区@base">
+<columns>
+<column name="id" type="integer" nullable="false" comment="非业务主键:auto_increment"/>
+<column name="begin_on" type="date" nullable="false" comment="生效日期"/>
+<column name="code" type="varchar(255)" nullable="false" comment="代码"/>
+<column name="end_on" type="date" comment="失效日期"/>
+<column name="name" type="varchar(255)" nullable="false" comment="名称"/>
+<column name="remark" type="varchar(255)" comment="备注"/>
+<column name="updated_at" type="timestamptz" nullable="false" defaultValue="current_timestamp" comment="更新时间"/>
+</columns>
+<primary-key name="pk_gune0ue5twf4xex1heojgqrpj" columns="id"/>
+</table>
+</tables>
+</schema>
+</schemas>
+</db>

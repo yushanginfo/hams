@@ -29,7 +29,7 @@ class Relation extends LongId, Named {
   var idx: Int = _
   /** 关系 */
   var relationship: Relationship = _
-  /** 联系电卷 */
+  /** 联系电话 */
   var phone: Option[String] = None
   /** 联系地址 */
   var address: Option[String] = None

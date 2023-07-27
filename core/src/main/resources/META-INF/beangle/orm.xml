@@ -4,6 +4,7 @@
   <mapping class="net.yushanginfo.hams.base.model.DefaultMapping" name="base"/>
   <mapping class="net.yushanginfo.hams.wallet.model.DefaultMapping" name="wallet"/>
   <mapping class="net.yushanginfo.hams.account.model.DefaultMapping" name="account"/>
+  <mapping class="net.yushanginfo.hams.ebuy.model.DefaultMapping" name="ebuy"/>
   <naming>
     <profile package="net.yushanginfo.hams" pluralize="true" schema="hams"/>
     <profile package="net.yushanginfo.hams.code" pluralize="true" schema="hams" prefix="c_"/>

@@ -9,6 +9,8 @@
       [@b.textfields names="bill.wallet.inpatient.code;住院号"/]
       [@b.textfields names="bill.wallet.inpatient.name;姓名"/]
       [@b.select name="wallet.inpatient.ward.id" label="病区" items=wards empty="..."/]
+      [@b.date name="beginAt" label="从"  /]
+      [@b.date name="endAt" label="到"  /]
       <input type="hidden" name="orderBy" value="bill.wallet.inpatient.code"/>
     [/@]
     </div>

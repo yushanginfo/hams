@@ -2,10 +2,9 @@
 [@b.head/]
 [@b.grid items=inpatients var="inpatient"]
   [@b.gridbar]
-    bar.addItem("${b.text("action.new")}",action.add());
-    bar.addItem("${b.text("action.modify")}",action.edit());
-    bar.addItem("${b.text("action.delete")}",action.remove("确认删除?"));
-    bar.addItem("导入",action.method('importForm'));
+    bar.addItem("修改联系人",action.edit());
+    bar.addItem("立即同步",action.method("syncNow"));
+    //bar.addItem("导入",action.method('importForm'));
   [/@]
   [@b.row]
     [@b.boxcol /]

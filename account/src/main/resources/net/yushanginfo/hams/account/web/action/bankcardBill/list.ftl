@@ -5,7 +5,9 @@
     bar.addItem("${b.text("action.new")}",action.add());
     bar.addItem("${b.text("action.modify")}",action.edit());
     bar.addItem("${b.text("action.delete")}",action.remove("确认删除?"));
-    //bar.addItem("导入",action.method('importForm'));
+    bar.addItem("${b.text("action.export")}",action.exportData("account.inpatient.code:住院号,account.inpatient.name:姓名,"+
+                 "account.inpatient.gender.name:性别,account.inpatient.ward.name:病区,account.inpatient.bedNo:床号,"+
+                 "amount:支出金额,account.bank:银行,account.cardNo:卡号,expenses:消费明细,payAt:支出时间",null,'fileName=银行卡支出流水'));
   [/@]
   [@b.row]
     [@b.boxcol /]

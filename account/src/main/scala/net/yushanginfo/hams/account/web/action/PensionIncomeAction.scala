@@ -25,6 +25,7 @@ import org.beangle.commons.lang.Strings
 import org.beangle.data.dao.OqlBuilder
 import org.beangle.web.action.view.View
 import org.beangle.webmvc.support.action.{ExportSupport, ImportSupport, RestfulAction}
+import org.beangle.webmvc.support.helper.QueryHelper
 
 /** 养老金入账
  */
@@ -34,6 +35,12 @@ class PensionIncomeAction extends RestfulAction[PensionIncome], ImportSupport[Pe
   override protected def indexSetting(): Unit = {
     put("wards", entityDao.getAll(classOf[Ward]))
     super.indexSetting()
+  }
+
+  override protected def getQueryBuilder: OqlBuilder[PensionIncome] = {
+    val query = super.getQueryBuilder
+    QueryHelper.dateBetween(query, null, "payAt", "beginAt", "endAt")
+    query
   }
 
   override protected def saveAndRedirect(income: PensionIncome): View = {

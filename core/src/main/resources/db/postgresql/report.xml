@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<report title="数据库设计说明">
+  <system name="院务管理系统" version="1.0"/>
+  <database xml="database.xml"/>
+  <pages template="singlehtml" extension=".html">
+    <page name="index"/>
+  </pages>
+
+  <schemas>
+    <schema name="hams" title="院务管理">
+      <module name="code" title="基础代码">
+        <group name="all" title="代码" tables="*"/>
+      </module>
+      <module name="wallet" title="零用金">
+        <group name="all" title="零用金" tables="*">
+          <image name="wallet" title="零用金" tables="wallet*"/>
+        </group>
+      </module>
+      <module name="base" title="基础信息">
+        <group name="all" title="基础信息" tables="*"/>
+      </module>
+      <module name="account" title="代管项目">
+        <group name="all" title="代管项目" tables="*">
+          <image name="backcard" title="银行卡" tables="bankcard*,inpatient*"/>
+          <image name="subsidy" title="养护补贴" tables="subsid*,inpatient*"/>
+          <image name="pension" title="养老金" tables="pension*,inpatient*"/>
+        </group>
+      </module>
+    </schema>
+  </schemas>
+</report>

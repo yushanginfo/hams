@@ -37,7 +37,7 @@ object Subsidy {
 }
 
 /**
- * 钱包
+ * 养护补贴
  */
 class Subsidy extends LongId {
 

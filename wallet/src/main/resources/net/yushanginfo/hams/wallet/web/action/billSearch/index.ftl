@@ -15,6 +15,8 @@
         <option value="${wt}">${wt.name}</option>
         [/#list]
       [/@]
+      [@b.date name="beginAt" label="从"  /]
+      [@b.date name="endAt" label="到"  /]
       <input type="hidden" name="orderBy" value="bill.wallet.inpatient.code"/>
     [/@]
     </div>

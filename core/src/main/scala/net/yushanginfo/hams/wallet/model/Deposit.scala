@@ -23,6 +23,8 @@ import org.beangle.data.model.pojo.Updated
 
 import java.time.{Instant, LocalDateTime}
 
+/** 住院押金
+ */
 class Deposit extends LongId, Updated {
   def this(inpatient: Inpatient, payAt: Instant) = {
     this()

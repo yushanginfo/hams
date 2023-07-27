@@ -45,8 +45,8 @@ abstract class WalletStatAction extends ActionSupport, EntityAction[Wallet] {
     var yearMonth = YearMonth.now()
     val yearMonths = new mutable.ArrayBuffer[YearMonth]
     (1 to 12) foreach { i =>
-      yearMonth = yearMonth.minusMonths(1)
       yearMonths.addOne(yearMonth)
+      yearMonth = yearMonth.minusMonths(1)
     }
     put("yearMonths", yearMonths)
     forward()

@@ -32,10 +32,14 @@ class Income extends LongId, Updated {
   var wallet: Wallet = _
   /** 支付日期 */
   var payAt: Instant = _
-  /** 额度 */
+  /** 金额 */
   var amount: Yuan = _
   /** 结余 */
   var balance: Yuan = _
   /** 渠道 */
   var channel: IncomeChannel = _
+
+  def originBalance: Yuan = {
+    balance - amount
+  }
 }

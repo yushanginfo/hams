@@ -29,10 +29,12 @@ import java.time.Instant
  */
 class BankcardIncome extends LongId, Updated {
   var account: Bankcard = _
+  /**金额*/
   var amount: Yuan = _
   /** 结余 */
   var balance: Yuan = _
   /** 支付时间 */
   var payAt: Instant = _
+  /**入账类别*/
   var category: BankcardIncomeCategory = _
 }

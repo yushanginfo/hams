@@ -29,7 +29,7 @@ class DefaultMapping extends MappingModule {
     bind[Bill]
     bind[Income]
     bind[LeaveApply]
-    bind[Visiting]
+    //bind[Visiting]
     bind[Wallet] declare { e =>
       e.stats is depends("wallet")
     }

@@ -31,7 +31,7 @@ class Bill extends LongId, Updated {
   var inpatient: Inpatient = _
   /** 钱包 */
   var wallet: Wallet = _
-  /** 数量 */
+  /** 金额 */
   var amount: Yuan = _
   /** 结余 */
   var balance: Yuan = _
@@ -39,4 +39,8 @@ class Bill extends LongId, Updated {
   var payAt: Instant = _
   /** 商品 */
   var goods: String = _
+
+  def originBalance: Yuan = {
+    balance + amount
+  }
 }

@@ -17,22 +17,22 @@
 
 package net.yushanginfo.hams.account.model
 
-import net.yushanginfo.hams.base.model.{Inpatient, Yuan}
-import net.yushanginfo.hams.wallet.model.{Wallet, WalletType}
+import net.yushanginfo.hams.base.model.Yuan
+import net.yushanginfo.hams.wallet.model.WalletType
 import org.beangle.data.model.LongId
-import org.beangle.data.model.pojo.Updated
+import org.beangle.data.model.pojo.{Remark, Updated}
 
 import java.time.Instant
 
 /**
  * 养护补贴消费账单
  */
-class SubsidyBill extends LongId, Updated {
+class SubsidyBill extends LongId, Updated, Remark {
   /** 养护补贴 */
   var account: Subsidy = _
   /** 数量 */
   var amount: Yuan = _
-  /**结余*/
+  /** 结余 */
   var balance: Yuan = _
   /** 支付时间 */
   var payAt: Instant = _
@@ -40,6 +40,4 @@ class SubsidyBill extends LongId, Updated {
   var expenses: String = _
   /** 转入钱包 */
   var toWallet: Option[WalletType] = None
-  /** 转住院费 */
-  var toDeposit: Boolean = _
 }

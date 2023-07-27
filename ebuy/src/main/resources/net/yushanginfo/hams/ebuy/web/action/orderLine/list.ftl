@@ -1,0 +1,23 @@
+[#ftl]
+[@b.head/]
+[@b.grid items=orderLines var="orderLine"]
+  [@b.gridbar]
+    [#if (order.inputable)!false]
+    bar.addItem("${b.text("action.new")}",action.add());
+    bar.addItem("${b.text("action.modify")}",action.edit());
+    bar.addItem("${b.text("action.delete")}",action.remove("确认删除?"));
+    [/#if]
+  [/@]
+  [@b.row]
+    [@b.boxcol /]
+    [@b.col property="inpatient.ward.name" title="病区"  width="10%"/]
+    [@b.col property="inpatient.bedNo" title="床号"  width="8%"/]
+    [@b.col property="inpatient.name" title="姓名"  width="10%"/]
+    [@b.col property="brand.name" title="品牌"  width="10%"/]
+    [@b.col property="commodity.name" title="名称" /]
+    [@b.col property="unit.name" title="单位"  width="7%"/]
+    [@b.col property="amount" title="数量" width="7%"/]
+    [@b.col property="cost" title="费用" width="12%"/]
+  [/@]
+[/@]
+[@b.foot/]

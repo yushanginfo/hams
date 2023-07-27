@@ -17,12 +17,13 @@
 
 package net.yushanginfo.hams.base.service
 
-import net.yushanginfo.hams.base.service.impl.CodeServiceImpl
+import net.yushanginfo.hams.base.service.impl.{CodeServiceImpl, InpatientServiceImpl}
 import org.beangle.cdi.bind.BindModule
 
 class DefaultModule extends BindModule {
 
   override def binding(): Unit = {
     bind(classOf[CodeServiceImpl])
+    bind(classOf[InpatientServiceImpl])
   }
 }

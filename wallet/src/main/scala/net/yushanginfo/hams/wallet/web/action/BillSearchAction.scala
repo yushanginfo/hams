@@ -19,10 +19,11 @@ package net.yushanginfo.hams.wallet.web.action
 
 import net.yushanginfo.hams.base.model.Ward
 import net.yushanginfo.hams.wallet.model.{Bill, Wallet, WalletType}
-import org.beangle.data.dao.EntityDao
+import org.beangle.data.dao.{EntityDao, OqlBuilder}
 import org.beangle.web.action.support.ActionSupport
 import org.beangle.web.action.view.View
 import org.beangle.webmvc.support.action.{EntityAction, ExportSupport}
+import org.beangle.webmvc.support.helper.QueryHelper
 
 class BillSearchAction extends ActionSupport, EntityAction[Bill], ExportSupport[Bill] {
   var entityDao: EntityDao = _
@@ -33,6 +34,11 @@ class BillSearchAction extends ActionSupport, EntityAction[Bill], ExportSupport[
     forward()
   }
 
+  override protected def getQueryBuilder: OqlBuilder[Bill] = {
+    val query = super.getQueryBuilder
+    QueryHelper.dateBetween(query, null, "payAt", "beginAt", "endAt")
+    query
+  }
   def search(): View = {
     put("bills", entityDao.search(getQueryBuilder))
     forward()

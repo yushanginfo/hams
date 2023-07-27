@@ -20,9 +20,9 @@ package net.yushanginfo.hams.base.model
 import net.yushanginfo.hams.code.model.*
 import org.beangle.commons.collection.Collections
 import org.beangle.data.model.LongId
-import org.beangle.data.model.pojo.{Coded, Named, TemporalAt}
+import org.beangle.data.model.pojo.{Coded, Named}
 
-import java.time.{Instant, LocalDate, LocalDateTime}
+import java.time.Instant
 import scala.collection.mutable
 
 /**
@@ -87,7 +87,13 @@ class Inpatient extends LongId, Coded, Named {
   /** 登记人 */
   var createdBy: Option[String] = None
 
+  /** 入院时间 */
   var beginAt: Instant = _
 
+  /** 出院时间 */
   var endAt: Option[Instant] = None
+
+  def description: String = {
+    bedNo + " " + name + " " + ward.name
+  }
 }
