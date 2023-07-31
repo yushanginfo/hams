@@ -2,9 +2,9 @@
 [@b.head/]
 [@b.grid items=applies var="apply"]
   [@b.gridbar]
-    bar.addItem("离院办理",action.add());
+    bar.addItem("出院办理",action.method('dischargeForm'));
+    bar.addItem("请假办理",action.add());
     bar.addItem("销假",action.edit());
-    //bar.addItem("${b.text("action.delete")}",action.remove("确认删除?"));
   [/@]
   [@b.row]
     [@b.boxcol /]

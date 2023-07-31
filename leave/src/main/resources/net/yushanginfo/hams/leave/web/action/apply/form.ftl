@@ -7,7 +7,7 @@
         ${apply.inpatient.code} ${apply.inpatient.name}
       [/@]
     [#else]
-      [@b.textfield name="apply.inpatient.code" label="住院号" value="" required="true" maxlength="10"/]
+      [@b.textfield name="inpatient.code" label="住院号" value="" required="true" maxlength="10"/]
     [/#if]
     [@b.startend label="请假-预计销假" style="width:150px"
           name="apply.leaveAt,apply.predictBackAt" required="false,false"
