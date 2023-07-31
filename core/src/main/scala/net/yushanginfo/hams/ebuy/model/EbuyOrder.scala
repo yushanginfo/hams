@@ -30,13 +30,16 @@ import scala.collection.mutable
  */
 class EbuyOrder extends LongId, Named, DateRange {
 
-  var ward: Option[Ward] = None
+  var ward: Ward = _
 
   /** 购买时间 */
   var orderOn: Option[LocalDate] = None
 
   /** 总花销 */
-  var cost: Option[Yuan] = None
+  var payable: Option[Yuan] = None
+
+  /** 总花销 */
+  var payment: Option[Yuan] = None
 
   /** 订单明细 */
   var lines: mutable.Buffer[OrderLine] = Collections.newBuffer[OrderLine]
@@ -56,29 +59,46 @@ class EbuyOrder extends LongId, Named, DateRange {
       p.commodity = x._1
       p.brand = x._2
       p.unit = x._3
+      this.lines.find(y => y.commodity == x._1 && y.unit == x._3 && y.brand == x._2 && y.price.nonEmpty) foreach { line =>
+        p.price = line.price.get
+      }
       this.prices.addOne(p)
     }
-  }
+    //删除商品中没有的价格
+    this.prices.dropWhileInPlace(x => !this.lines.exists(y => y.commodity == x.commodity && y.unit == x.unit && y.brand == x.brand))
 
-  def calcCost(): Unit = {
+    //统计每个商品的数量
     val groupLines = this.lines groupBy (x => (x.commodity, x.brand, x.unit))
-    var totalCost = Yuan(0)
     groupLines.foreach { case (g, lines) =>
       this.prices.find(p => p.commodity == g._1 && p.brand == g._2 && p.unit == g._3) foreach { p =>
         p.amount = lines.map(_.amount).sum
-        p.actual = new Yuan((p.price.value * p.discount / 10).toLong)
-        p.cost = new Yuan(p.actual.value * p.amount)
+      }
+    }
+  }
+
+  def calcPayable(): Unit = {
+    val groupLines = this.lines groupBy (x => (x.commodity, x.brand, x.unit))
+    var totalPayable = Yuan(0)
+    groupLines.foreach { case (g, lines) =>
+      this.prices.find(p => p.commodity == g._1 && p.brand == g._2 && p.unit == g._3) foreach { p =>
+        p.amount = lines.map(_.amount).sum
+        p.discountPrice = new Yuan((p.price.value * p.discount / 10).toLong)
         lines foreach { line =>
-          val lc = line.cost match {
-            case None => new Yuan(p.actual.value * line.amount)
-            case Some(c) => c
-          }
-          line.cost = Some(lc)
-          totalCost += lc
+          line.price = Some(p.price)
+          line.payable = Some(new Yuan(p.price.value * line.amount))
+          totalPayable += line.payable.get
         }
       }
     }
-    this.cost = Some(totalCost)
+    this.payable = Some(totalPayable)
+  }
+
+  def calcPayment(): Unit = {
+    var totalPayment = Yuan(0)
+    lines foreach { l =>
+      totalPayment += l.payment.getOrElse(Yuan.Zero)
+    }
+    this.payment = Some(totalPayment)
   }
 
   def inputable(): Boolean = {

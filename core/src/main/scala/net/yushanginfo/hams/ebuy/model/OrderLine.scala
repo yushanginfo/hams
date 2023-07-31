@@ -36,6 +36,10 @@ class OrderLine extends LongId {
   var unit: CommodityUnit = _
   /** 数量 */
   var amount: Int = _
-  /** 花费 */
-  var cost: Option[Yuan] = None
+  /** 单个价格 */
+  var price: Option[Yuan] = None
+  /** 应收 */
+  var payable: Option[Yuan] = None
+  /** 实付 */
+  var payment: Option[Yuan] = None
 }

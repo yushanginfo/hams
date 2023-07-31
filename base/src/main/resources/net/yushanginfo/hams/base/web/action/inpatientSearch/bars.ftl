@@ -62,7 +62,7 @@
                     type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
                   },
                   formatter: function (params) {
-                    return params['name']+"<br>课程数量："+params['value'];
+                    return params['name']+"<br>病人数量："+params['value'];
                   }
                 },
                 [#else]//pie

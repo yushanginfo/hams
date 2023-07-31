@@ -19,20 +19,24 @@ package net.yushanginfo.hams.wallet.helper
 
 import net.yushanginfo.hams.wallet.service.{MealBillGeneratorDaily, MealBillStatMonthly}
 import org.beangle.cdi.bind.BindModule
-import org.springframework.scheduling.config.CronTask
+import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler
+import org.springframework.scheduling.config.{CronTask, ScheduledTaskRegistrar}
 
 class HelperModule extends BindModule {
 
   protected def bindTask[T <: Runnable](clazz: Class[T], expression: String): Unit = {
     val taskName = clazz.getName
-    bind(taskName + "Task", classOf[CronTask]).constructor(ref(taskName), expression)
+    bind(taskName + "Task", classOf[CronTask]).constructor(ref(taskName), expression).lazyInit(false)
   }
 
   override def binding(): Unit = {
+    bind(classOf[ConcurrentTaskScheduler])
+    bind(classOf[ScheduledTaskRegistrar]).nowire("triggerTasks", "triggerTasksList")
+
     bind(classOf[MealBillGeneratorDaily])
     bind(classOf[MealBillStatMonthly])
     bindTask(classOf[MealBillGeneratorDaily], "0 0 23 * * *")
     bindTask(classOf[MealBillStatMonthly], "0 0 0 1 * *")
-  }
 
+  }
 }

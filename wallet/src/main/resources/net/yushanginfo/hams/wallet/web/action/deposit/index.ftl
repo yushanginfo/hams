@@ -8,6 +8,7 @@
       [@b.textfields names="deposit.inpatient.code;住院号"/]
       [@b.textfields names="deposit.inpatient.name;姓名"/]
       [@b.select name="deposit.inpatient.ward.id" label="病区" items=wards empty="..."/]
+      [@b.select name="deposit.inpatient.status.id" label="状态" items=statues empty="..."/]
       <input type="hidden" name="orderBy" value="deposit.inpatient.code"/>
     [/@]
     </div>

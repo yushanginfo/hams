@@ -17,9 +17,7 @@
 
 package net.yushanginfo.hams.account.service
 
-import net.yushanginfo.hams.account.service.impl.{BankcardServiceImpl, PensionServiceImpl, SubsidyServiceImpl}
-import net.yushanginfo.hams.base.service.impl.CodeServiceImpl
-import net.yushanginfo.hams.wallet.service.impl.WalletServiceImpl
+import net.yushanginfo.hams.account.service.impl.{AttendFeeServiceImpl, BankcardServiceImpl, PensionServiceImpl, SubsidyServiceImpl}
 import org.beangle.cdi.bind.BindModule
 
 class DefaultModule extends BindModule {
@@ -28,5 +26,6 @@ class DefaultModule extends BindModule {
     bind(classOf[PensionServiceImpl])
     bind(classOf[SubsidyServiceImpl])
     bind(classOf[BankcardServiceImpl])
+    bind(classOf[AttendFeeServiceImpl])
   }
 }

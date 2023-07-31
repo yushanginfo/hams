@@ -41,6 +41,7 @@ class Yuan(val value: Long) extends Serializable with Ordered[Yuan] {
   def -(o: Yuan): Yuan = {
     new Yuan(this.value - o.value)
   }
+
 }
 
 object Yuan {
@@ -53,11 +54,18 @@ object Yuan {
   def apply(v: String): Yuan = {
     if Strings.isEmpty(v) then Zero
     else
-      new Yuan((v.toDouble * 100).toLong)
+      if (v.contains(".")) {
+        val decimal = (Strings.substringAfter(v, ".") + "00").substring(0, 2)
+        new Yuan(java.lang.Long.parseLong(Strings.substringBefore(v, ".") + decimal))
+      } else {
+        new Yuan(java.lang.Long.parseLong(v + "00"))
+      }
   }
 
   def main(args: Array[String]): Unit = {
     println(LocalDateTime.parse("2021-06-28T11:04:00"))
+    val y = Yuan("4.123")
+    println(y.value)
   }
 }
 

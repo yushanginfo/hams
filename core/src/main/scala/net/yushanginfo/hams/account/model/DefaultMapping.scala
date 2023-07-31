@@ -17,10 +17,7 @@
 
 package net.yushanginfo.hams.account.model
 
-import net.yushanginfo.hams.account.model.{Bankcard, BankcardBill, BankcardIncome}
-import net.yushanginfo.hams.base.model.YuanConverter
-import org.beangle.commons.conversion.impl.DefaultConversion
-import org.beangle.data.orm.{IdGenerator, MappingModule}
+import org.beangle.data.orm.MappingModule
 
 class DefaultMapping extends MappingModule {
 
@@ -45,5 +42,13 @@ class DefaultMapping extends MappingModule {
     bind[SubsidyBill]
     bind[SubsidyStat]
     bind[SubsidyIncome]
+
+    bind[AttendFee] declare { e =>
+      e.stats is depends("account")
+    }
+    bind[AttendFeeBill]
+    bind[AttendFeeIncome]
+    bind[AttendFeeStat]
+
   }
 }

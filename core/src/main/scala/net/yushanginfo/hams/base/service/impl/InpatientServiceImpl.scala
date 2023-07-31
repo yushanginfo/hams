@@ -35,4 +35,15 @@ class InpatientServiceImpl extends InpatientService {
       inpatients.headOption
     }
   }
+
+  override def getInpatientByName(name: String): Option[Inpatient] = {
+    val query = OqlBuilder.from(classOf[Inpatient], "i")
+    query.where("i.name=:name", name.trim())
+    val inpatients = entityDao.search(query)
+    if (inpatients.size <= 1) {
+      inpatients.headOption
+    } else {
+      inpatients.find(_.endAt.isEmpty)
+    }
+  }
 }

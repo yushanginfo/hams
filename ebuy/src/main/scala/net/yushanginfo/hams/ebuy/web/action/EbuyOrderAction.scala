@@ -40,6 +40,11 @@ class EbuyOrderAction extends RestfulAction[EbuyOrder] {
     query
   }
 
+  override protected def editSetting(entity: EbuyOrder): Unit = {
+    put("wards", entityDao.getAll(classOf[Ward]))
+    super.editSetting(entity)
+  }
+
   def inputRequire(): View = {
     val order = entityDao.get(classOf[EbuyOrder], getLongId("ebuyOrder"))
 
@@ -71,12 +76,13 @@ class EbuyOrderAction extends RestfulAction[EbuyOrder] {
     val order = entityDao.get(classOf[EbuyOrder], getLongId("ebuyOrder"))
     order.convertLineToPrice()
     order.prices foreach { p =>
-      val key = s"commodity_${p.commodity.id}_brand_${p.brand.map(_.id).orNull}_unit_${p.unit.id}"
+      val key = s"commodity_${p.commodity.id}_brand_${p.brand.map(_.id.toString).getOrElse("")}_unit_${p.unit.id}"
       p.price = Yuan(get(key + "_price", ""))
       p.discount = getFloat(key + "_discount").getOrElse(1f)
-      p.actual = new Yuan((p.price.value * p.discount).toLong)
+      p.discountPrice = new Yuan((p.price.value * p.discount).toLong)
     }
-    order.calcCost()
+    order.calcPayable()
+    order.calcPayment()
     entityDao.saveOrUpdate(order)
     redirect("priceReport", s"ebuyOrder.id=${order.id}", "info.save.success")
   }
@@ -105,7 +111,7 @@ class EbuyOrderAction extends RestfulAction[EbuyOrder] {
     val order = entityDao.get(classOf[EbuyOrder], getLongId("ebuyOrder"))
     if (order.orderOn.isEmpty) return redirect("search", "缺少订购日期")
     val orderAt = order.orderOn.get.atTime(0, 0).atZone(ZoneId.systemDefault).toInstant
-    val inpatientCost = order.lines.groupBy(_.inpatient).map(x => (x._1, new Yuan(x._2.map(_.cost.getOrElse(Yuan.Zero).value).sum)))
+    val inpatientCost = order.lines.groupBy(_.inpatient).map(x => (x._1, new Yuan(x._2.map(_.payment.getOrElse(Yuan.Zero).value).sum)))
     val fails = Collections.newBuffer[String]
     inpatientCost foreach { case (i, c) =>
       val walletQ = OqlBuilder.from(classOf[Wallet], "w")

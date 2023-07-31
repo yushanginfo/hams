@@ -17,21 +17,21 @@
 
 package net.yushanginfo.hams.wallet.service
 
-import net.yushanginfo.hams.base.model.Inpatient
 import net.yushanginfo.hams.wallet.model.{Bill, Wallet, WalletSetting}
+import org.beangle.commons.logging.Logging
 import org.beangle.data.dao.OqlBuilder
 
 import java.time.{Instant, LocalDate}
 import scala.collection.mutable
 
-class MealBillGeneratorDaily extends DaoJob {
+class MealBillGeneratorDaily extends DaoJob, Logging {
 
   def execute(): Unit = {
     val setting = entityDao.getAll(classOf[WalletSetting]).head
     val q = OqlBuilder.from(classOf[Wallet], "w")
-    q.where("w.inpatient.endAt is null or :today < w.inpatient.endAt", LocalDate.now)
+    q.where("w.inpatient.endAt is null or :today < w.inpatient.endAt", Instant.now)
     q.where("w.balance >= :minBalance", setting.mealPricePerDay)
-    q.where("w.impatient.status.name not like '%请假%'")
+    q.where("w.inpatient.status.name not like '%请假%'")
     val wallets = entityDao.search(q)
     val bills = new mutable.ArrayBuffer[Bill]
     wallets.foreach { w =>
@@ -47,5 +47,6 @@ class MealBillGeneratorDaily extends DaoJob {
       bills.addOne(bill)
     }
     entityDao.saveOrUpdate(bills, wallets)
+    logger.info(s"每日伙食费扣费成功,${bills.length}人")
   }
 }

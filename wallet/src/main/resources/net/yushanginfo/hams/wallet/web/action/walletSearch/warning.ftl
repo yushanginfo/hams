@@ -1,7 +1,7 @@
 [@b.head/]
  [#if walletType==1]
   [@b.card class="card-info card-primary card-outline"]
-    [#assign title]<i class="fa-solid fa-dollar-sign"></i>伙食费不足提醒[/#assign]
+    [#assign title]<i class="fa-solid fa-dollar-sign"></i>伙食费不足提醒(${wallets.totalItems}人)[/#assign]
     [@b.card_header class="border-transparent" title=title  minimal="true" closeable="true"]
     <a href="${b.base}/meal" target="_blank" class="float-right">更多...</a>
     [/@]
@@ -34,7 +34,7 @@
   [/@]
   [#else]
     [@b.card class="card-info card-primary card-outline"]
-      [#assign title]<i class="fa-solid fa-dollar-sign"></i>零用金不足提醒[/#assign]
+      [#assign title]<i class="fa-solid fa-dollar-sign"></i>零用金不足提醒(${wallets.totalItems}人)[/#assign]
       [@b.card_header class="border-transparent" title=title  minimal="true" closeable="true"]
       <a href="${b.base}/change" target="_blank" class="float-right">更多...</a>
       [/@]

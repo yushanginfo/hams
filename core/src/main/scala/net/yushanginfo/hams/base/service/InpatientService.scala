@@ -22,4 +22,6 @@ import net.yushanginfo.hams.base.model.Inpatient
 trait InpatientService {
 
   def getInpatient(code: String): Option[Inpatient]
+
+  def getInpatientByName(name: String): Option[Inpatient]
 }

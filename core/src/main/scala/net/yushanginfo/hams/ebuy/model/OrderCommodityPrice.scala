@@ -23,22 +23,24 @@ import org.beangle.data.model.LongId
 class OrderCommodityPrice extends LongId {
   /** 采购批次 */
   var order: EbuyOrder = _
-
+  /** 物品 */
   var commodity: Commodity = _
-
+  /** 品牌 */
   var brand: Option[CommodityBrand] = None
-
+  /** 单位 */
   var unit: CommodityUnit = _
-
+  /** 数量 */
   var amount: Int = _
-
+  /** 单价 */
   var price: Yuan = _
-
+  /** 折扣 <=10 */
   var discount: Float = _
+  /** 折后价格 */
+  var discountPrice: Yuan = _
 
-  var actual: Yuan = _
-
-  var cost: Yuan = _
+  def payable: Yuan = {
+    new Yuan(price.value * amount)
+  }
 
   def commodityDescription: String = {
     brand.map(_.name).getOrElse("") + commodity.name + "(" + unit.name + ")"

@@ -2,5 +2,8 @@
 <cdi>
   <container>
     <module class="net.yushanginfo.hams.ebuy.web.action.DefaultModule"/>
+    <module class="net.yushanginfo.hams.ebuy.service.DefaultModule"/>
+    <module class="net.yushanginfo.hams.base.service.DefaultModule"/>
+
   </container>
 </cdi>

@@ -23,6 +23,7 @@ class DefaultModule extends BindModule {
 
   override def binding(): Unit = {
     bind(classOf[DepositAction])
+    bind(classOf[DepositSearchAction])
 
     bind(classOf[ChangeAction])
     bind(classOf[ChangeBillAction])

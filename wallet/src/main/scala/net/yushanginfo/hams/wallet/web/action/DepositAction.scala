@@ -18,7 +18,8 @@
 package net.yushanginfo.hams.wallet.web.action
 
 import net.yushanginfo.hams.base.model.{Inpatient, Ward}
-import net.yushanginfo.hams.wallet.model.{Deposit, Wallet, WalletType}
+import net.yushanginfo.hams.code.model.InpatientStatus
+import net.yushanginfo.hams.wallet.model.Deposit
 import org.beangle.commons.lang.Strings
 import org.beangle.data.dao.OqlBuilder
 import org.beangle.web.action.view.View
@@ -28,6 +29,7 @@ class DepositAction extends RestfulAction[Deposit], ImportSupport[Deposit], Expo
 
   override protected def indexSetting(): Unit = {
     put("wards", entityDao.getAll(classOf[Ward]))
+    put("statues", entityDao.getAll(classOf[InpatientStatus]))
   }
 
   override protected def saveAndRedirect(deposit: Deposit): View = {

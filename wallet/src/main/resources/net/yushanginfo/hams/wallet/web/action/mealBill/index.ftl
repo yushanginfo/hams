@@ -11,9 +11,9 @@
       [@b.select name="bill.wallet.inpatient.ward.id" label="病区" items=wards empty="..."/]
       [@b.date name="beginAt" label="从"  /]
       [@b.date name="endAt" label="到"  /]
-      <input type="hidden" name="orderBy" value="bill.wallet.inpatient.code"/>
+      <input type="hidden" name="orderBy" value="bill.payAt desc"/>
     [/@]
     </div>
-    <div class="search-list">[@b.div id="billList" href="!search?orderBy=bill.wallet.inpatient.code"/]</div>
+    <div class="search-list">[@b.div id="billList" href="!search?orderBy=bill.payAt desc"/]</div>
 </div>
 [@b.foot/]

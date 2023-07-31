@@ -46,7 +46,7 @@ class WalletSearchAction extends ActionSupport, EntityAction[Wallet], ExportSupp
       q.where("w.balance < :minBalance", setting.warningChangeBalance)
     }
     q.orderBy("w.inpatient.bedNo")
-    q.limit(1, 20)
+    q.limit(1, 10)
     val wallets = entityDao.search(q)
     put("wallets", wallets)
     put("walletType", walletType)

@@ -37,5 +37,10 @@ class DefaultModule extends BindModule {
     bind(classOf[BankcardBillAction])
     bind(classOf[BankcardIncomeAction])
     bind(classOf[BankcardStatAction])
+
+    bind(classOf[AttendFeeAction])
+    bind(classOf[AttendFeeBillAction])
+    bind(classOf[AttendFeeIncomeAction])
+    bind(classOf[AttendFeeStatAction])
   }
 }

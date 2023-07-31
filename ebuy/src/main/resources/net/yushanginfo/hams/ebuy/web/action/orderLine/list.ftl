@@ -6,6 +6,7 @@
     bar.addItem("${b.text("action.new")}",action.add());
     bar.addItem("${b.text("action.modify")}",action.edit());
     bar.addItem("${b.text("action.delete")}",action.remove("确认删除?"));
+    bar.addItem("导入",action.method('importForm'));
     [/#if]
   [/@]
   [@b.row]
@@ -17,7 +18,9 @@
     [@b.col property="commodity.name" title="名称" /]
     [@b.col property="unit.name" title="单位"  width="7%"/]
     [@b.col property="amount" title="数量" width="7%"/]
-    [@b.col property="cost" title="费用" width="12%"/]
+    [@b.col property="price" title="单价" width="7%"/]
+    [@b.col property="payable" title="应付" width="7%"/]
+    [@b.col property="payment" title="实付" width="7%"/]
   [/@]
 [/@]
 [@b.foot/]
