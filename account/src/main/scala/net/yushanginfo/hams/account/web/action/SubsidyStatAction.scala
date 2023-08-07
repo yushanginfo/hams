@@ -51,7 +51,7 @@ class SubsidyStatAction extends ActionSupport, EntityAction[Subsidy] {
 
   def stat(): View = {
     val ym = YearMonth.parse(get("yearMonth", ""))
-    val forceStat = getBoolean("force",  ym == YearMonth.now)
+    val forceStat = getBoolean("force", ym.getYear == Year.now().getValue)
     val q = OqlBuilder.from(classOf[SubsidyStat], "ws")
     q.where("ws.yearMonth=:yearMonth", ym)
     var stats = entityDao.search(q)
@@ -96,6 +96,9 @@ class SubsidyStatAction extends ActionSupport, EntityAction[Subsidy] {
     val expenses = new mutable.HashMap[Ward, Yuan]
 
     wardStats foreach { case (ward, ws) =>
+      if(ward.id==1){
+        println(ws.map(_.startBalance.value).mkString(","))
+      }
       startBalances.put(ward, Yuan(ws.map(_.startBalance.value).sum))
       endBalances.put(ward, Yuan(ws.map(_.endBalance.value).sum))
       incomes.put(ward, Yuan(ws.map(_.incomes.value).sum))

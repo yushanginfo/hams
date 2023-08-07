@@ -49,7 +49,7 @@ class PensionServiceImpl extends PensionService {
       val q = OqlBuilder.from(classOf[Pension], "w")
       q.where("w.createdOn<=:yearMonth", yearMonth.atEndOfMonth())
       q.where("w.inpatient.beginAt <= :endAt", endAt)
-      q.where("w.inpatient.endAt is null or :beginAt >= w.inpatient.endAt", beginAt)
+      q.where("w.inpatient.endAt is null or :beginAt <= w.inpatient.endAt", beginAt)
       val pensions = entityDao.search(q)
 
       val stats = new mutable.ArrayBuffer[PensionStat]
@@ -59,7 +59,7 @@ class PensionServiceImpl extends PensionService {
       val bills = entityDao.search(bq)
 
       val iq = OqlBuilder.from(classOf[PensionIncome], "i")
-      iq.where("i.updatedAt between :beginAt and :endAt", beginAtZ, endAtZ)
+      iq.where("i.payAt between :beginAt and :endAt", beginAtZ, endAtZ)
       val incomes = entityDao.search(iq)
 
       val billStats = bills.groupBy(_.account.inpatient)

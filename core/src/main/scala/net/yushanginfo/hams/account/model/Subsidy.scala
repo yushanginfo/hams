@@ -79,6 +79,31 @@ class Subsidy extends LongId {
         Some(w.update(incomes, expenses))
     }
   }
+
+  def newBill(amount: Yuan, payAt: Instant, expenses: String): SubsidyBill = {
+    val i = new SubsidyBill
+    i.account = this
+    i.amount = if (amount.value > 0) Yuan.Zero - amount else amount
+    i.updatedAt = Instant.now
+    i.payAt = payAt
+    i.balance = this.balance + i.amount
+    i.expenses = expenses
+    this.balance = i.balance
+    i
+  }
+
+  def newIncome(amount: Yuan, payAt: Instant, channel: String): SubsidyIncome = {
+    val i = new SubsidyIncome
+    i.account = this
+    i.amount = amount
+    i.updatedAt = Instant.now
+    i.payAt = payAt
+    i.balance = this.balance + amount
+    i.channel = channel
+    this.balance = i.balance
+    i
+  }
+
 }
 
 /** 现金流量表

@@ -15,23 +15,32 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.yushanginfo.hams.account.model
+package net.yushanginfo.hams.base.model
 
-import net.yushanginfo.hams.base.model.{Transaction, Yuan}
-import net.yushanginfo.hams.wallet.model.WalletType
-import org.beangle.data.model.LongId
-import org.beangle.data.model.pojo.Updated
+import org.beangle.data.model.pojo.Remark
 
 import java.time.Instant
 
-/**
- * 养护补贴消费账单
- */
-class SubsidyBill extends LongId, Updated, Transaction {
-  /** 养护补贴 */
-  var account: Subsidy = _
-  /** 资金去向 */
-  var expenses: String = _
-  /** 转入钱包 */
-  var toWallet: Option[WalletType] = None
+trait Transaction extends Remark, Ordered[Transaction] {
+  /** 支付日期 */
+  var payAt: Instant = _
+  /** 金额 */
+  var amount: Yuan = _
+  /** 结余 */
+  var balance: Yuan = _
+
+  def updatePayAt(newPayAt: Instant): Instant = {
+    if (null == this.payAt) {
+      this.payAt = newPayAt
+      newPayAt
+    } else {
+      val minPayAt = if this.payAt.isBefore(newPayAt) then this.payAt else newPayAt
+      this.payAt = newPayAt
+      minPayAt
+    }
+  }
+
+  override def compare(that: Transaction): Int = {
+    this.payAt.compareTo(that.payAt)
+  }
 }

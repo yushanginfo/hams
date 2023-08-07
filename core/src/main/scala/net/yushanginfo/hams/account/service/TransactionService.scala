@@ -15,23 +15,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.yushanginfo.hams.account.model
+package net.yushanginfo.hams.account.service
 
-import net.yushanginfo.hams.base.model.{Transaction, Yuan}
-import net.yushanginfo.hams.wallet.model.WalletType
-import org.beangle.data.model.LongId
-import org.beangle.data.model.pojo.Updated
+import net.yushanginfo.hams.base.model.Transaction
 
 import java.time.Instant
 
-/**
- * 养护补贴消费账单
- */
-class SubsidyBill extends LongId, Updated, Transaction {
-  /** 养护补贴 */
-  var account: Subsidy = _
-  /** 资金去向 */
-  var expenses: String = _
-  /** 转入钱包 */
-  var toWallet: Option[WalletType] = None
+trait TransactionService {
+
+  def getLast(before: Instant, clazzes: Seq[Class[_]],params:Map[String,Any]): Option[Transaction]
+
+  def find(beginAt: Instant, clazzes: Seq[Class[_]],params:Map[String,Any]): collection.Seq[Transaction]
 }

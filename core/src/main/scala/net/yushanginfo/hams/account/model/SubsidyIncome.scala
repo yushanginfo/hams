@@ -17,25 +17,14 @@
 
 package net.yushanginfo.hams.account.model
 
-import net.yushanginfo.hams.base.model.{Inpatient, Yuan}
-import net.yushanginfo.hams.code.model.IncomeChannel
+import net.yushanginfo.hams.base.model.{Inpatient, Transaction, Yuan}
 import org.beangle.data.model.LongId
 import org.beangle.data.model.pojo.Updated
 
-import java.time.Instant
-
 /** 养护补贴收入明细 */
-class SubsidyIncome extends LongId, Updated {
-  /** 病人 */
-  var inpatient: Inpatient = _
+class SubsidyIncome extends LongId, Updated, Transaction {
   /** 养护补贴 */
   var account: Subsidy = _
-  /** 支付日期 */
-  var payAt: Instant = _
-  /** 金额 */
-  var amount: Yuan = _
-  /** 结余 */
-  var balance: Yuan = _
   /** 渠道 */
   var channel: String = _
 }

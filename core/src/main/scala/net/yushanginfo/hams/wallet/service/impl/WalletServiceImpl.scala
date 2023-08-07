@@ -53,7 +53,7 @@ class WalletServiceImpl extends WalletService {
       //find all meal wallet for active inpatient
       val q = OqlBuilder.from(classOf[Wallet], "w")
       q.where("w.createdOn<=:yearMonth", yearMonth.atEndOfMonth())
-      q.where("w.inpatient.endAt is null or :beginAt >= w.inpatient.endAt", beginAt)
+      q.where("w.inpatient.endAt is null or :beginAt <= w.inpatient.endAt", beginAt)
       q.where("w.walletType=:walletType", walletType)
       val wallets = entityDao.search(q)
 
@@ -66,7 +66,7 @@ class WalletServiceImpl extends WalletService {
 
       val iq = OqlBuilder.from(classOf[Income], "i")
       iq.where("i.wallet.walletType=:walletType", walletType)
-      iq.where("i.updatedAt between :beginAt and :endAt", beginAt, endAt)
+      iq.where("i.payAt between :beginAt and :endAt", beginAt, endAt)
       val incomes = entityDao.search(iq)
 
       val billStats = bills.groupBy(_.inpatient)

@@ -22,8 +22,6 @@ ThisBuild / developers := List(
 ThisBuild / description := "HAMS"
 ThisBuild / homepage := Some(url("http://yushanginfo.github.io/hams/index.html"))
 ThisBuild / resolvers += Resolver.mavenLocal
-val beangle_web_action = "org.beangle.web" % "beangle-web-action_3" % "0.4.4-SNAPSHOT"
-val beangle_webmvc_view = "org.beangle.webmvc" % "beangle-webmvc-view_3" % "0.9.6-SNAPSHOT"
 
 lazy val root = (project in file("."))
   .settings()
@@ -43,8 +41,7 @@ lazy val base = (project in file("base"))
     name := "hams-base",
     common,
     crossPaths := false,
-    libraryDependencies ++= appDepends,
-    libraryDependencies ++= Seq(beangle_web_action, beangle_webmvc_view)
+    libraryDependencies ++= appDepends
   ).dependsOn(core)
 
 lazy val wallet = (project in file("wallet"))
@@ -53,8 +50,7 @@ lazy val wallet = (project in file("wallet"))
     name := "hams-wallet",
     common,
     crossPaths := false,
-    libraryDependencies ++= appDepends,
-    libraryDependencies ++= Seq(beangle_web_action, beangle_webmvc_view)
+    libraryDependencies ++= appDepends
   ).dependsOn(core)
 
 lazy val account = (project in file("account"))
@@ -63,8 +59,7 @@ lazy val account = (project in file("account"))
     name := "hams-account",
     common,
     crossPaths := false,
-    libraryDependencies ++= appDepends,
-    libraryDependencies ++= Seq(beangle_web_action, beangle_webmvc_view)
+    libraryDependencies ++= appDepends
   ).dependsOn(core)
 
 lazy val leave = (project in file("leave"))
@@ -73,8 +68,7 @@ lazy val leave = (project in file("leave"))
     name := "hams-leave",
     common,
     crossPaths := false,
-    libraryDependencies ++= appDepends,
-    libraryDependencies ++= Seq(beangle_web_action, beangle_webmvc_view)
+    libraryDependencies ++= appDepends
   ).dependsOn(core)
 
 lazy val ebuy = (project in file("ebuy"))
@@ -83,8 +77,21 @@ lazy val ebuy = (project in file("ebuy"))
     name := "hams-ebuy",
     common,
     crossPaths := false,
+    libraryDependencies ++= appDepends
+  ).dependsOn(core)
+
+val cxfVersion = "4.0.2"
+val cxf_frontend_jaxws = "org.apache.cxf" % "cxf-rt-frontend-jaxws" % cxfVersion
+val cxf_transports_http = "org.apache.cxf" % "cxf-rt-transports-http" % cxfVersion
+
+lazy val landray = (project in file("landray"))
+  .enablePlugins(WarPlugin, TomcatPlugin)
+  .settings(
+    name := "hams-landray",
+    common,
+    crossPaths := false,
     libraryDependencies ++= appDepends,
-    libraryDependencies ++= Seq(beangle_web_action, beangle_webmvc_view)
+    libraryDependencies ++= Seq(cxf_frontend_jaxws, cxf_transports_http)
   ).dependsOn(core)
 
 publish / skip := true

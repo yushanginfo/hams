@@ -17,11 +17,22 @@
 
 package net.yushanginfo.hams.account.service
 
-import net.yushanginfo.hams.account.model.{PensionStat, SubsidyStat}
+import net.yushanginfo.hams.account.model.{Subsidy, SubsidyBill, SubsidyIncome, SubsidyStat}
+import net.yushanginfo.hams.base.model.{Inpatient, Yuan}
 
-import java.time.YearMonth
+import java.time.{Instant, YearMonth}
 
 trait SubsidyService {
+
+  def adjustBalance(subsidy: Subsidy, beginAt: Instant): Yuan
+
+  def get(inpatient: Inpatient): Option[Subsidy]
+
+  def getOrCreate(inpatient: Inpatient): Subsidy
+
+  def getBill(subsidy: Subsidy, amount: Yuan, payAt: Instant): Option[SubsidyBill]
+
+  def getIncome(subsidy: Subsidy, amount: Yuan, payAt: Instant): Option[SubsidyIncome]
 
   def stat(yearMonth: YearMonth, force: Boolean): Seq[SubsidyStat]
 }

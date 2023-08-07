@@ -19,18 +19,25 @@ package net.yushanginfo.hams.account.web.action
 
 import net.yushanginfo.hams.account.model.Subsidy
 import net.yushanginfo.hams.account.service.SubsidyService
+import net.yushanginfo.hams.account.web.helper.SubsidyImportListener
 import net.yushanginfo.hams.base.model.{Inpatient, Ward}
+import net.yushanginfo.hams.base.service.InpatientService
+import org.beangle.commons.activation.MediaTypes
 import org.beangle.commons.collection.Collections
 import org.beangle.commons.lang.Strings
 import org.beangle.data.dao.OqlBuilder
-import org.beangle.web.action.view.View
+import org.beangle.data.excel.schema.ExcelSchema
+import org.beangle.data.transfer.importer.ImportSetting
+import org.beangle.web.action.view.{Stream, View}
 import org.beangle.webmvc.support.action.{ExportSupport, ImportSupport, RestfulAction}
 
+import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
 import java.time.{LocalDate, Year, YearMonth}
 import scala.collection.mutable
 
 class SubsidyAction extends RestfulAction[Subsidy], ImportSupport[Subsidy], ExportSupport[Subsidy] {
 
+  var inpatientService: InpatientService = _
   var subsidyService: SubsidyService = _
 
   override protected def indexSetting(): Unit = {
@@ -47,6 +54,25 @@ class SubsidyAction extends RestfulAction[Subsidy], ImportSupport[Subsidy], Expo
       subsidy.balance = subsidy.initBalance
     }
     super.saveAndRedirect(subsidy)
+  }
+
+  def downloadTemplate(): View = {
+    val schema = new ExcelSchema()
+    val sheet = schema.createScheet("数据模板")
+    sheet.title("养护补贴信息模板")
+    sheet.remark("特别说明：\n1、不可改变本表格的行列结构以及批注，否则将会导入失败！\n2、必须按照规格说明的格式填写。\n3、可以多次导入，重复的信息会被新数据更新覆盖。\n4、保存的excel文件名称可以自定。")
+    sheet.add("姓名", "subsidy.inpatient.name").length(10).required().remark("≤10位")
+    sheet.add("当前余额", "subsidy.balance")
+    sheet.add("起始余额", "subsidy.initBalance")
+    sheet.add("起始日期", "subsidy.createdOn")
+
+    val os = new ByteArrayOutputStream()
+    schema.generate(os)
+    Stream(new ByteArrayInputStream(os.toByteArray), MediaTypes.ApplicationXlsx.toString, "养护补贴.xlsx")
+  }
+
+  protected override def configImport(setting: ImportSetting): Unit = {
+    setting.listeners = List(new SubsidyImportListener(inpatientService, entityDao))
   }
 
 }
