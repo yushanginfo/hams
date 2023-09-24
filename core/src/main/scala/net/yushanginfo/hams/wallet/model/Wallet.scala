@@ -17,21 +17,20 @@
 
 package net.yushanginfo.hams.wallet.model
 
-import net.yushanginfo.hams.base.model.{Inpatient, Yuan}
+import net.yushanginfo.hams.base.model.{Account, Inpatient, Yuan}
 import net.yushanginfo.hams.code.model.IncomeChannel
-import org.beangle.commons.collection.Collections
 import org.beangle.data.model.LongId
-import org.beangle.data.model.pojo.Updated
 
-import java.time.{Instant, LocalDate, YearMonth}
-import scala.collection.mutable
+import java.time.{Instant, LocalDate, ZoneId}
 
 object Wallet {
   def apply(inpatient: Inpatient, walletType: WalletType): Wallet = {
     val w = new Wallet
     w.inpatient = inpatient
     w.walletType = walletType
+    w.createdOn = inpatient.beginAt.atZone(ZoneId.systemDefault).toLocalDate
     w.balance = new Yuan(0L)
+    w.initBalance = Yuan.Zero
     w
   }
 }
@@ -39,7 +38,7 @@ object Wallet {
 /**
  * 钱包
  */
-class Wallet extends LongId {
+class Wallet extends LongId, Account {
 
   def this(id: Long) = {
     this()
@@ -55,9 +54,6 @@ class Wallet extends LongId {
   /** 钱包类型 */
   var walletType: WalletType = _
 
-  /** 月度统计 */
-  var stats: mutable.Buffer[WalletStat] = Collections.newBuffer[WalletStat]
-
   /** 起始年月 */
   var createdOn: LocalDate = _
 
@@ -67,11 +63,10 @@ class Wallet extends LongId {
   def newBill(amount: Yuan, payAt: Instant, goods: String): Bill = {
     val i = new Bill
     i.wallet = this
-    i.amount = amount
-    i.inpatient = this.inpatient
+    i.amount = if (amount.value > 0) Yuan.Zero - amount else amount
     i.updatedAt = Instant.now
     i.payAt = payAt
-    i.balance = this.balance - amount
+    i.balance = this.balance + amount
     i.goods = goods
     this.balance = i.balance
     i
@@ -81,51 +76,11 @@ class Wallet extends LongId {
     val i = new Income
     i.wallet = this
     i.amount = amount
-    i.inpatient = this.inpatient
     i.updatedAt = Instant.now
     i.payAt = payAt
     i.balance = this.balance + amount
     i.channel = channel
     this.balance = i.balance
     i
-  }
-
-  def addStat(yearMonth: YearMonth, incomes: Yuan, expenses: Yuan): Option[WalletStat] = {
-    stats.find(x => x.yearMonth == yearMonth) match {
-      case None =>
-        val initYearMonth = YearMonth.from(createdOn)
-        if (initYearMonth == yearMonth) {
-          val ws = new WalletStat
-          ws.wallet = this
-          ws.yearMonth = initYearMonth
-          ws.startBalance = this.initBalance
-          ws.update(incomes, expenses)
-          Some(ws)
-        } else {
-          None
-        }
-      case Some(w) =>
-        Some(w.update(incomes, expenses))
-    }
-  }
-}
-
-/** 钱包的现金流量表
- * Statement of Cash Flow
- */
-class WalletStat extends LongId, Updated {
-  var wallet: Wallet = _
-  var yearMonth: YearMonth = _
-  var startBalance: Yuan = _
-  var endBalance: Yuan = _
-  var incomes: Yuan = _
-  var expenses: Yuan = _
-
-  def update(incomes: Yuan, expenses: Yuan): WalletStat = {
-    this.incomes = incomes
-    this.expenses = if expenses.value > 0 then Yuan(0 - expenses.value) else expenses
-    this.endBalance = this.startBalance + this.incomes + this.expenses
-    this.updatedAt = Instant.now
-    this
   }
 }

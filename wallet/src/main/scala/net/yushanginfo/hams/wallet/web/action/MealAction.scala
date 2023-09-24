@@ -18,20 +18,24 @@
 package net.yushanginfo.hams.wallet.web.action
 
 import net.yushanginfo.hams.base.model.{Inpatient, Ward}
+import net.yushanginfo.hams.base.service.InpatientService
+import net.yushanginfo.hams.wallet.helper.WalletImportListener
 import net.yushanginfo.hams.wallet.model.*
 import net.yushanginfo.hams.wallet.service.WalletService
-import org.beangle.commons.collection.Collections
+import org.beangle.commons.activation.MediaTypes
 import org.beangle.commons.lang.Strings
 import org.beangle.data.dao.OqlBuilder
-import org.beangle.web.action.view.View
+import org.beangle.data.excel.schema.ExcelSchema
+import org.beangle.data.transfer.importer.ImportSetting
+import org.beangle.web.action.view.{Stream, View}
 import org.beangle.webmvc.support.action.{ExportSupport, ImportSupport, RestfulAction}
 
-import java.time.{LocalDate, Year, YearMonth}
-import scala.collection.mutable
+import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
 
 class MealAction extends RestfulAction[Wallet], ImportSupport[Wallet], ExportSupport[Wallet] {
 
   var walletService: WalletService = _
+  var inpatientService: InpatientService = _
 
   override protected def indexSetting(): Unit = {
     put("wards", entityDao.getAll(classOf[Ward]))
@@ -56,4 +60,22 @@ class MealAction extends RestfulAction[Wallet], ImportSupport[Wallet], ExportSup
     query
   }
 
+  def downloadTemplate(): View = {
+    val schema = new ExcelSchema()
+    val sheet = schema.createScheet("数据模板")
+    sheet.title("伙食费信息模板")
+    sheet.remark("特别说明：\n1、不可改变本表格的行列结构以及批注，否则将会导入失败！\n2、必须按照规格说明的格式填写。\n3、可以多次导入，重复的信息会被新数据更新覆盖。\n4、保存的excel文件名称可以自定。")
+    sheet.add("姓名", "wallet.inpatient.name").length(10).required().remark("≤10位")
+    sheet.add("当前余额", "wallet.balance")
+    sheet.add("起始余额", "wallet.initBalance")
+    sheet.add("起始日期", "wallet.createdOn")
+
+    val os = new ByteArrayOutputStream()
+    schema.generate(os)
+    Stream(new ByteArrayInputStream(os.toByteArray), MediaTypes.ApplicationXlsx.toString, "伙食费余额.xlsx")
+  }
+
+  protected override def configImport(setting: ImportSetting): Unit = {
+    setting.listeners = List(new WalletImportListener(WalletType.Meal, inpatientService, entityDao))
+  }
 }

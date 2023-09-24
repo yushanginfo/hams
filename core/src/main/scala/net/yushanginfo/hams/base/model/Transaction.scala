@@ -17,17 +17,20 @@
 
 package net.yushanginfo.hams.base.model
 
-import org.beangle.data.model.pojo.Remark
+import org.beangle.data.model.Entity
+import org.beangle.data.model.pojo.{Remark, Updated}
 
-import java.time.Instant
+import java.time.{Instant, YearMonth}
 
-trait Transaction extends Remark, Ordered[Transaction] {
+trait Transaction extends Remark, Ordered[Transaction], Entity[Long] {
   /** 支付日期 */
   var payAt: Instant = _
   /** 金额 */
   var amount: Yuan = _
   /** 结余 */
   var balance: Yuan = _
+
+  def user: Account
 
   def updatePayAt(newPayAt: Instant): Instant = {
     if (null == this.payAt) {
@@ -41,6 +44,33 @@ trait Transaction extends Remark, Ordered[Transaction] {
   }
 
   override def compare(that: Transaction): Int = {
-    this.payAt.compareTo(that.payAt)
+    val rs = this.payAt.compareTo(that.payAt)
+    if (rs == 0) this.id.compare(that.id) else rs
+  }
+
+  def originBalance: Yuan = {
+    balance - amount
+  }
+}
+
+/** 现金流量表
+ * Statement of Cash Flow
+ */
+class TransactionStat(val user: Account, val yearMonth: YearMonth) extends Updated {
+  var startBalance: Yuan = _
+  var endBalance: Yuan = _
+  var incomes: Yuan = _
+  var expenses: Yuan = _
+
+  def update(incomes: Yuan, expenses: Yuan): TransactionStat = {
+    this.incomes = incomes
+    this.expenses = if expenses.value > 0 then Yuan(0 - expenses.value) else expenses
+    this.endBalance = this.startBalance + this.incomes + this.expenses
+    this.updatedAt = Instant.now
+    this
+  }
+
+  def isZero: Boolean = {
+    startBalance == Yuan.Zero && endBalance == Yuan.Zero && incomes == Yuan.Zero && expenses == Yuan.Zero
   }
 }

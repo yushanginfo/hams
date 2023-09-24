@@ -2,17 +2,17 @@ import _root_.org.beangle.parent.Dependencies.*
 import sbt.*
 
 object HisDepends {
-  val commonsVer = "5.5.7"
-  val dataVer = "5.6.22"
-  val cdiVer = "0.5.4"
-  val webVer = "0.4.4"
-  val serializerVer = "0.1.4"
-  val cacheVer = "0.1.4"
-  val templateVer = "0.1.6"
-  val webmvcVer = "0.9.6"
-  val securityVer = "4.3.7"
-  val idsVer = "0.3.9"
-  val emsVer = "4.6.21"
+  val commonsVer = "5.6.0"
+  val dataVer = "5.7.2"
+  val cdiVer = "0.5.5"
+  val webVer = "0.4.6"
+  val serializerVer = "0.1.5"
+  val cacheVer = "0.1.5"
+  val templateVer = "0.1.7"
+  val webmvcVer = "0.9.9"
+  val securityVer = "4.3.12"
+  val idsVer = "0.3.12"
+  val emsVer = "4.7.1"
 
   val commonsCore = "org.beangle.commons" %% "beangle-commons-core" % commonsVer
   val commonsFile = "org.beangle.commons" %% "beangle-commons-file" % commonsVer
@@ -34,13 +34,13 @@ object HisDepends {
   val securityCore = "org.beangle.security" %% "beangle-security-core" % securityVer
   val securityWeb = "org.beangle.security" %% "beangle-security-web" % securityVer
   val securitySession = "org.beangle.security" %% "beangle-security-session" % securityVer
-  val securityCas = "org.beangle.security" %% "beangle-security-cas" % securityVer
+  val securitySso = "org.beangle.security" %% "beangle-security-sso" % securityVer
   val idsCas = "org.beangle.ids" %% "beangle-ids-cas" % idsVer
   val idsWeb = "org.beangle.ids" %% "beangle-ids-web" % idsVer
   val emsApp = "org.beangle.ems" %% "beangle-ems-app" % emsVer
 
   val appDepends = Seq(commonsCore, commonsFile, logback_classic, logback_core, scalatest, webAction, cdiApi, cdiSpring, gson, HikariCP) ++
-    Seq(dataOrm, hibernate_core, dataJdbc, cacheApi, cacheCaffeine, securitySession, securityCas, templateApi) ++
+    Seq(dataOrm, hibernate_core, dataJdbc, cacheApi, cacheCaffeine, securitySession, securitySso, templateApi) ++
     Seq(postgresql, caffeine_jcache, emsApp, hibernate_jcache, webmvcSupport, webmvcView, dataTransfer, serializerText) ++
     Seq(templateFreemarker)
 

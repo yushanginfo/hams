@@ -18,19 +18,28 @@
 package net.yushanginfo.hams.wallet.web.action
 
 import net.yushanginfo.hams.base.model.{Inpatient, Ward}
-import net.yushanginfo.hams.wallet.model.{Bill, Wallet, WalletType}
+import net.yushanginfo.hams.base.service.InpatientService
+import net.yushanginfo.hams.wallet.helper.BillImportListener
+import net.yushanginfo.hams.wallet.model.{Bill, WalletType}
 import net.yushanginfo.hams.wallet.service.WalletService
+import org.beangle.commons.activation.MediaTypes
 import org.beangle.commons.lang.Strings
 import org.beangle.data.dao.OqlBuilder
-import org.beangle.web.action.view.View
+import org.beangle.data.excel.schema.ExcelSchema
+import org.beangle.data.transfer.importer.ImportSetting
+import org.beangle.web.action.view.{Stream, View}
 import org.beangle.webmvc.support.action.{ExportSupport, ImportSupport, RestfulAction}
 import org.beangle.webmvc.support.helper.QueryHelper
+
+import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
+import java.time.{YearMonth, ZoneId}
 
 /**
  * 伙食费支出
  */
 class ChangeBillAction extends RestfulAction[Bill], ImportSupport[Bill], ExportSupport[Bill] {
   var walletService: WalletService = _
+  var inpatientService: InpatientService = _
 
   override protected def indexSetting(): Unit = {
     put("wards", entityDao.getAll(classOf[Ward]))
@@ -38,16 +47,23 @@ class ChangeBillAction extends RestfulAction[Bill], ImportSupport[Bill], ExportS
   }
 
   override protected def saveAndRedirect(bill: Bill): View = {
+    val payAt = getInstant("payAt").get
+    val minPayAt = bill.updatePayAt(payAt)
+
     if (!bill.persisted && !Strings.isEmpty(bill.wallet.inpatient.code)) {
-      val wallet = walletService.getWallet(bill.wallet.inpatient.code, WalletType.Change)
-      wallet match {
-        case None => return redirect("index", "没有对应住院号的零用金账户")
-        case Some(w) =>
-          val nbill = w.newBill(bill.amount, bill.payAt, bill.goods)
+      inpatientService.getInpatient(bill.wallet.inpatient.code).headOption match {
+        case None => redirect("index", "不正确的住院号")
+        case Some(inpatient) =>
+          val wallet = walletService.getOrCreateWallet(inpatient, WalletType.Change, payAt)
+          val nbill =
+            wallet.newBill(bill.amount, bill.payAt, bill.goods)
           entityDao.saveOrUpdate(wallet, nbill)
+          walletService.adjustBalance(wallet, minPayAt)
           super.saveAndRedirect(nbill)
       }
     } else {
+      entityDao.saveOrUpdate(bill)
+      walletService.adjustBalance(bill.wallet, minPayAt)
       super.saveAndRedirect(bill)
     }
   }
@@ -57,5 +73,38 @@ class ChangeBillAction extends RestfulAction[Bill], ImportSupport[Bill], ExportS
     QueryHelper.dateBetween(query, null, "payAt", "beginAt", "endAt")
     query.where("bill.wallet.walletType=:walletType", WalletType.Change)
     query
+  }
+
+  def downloadTemplate(): View = {
+    val schema = new ExcelSchema()
+    val sheet = schema.createScheet("数据模板")
+    sheet.title("零用金支出模板")
+    sheet.remark("特别说明：\n1、不可改变本表格的行列结构以及批注，否则将会导入失败！\n2、必须按照规格说明的格式填写。\n3、可以多次导入，重复的信息会被新数据更新覆盖。\n4、保存的excel文件名称可以自定。")
+    sheet.add("姓名", "bill.wallet.inpatient.name").length(10).required().remark("≤10位")
+    sheet.add("数额", "bill.amount").remark("支出请填写负值")
+    sheet.add("支出时间", "bill.payAt")
+    sheet.add("资金去向", "bill.goods")
+
+    val os = new ByteArrayOutputStream()
+    schema.generate(os)
+    Stream(new ByteArrayInputStream(os.toByteArray), MediaTypes.ApplicationXlsx.toString, "零用金支出.xlsx")
+  }
+
+  def billSetting(): View = {
+    get("yearMonth") foreach { ym =>
+      val yearMonth = YearMonth.parse(ym)
+      val beginAt = yearMonth.atDay(1).atTime(0, 0, 0).atZone(ZoneId.systemDefault).toInstant
+      val endAt = yearMonth.atEndOfMonth().atTime(23, 59, 59).atZone(ZoneId.systemDefault).toInstant
+      OqlBuilder.from(classOf[Inpatient],"")
+    }
+    forward()
+  }
+
+  def generateBill(): View = {
+    forward()
+  }
+
+  protected override def configImport(setting: ImportSetting): Unit = {
+    setting.listeners = List(new BillImportListener(WalletType.Change, inpatientService, walletService, entityDao))
   }
 }

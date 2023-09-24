@@ -19,6 +19,7 @@ package net.yushanginfo.hams.base.service.impl
 
 import net.yushanginfo.hams.base.model.Inpatient
 import net.yushanginfo.hams.base.service.InpatientService
+import org.beangle.commons.lang.Strings
 import org.beangle.data.dao.{EntityDao, OqlBuilder}
 
 class InpatientServiceImpl extends InpatientService {
@@ -38,7 +39,7 @@ class InpatientServiceImpl extends InpatientService {
 
   override def getInpatientByName(name: String): Option[Inpatient] = {
     val query = OqlBuilder.from(classOf[Inpatient], "i")
-    query.where("i.name=:name", name.trim())
+    query.where("i.name=:name", Strings.replace(name, " ", "").trim())
     val inpatients = entityDao.search(query)
     if (inpatients.size <= 1) {
       inpatients.headOption

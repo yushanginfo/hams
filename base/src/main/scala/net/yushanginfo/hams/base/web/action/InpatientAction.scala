@@ -21,13 +21,12 @@ import net.yushanginfo.hams.base.model.*
 import net.yushanginfo.hams.base.service.CodeService
 import net.yushanginfo.hams.base.web.helper.InpatientImporterListener
 import net.yushanginfo.hams.code.model.*
-import org.beangle.commons.activation.{MediaType, MediaTypes}
-import org.beangle.commons.lang.Strings
+import org.beangle.commons.activation.MediaTypes
+import org.beangle.commons.lang.{Strings, SystemInfo}
 import org.beangle.data.dao.OqlBuilder
 import org.beangle.data.excel.schema.ExcelSchema
 import org.beangle.data.transfer.importer.listener.ForeignerListener
 import org.beangle.data.transfer.importer.{ImportSetting, MultiEntityImporter}
-import org.beangle.web.action.annotation.response
 import org.beangle.web.action.view.{Stream, View}
 import org.beangle.webmvc.support.action.{ExportSupport, ImportSupport, RestfulAction}
 import org.beangle.webmvc.support.helper.PopulateHelper
@@ -162,4 +161,11 @@ class InpatientAction extends RestfulAction[Inpatient], ExportSupport[Inpatient]
     }
   }
 
+  def manualSync(): View = {
+    val pb = new ProcessBuilder(SystemInfo.user.home + "/transport/sync.sh")
+    pb.inheritIO()
+    val pro = pb.start()
+    pro.waitFor()
+    redirect("search", "同步成功")
+  }
 }

@@ -17,7 +17,7 @@
 
 package net.yushanginfo.hams.wallet.helper
 
-import net.yushanginfo.hams.wallet.service.{MealBillGeneratorDaily, MealBillStatMonthly}
+import net.yushanginfo.hams.wallet.service.MealBillGeneratorDaily
 import org.beangle.cdi.bind.BindModule
 import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler
 import org.springframework.scheduling.config.{CronTask, ScheduledTaskRegistrar}
@@ -34,9 +34,7 @@ class HelperModule extends BindModule {
     bind(classOf[ScheduledTaskRegistrar]).nowire("triggerTasks", "triggerTasksList")
 
     bind(classOf[MealBillGeneratorDaily])
-    bind(classOf[MealBillStatMonthly])
     bindTask(classOf[MealBillGeneratorDaily], "0 0 23 * * *")
-    bindTask(classOf[MealBillStatMonthly], "0 0 0 1 * *")
 
   }
 }

@@ -17,29 +17,17 @@
 
 package net.yushanginfo.hams.wallet.model
 
-import net.yushanginfo.hams.base.model.{Inpatient, Yuan}
+import net.yushanginfo.hams.base.model.{Account, Transaction}
 import net.yushanginfo.hams.code.model.IncomeChannel
 import org.beangle.data.model.LongId
 import org.beangle.data.model.pojo.Updated
 
-import java.time.Instant
-
 /** 收入明细 */
-class Income extends LongId, Updated {
-  /** 病人 */
-  var inpatient: Inpatient = _
+class Income extends LongId, Updated, Transaction {
   /** 钱包 */
   var wallet: Wallet = _
-  /** 支付日期 */
-  var payAt: Instant = _
-  /** 金额 */
-  var amount: Yuan = _
-  /** 结余 */
-  var balance: Yuan = _
   /** 渠道 */
   var channel: IncomeChannel = _
 
-  def originBalance: Yuan = {
-    balance - amount
-  }
+  override def user: Account = wallet
 }

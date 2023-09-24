@@ -4,11 +4,12 @@
   [@b.gridbar]
     bar.addItem("${b.text("action.new")}",action.add());
     bar.addItem("${b.text("action.modify")}",action.edit());
-    bar.addItem("${b.text("action.delete")}",action.remove("确认删除?"));
     bar.addItem("打印收支明细表",action.multi("yearReport",null,null,"_blank"),"print.png");
-    bar.addItem("${b.text("action.export")}",action.exportData("inpatient.code:住院号,inpatient.name:姓名,"+
+    var m=bar.addMenu("${b.text("action.export")}",action.exportData("inpatient.code:住院号,inpatient.name:姓名,"+
                  "inpatient.gender.name:性别,inpatient.ward.name:病区,inpatient.bedNo:床号,"+
                  "balance:余额",null,'fileName=零用金余额信息'));
+    m.addItem("导入",action.method('importForm'));
+    m.addItem("删除",action.remove("确认删除?"));
   [/@]
   [@b.row]
     [@b.boxcol /]

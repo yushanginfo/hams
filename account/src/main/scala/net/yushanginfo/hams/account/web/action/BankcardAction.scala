@@ -17,15 +17,18 @@
 
 package net.yushanginfo.hams.account.web.action
 
-import net.yushanginfo.hams.account.model.Bankcard
+import net.yushanginfo.hams.account.model.{Bankcard, BankcardBill, BankcardIncome}
 import net.yushanginfo.hams.account.service.BankcardService
-import net.yushanginfo.hams.base.model.{Inpatient, Ward}
+import net.yushanginfo.hams.base.model.{Inpatient, Ward, Yuan}
 import net.yushanginfo.hams.base.service.InpatientService
+import net.yushanginfo.hams.code.model.BankcardIncomeCategory
 import org.beangle.commons.collection.Properties
 import org.beangle.commons.lang.Strings
 import org.beangle.web.action.annotation.response
 import org.beangle.web.action.view.View
 import org.beangle.webmvc.support.action.{ExportSupport, ImportSupport, RestfulAction}
+
+import java.time.Instant
 
 class BankcardAction extends RestfulAction[Bankcard], ImportSupport[Bankcard], ExportSupport[Bankcard] {
 
@@ -44,6 +47,34 @@ class BankcardAction extends RestfulAction[Bankcard], ImportSupport[Bankcard], E
         case Some(i) => bankcard.inpatient = i
       }
       bankcard.balance = bankcard.initBalance
+    }
+    entityDao.saveOrUpdate(bankcard)
+    get("current_balance") foreach { b =>
+      if (b != bankcard.balance.toString()) {
+        val cur = Yuan(b)
+        val offset = cur.value - bankcard.balance.value
+        if (offset < 0) {
+          val bill = new BankcardBill()
+          bill.account = bankcard
+          bill.payAt = Instant.now
+          bill.amount = new Yuan(offset)
+          bill.expenses = "余额差值"
+          bill.updatedAt = Instant.now
+          bill.balance = cur
+          bankcard.balance = cur
+          entityDao.saveOrUpdate(bankcard, bill)
+        } else {
+          val in = new BankcardIncome
+          in.account = bankcard
+          in.payAt = Instant.now
+          in.amount = new Yuan(offset)
+          in.category = new BankcardIncomeCategory(BankcardIncomeCategory.Mics)
+          in.updatedAt = Instant.now
+          in.balance = cur
+          bankcard.balance = cur
+          entityDao.saveOrUpdate(bankcard, in)
+        }
+      }
     }
     super.saveAndRedirect(bankcard)
   }

@@ -17,85 +17,126 @@
 
 package net.yushanginfo.hams.wallet.service.impl
 
-import net.yushanginfo.hams.base.model.Yuan
+import net.yushanginfo.hams.account.service.TransactionService
+import net.yushanginfo.hams.base.model.{Inpatient, TransactionStat, Yuan}
 import net.yushanginfo.hams.wallet.model.*
 import net.yushanginfo.hams.wallet.service.WalletService
-import org.beangle.commons.collection.Collections
 import org.beangle.data.dao.{EntityDao, OqlBuilder}
 
-import java.time.{LocalDate, YearMonth, ZoneId, ZoneOffset}
-import scala.collection.mutable
+import java.time.temporal.ChronoUnit
+import java.time.{Instant, YearMonth, ZoneId}
 
 class WalletServiceImpl extends WalletService {
   var entityDao: EntityDao = _
+  var transactionService: TransactionService = _
 
-  def getWallet(code: String, walletType: WalletType): Option[Wallet] = {
+  override def getWallet(code: String, walletType: WalletType): Option[Wallet] = {
     val q = OqlBuilder.from(classOf[Wallet], "wallet")
     q.where("wallet.inpatient.code=:inpatient and wallet.walletType=:type", code, walletType)
     entityDao.search(q).headOption
   }
 
-  override def stat(yearMonth: YearMonth, walletType: WalletType, forceStat: Boolean): Seq[WalletStat] = {
-    val q = OqlBuilder.from(classOf[WalletStat], "ws")
-    q.where("ws.yearMonth=:year", yearMonth)
-    q.where("ws.wallet.walletType=:walletType", walletType)
-    val existedStats = entityDao.search(q)
-    if (existedStats.isEmpty || forceStat) {
-      val lastMonth = yearMonth.minusMonths(1)
-      val beginAt = yearMonth.atDay(1).atTime(0, 0, 0).atZone(ZoneId.systemDefault).toInstant
-      val endAt = yearMonth.atEndOfMonth().atTime(23, 59, 59).atZone(ZoneId.systemDefault).toInstant
-
-      val lq = OqlBuilder.from(classOf[WalletStat], "ws")
-      lq.where("ws.wallet.walletType=:walletType", walletType)
-      lq.where("ws.yearMonth=:last", lastMonth)
-      val lastStats = entityDao.search(lq).map(x => (x.wallet, x)).toMap
-
-      //find all meal wallet for active inpatient
-      val q = OqlBuilder.from(classOf[Wallet], "w")
-      q.where("w.createdOn<=:yearMonth", yearMonth.atEndOfMonth())
-      q.where("w.inpatient.endAt is null or :beginAt <= w.inpatient.endAt", beginAt)
-      q.where("w.walletType=:walletType", walletType)
-      val wallets = entityDao.search(q)
-
-      val walletStats = new mutable.ArrayBuffer[WalletStat]
-
-      val bq = OqlBuilder.from(classOf[Bill], "b")
-      bq.where("b.wallet.walletType=:walletType", walletType)
-      bq.where("b.payAt between :beginAt and :endAt", beginAt, endAt)
-      val bills = entityDao.search(bq)
-
-      val iq = OqlBuilder.from(classOf[Income], "i")
-      iq.where("i.wallet.walletType=:walletType", walletType)
-      iq.where("i.payAt between :beginAt and :endAt", beginAt, endAt)
-      val incomes = entityDao.search(iq)
-
-      val billStats = bills.groupBy(_.inpatient)
-      val incomeStats = incomes.groupBy(_.inpatient)
-
-      wallets foreach { w =>
-        val walletStat = existedStats.find(x => x.wallet == w && x.yearMonth == yearMonth).getOrElse(new WalletStat)
-        walletStats.addOne(walletStat)
-        walletStat.wallet = w
-        walletStat.yearMonth = yearMonth
-
-        val incomes = incomeStats.get(w.inpatient) match
-          case None => Yuan(0)
-          case Some(bs) => Yuan(bs.map(_.amount.value).sum)
-
-        val expenses = billStats.get(w.inpatient) match
-          case None => Yuan(0)
-          case Some(bs) => Yuan(bs.map(_.amount.value).sum)
-
-        walletStat.startBalance = lastStats.get(w) match
-          case None => w.initBalance
-          case Some(ws) => ws.endBalance
-
-        walletStat.update(incomes, expenses)
-      }
-      entityDao.saveOrUpdate(walletStats)
-      walletStats.toSeq
-    } else {
-      existedStats
-    }
+  override def getWallet(inpatient: Inpatient, walletType: WalletType): Option[Wallet] = {
+    val q = OqlBuilder.from(classOf[Wallet], "wallet")
+    q.where("wallet.inpatient=:inpatient and wallet.walletType=:type", inpatient, walletType)
+    entityDao.search(q).headOption
   }
+
+  override def getOrCreateWallet(inpatient: Inpatient, walletType: WalletType, payAt: Instant): Wallet = {
+    val q = OqlBuilder.from(classOf[Wallet], "wallet")
+    q.where("wallet.inpatient=:inpatient and wallet.walletType=:type", inpatient, walletType)
+    entityDao.search(q).headOption match
+      case None =>
+        val w = Wallet(inpatient, walletType)
+        w.createdOn = payAt.atZone(ZoneId.systemDefault).toLocalDate
+        entityDao.saveOrUpdate(w)
+        w
+      case Some(w) => w
+  }
+
+  override def getIncome(wallet: Wallet, amount: Yuan, payAt: Instant): Option[Income] = {
+    val q = OqlBuilder.from(classOf[Income], "si")
+    q.where("si.wallet=:wallet", wallet)
+    q.where("si.amount=:amount", amount)
+    q.where("si.payAt=:payAt", payAt)
+    entityDao.search(q).headOption
+  }
+
+  override def getBill(wallet: Wallet, amount: Yuan, payAt: Instant): Option[Bill] = {
+    val q = OqlBuilder.from(classOf[Bill], "si")
+    q.where("si.wallet=:wallet", wallet)
+    q.where("si.amount=:amount", amount)
+    q.where("si.payAt=:payAt", payAt)
+    entityDao.search(q).headOption
+  }
+
+  override def stat(yearMonth: YearMonth, walletType: WalletType): collection.Seq[TransactionStat] = {
+    transactionService.stat(yearMonth, classOf[Wallet], classOf[Income], classOf[Bill],
+      "wallet", Map("walletType" -> walletType))
+  }
+
+  override def adjustBalance(wallet: Wallet, beginAt: Instant): Yuan = {
+    transactionService.adjustBalance(wallet, classOf[Income], classOf[Bill], "wallet", beginAt)
+  }
+
+  override def generateMealBills(yearMonth: YearMonth): Int = {
+    val setting = entityDao.getAll(classOf[WalletSetting]).head
+
+    val q = OqlBuilder.from(classOf[Inpatient], "i")
+    q.where("i.endAt is null or :today <= to_char(i.endAt,'yyyy-MM-dd')", yearMonth.atDay(1).toString)
+    q.where("i.status.name not like '%请假%'")
+    val inpatients = entityDao.search(q)
+    var billCount = 0
+    inpatients foreach { i =>
+      val b = generateMealBill(i, yearMonth, setting)
+      if (null != b) billCount += 1
+    }
+    billCount
+  }
+
+  override def generateDischangeBill(inpatient: Inpatient): Bill = {
+    require(inpatient.endOn.nonEmpty, "病人应该办理出院")
+    val setting = entityDao.getAll(classOf[WalletSetting]).head
+    generateMealBill(inpatient, YearMonth.from(inpatient.endOn.get), setting)
+  }
+
+  override def generateMealBill(inpatient: Inpatient, yearMonth: YearMonth, setting: WalletSetting): Bill = {
+    val existWallet = entityDao.findBy(classOf[Wallet], "inpatient" -> inpatient,
+      "walletType" -> WalletType.Meal).headOption.getOrElse(Wallet(inpatient, WalletType.Meal))
+
+    var startDay = yearMonth.atDay(1)
+    if (inpatient.beginOn.isAfter(startDay)) startDay = inpatient.beginOn
+    var endDay = yearMonth.atEndOfMonth()
+    inpatient.endOn foreach { e => if (e.isBefore(endDay)) endDay = e }
+
+    if (endDay.isBefore(startDay)) return null
+
+    if (YearMonth.from(startDay) != YearMonth.from(endDay)) return null
+
+    val days = Math.abs(ChronoUnit.DAYS.between(startDay, endDay).toInt + 1) //首尾都算
+    val mealDays = if (days <= 20) days else 30 - (yearMonth.lengthOfMonth() - days)
+    val cost = new Yuan(0 - setting.mealPricePerDay.value * mealDays)
+
+    val bq = OqlBuilder.from(classOf[Bill], "b")
+    bq.where("b.wallet.walletType=:walletType", WalletType.Meal)
+    bq.where("b.wallet.inpatient=:inpatient", inpatient)
+    bq.where("to_char(b.payAt,'yyyy-MM-dd')=:date", endDay.toString)
+    val bill = entityDao.search(bq).headOption match
+      case Some(b) => b
+      case None =>
+        val b = new Bill()
+        b.wallet = existWallet
+        b
+
+    bill.goods = if (mealDays != 30) yearMonth.toString + s"伙食费(${mealDays}天)" else yearMonth.toString + "伙食费"
+    bill.amount = cost
+    bill.payAt = endDay.atTime(0, 0).atZone(ZoneId.systemDefault()).toInstant
+    bill.updatedAt = Instant.now
+    bill.wallet.balance = bill.wallet.balance + bill.amount
+    bill.balance = bill.wallet.balance
+    entityDao.saveOrUpdate(bill.wallet, bill)
+    adjustBalance(bill.wallet, bill.payAt)
+    bill
+  }
+
 }

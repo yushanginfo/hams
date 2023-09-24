@@ -22,33 +22,21 @@ import org.beangle.data.orm.MappingModule
 class DefaultMapping extends MappingModule {
 
   def binding(): Unit = {
-    bind[Bankcard] declare { e =>
-      e.stats is depends("account")
-    }
+    bind[Bankcard]
     bind[BankcardBill]
     bind[BankcardIncome]
-    bind[BankcardStat]
 
-    bind[Pension] declare { e =>
-      e.stats is depends("account")
-    }
+    bind[Pension]
     bind[PensionBill]
     bind[PensionIncome]
-    bind[PensionStat]
 
-    bind[Subsidy] declare { e =>
-      e.stats is depends("account")
-    }
+    bind[Subsidy]
     bind[SubsidyBill]
-    bind[SubsidyStat]
     bind[SubsidyIncome]
 
-    bind[AttendFee] declare { e =>
-      e.stats is depends("account")
-    }
+    bind[AttendFee]
     bind[AttendFeeBill]
     bind[AttendFeeIncome]
-    bind[AttendFeeStat]
 
   }
 }

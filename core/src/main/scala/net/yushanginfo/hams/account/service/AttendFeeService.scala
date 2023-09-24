@@ -17,11 +17,11 @@
 
 package net.yushanginfo.hams.account.service
 
-import net.yushanginfo.hams.account.model.AttendFeeStat
+import net.yushanginfo.hams.base.model.TransactionStat
 
 import java.time.YearMonth
 
 trait AttendFeeService {
 
-  def stat(yearMonth: YearMonth, force: Boolean): Seq[AttendFeeStat]
+  def stat(yearMonth: YearMonth): collection.Seq[TransactionStat]
 }

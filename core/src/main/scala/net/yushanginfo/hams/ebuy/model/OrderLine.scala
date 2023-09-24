@@ -21,7 +21,7 @@ import net.yushanginfo.hams.base.model.{Inpatient, Yuan}
 import org.beangle.data.model.LongId
 
 /**
- * 采购订单项
+ * 每个病人的采购订单项
  */
 class OrderLine extends LongId {
   /** 采购批次 */

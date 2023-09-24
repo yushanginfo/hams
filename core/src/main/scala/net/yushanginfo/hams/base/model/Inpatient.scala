@@ -22,7 +22,7 @@ import org.beangle.commons.collection.Collections
 import org.beangle.data.model.LongId
 import org.beangle.data.model.pojo.{Coded, Named}
 
-import java.time.Instant
+import java.time.{Instant, LocalDate, ZoneId}
 import scala.collection.mutable
 
 /**
@@ -92,6 +92,14 @@ class Inpatient extends LongId, Coded, Named {
 
   /** 出院时间 */
   var endAt: Option[Instant] = None
+
+  def beginOn: LocalDate = {
+    this.beginAt.atZone(ZoneId.systemDefault()).toLocalDate
+  }
+
+  def endOn: Option[LocalDate] = {
+    this.endAt.map(x => x.atZone(ZoneId.systemDefault()).toLocalDate)
+  }
 
   def description: String = {
     bedNo + " " + name + " " + ward.name

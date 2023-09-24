@@ -17,12 +17,10 @@
 
 package net.yushanginfo.hams.account.model
 
-import net.yushanginfo.hams.base.model.{Transaction, Yuan}
+import net.yushanginfo.hams.base.model.{Account, Transaction}
 import net.yushanginfo.hams.wallet.model.WalletType
 import org.beangle.data.model.LongId
 import org.beangle.data.model.pojo.Updated
-
-import java.time.Instant
 
 /**
  * 养护补贴消费账单
@@ -34,4 +32,6 @@ class SubsidyBill extends LongId, Updated, Transaction {
   var expenses: String = _
   /** 转入钱包 */
   var toWallet: Option[WalletType] = None
+
+  override def user: Account = account
 }

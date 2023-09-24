@@ -17,10 +17,10 @@
 
 package net.yushanginfo.hams.account.service
 
-import net.yushanginfo.hams.account.model.{BankcardStat, PensionStat}
+import net.yushanginfo.hams.base.model.TransactionStat
 
 import java.time.YearMonth
 
 trait BankcardService {
-  def stat(yearMonth: YearMonth, force: Boolean): Seq[BankcardStat]
+  def stat(yearMonth: YearMonth): collection.Seq[TransactionStat]
 }

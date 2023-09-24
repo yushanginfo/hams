@@ -20,6 +20,8 @@ package net.yushanginfo.hams.ebuy.model
 import net.yushanginfo.hams.base.model.Yuan
 import org.beangle.data.model.LongId
 
+/** 订购商品价格
+ */
 class OrderCommodityPrice extends LongId {
   /** 采购批次 */
   var order: EbuyOrder = _

@@ -60,10 +60,10 @@ class SubsidyBillAction extends RestfulAction[SubsidyBill], ImportSupport[Subsid
     val minPayAt = bill.updatePayAt(payAt)
 
     if (!bill.persisted && !Strings.isEmpty(bill.account.inpatient.code)) {
-      entityDao.findBy(classOf[Inpatient], "code", bill.account.inpatient.code).headOption match {
+      inpatientService.getInpatient(bill.account.inpatient.code).headOption match {
         case None => return redirect("index", "不正确的住院号")
         case Some(i) =>
-          val s = subsidyService.getOrCreate(i)
+          val s = subsidyService.getOrCreate(i, payAt)
           bill.account = s
       }
     }

@@ -2,6 +2,9 @@
 [@b.head/]
 [#include "../wallet_nav.ftl"/]
 [@b.toolbar title="账户余额查询"]
+  bar.addItem("零用金每期汇总",function() {
+    bg.form.submit(document.searchForm, "${b.url("change-stat")}", "_blank");
+  });
 [/@]
 <div class="search-container">
     <div class="search-panel">

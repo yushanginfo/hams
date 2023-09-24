@@ -17,10 +17,10 @@
 
 package net.yushanginfo.hams.account.web.action
 
-import net.yushanginfo.hams.account.model.{Subsidy, SubsidyStat}
+import net.yushanginfo.hams.account.model.Subsidy
 import net.yushanginfo.hams.account.service.SubsidyService
 import net.yushanginfo.hams.base.model.{Ward, Yuan}
-import org.beangle.data.dao.{EntityDao, OqlBuilder}
+import org.beangle.data.dao.EntityDao
 import org.beangle.web.action.support.ActionSupport
 import org.beangle.web.action.view.View
 import org.beangle.webmvc.support.action.EntityAction
@@ -51,15 +51,9 @@ class SubsidyStatAction extends ActionSupport, EntityAction[Subsidy] {
 
   def stat(): View = {
     val ym = YearMonth.parse(get("yearMonth", ""))
-    val forceStat = getBoolean("force", ym.getYear == Year.now().getValue)
-    val q = OqlBuilder.from(classOf[SubsidyStat], "ws")
-    q.where("ws.yearMonth=:yearMonth", ym)
-    var stats = entityDao.search(q)
-    if (stats.isEmpty || forceStat) {
-      stats = subsidyService.stat(ym, forceStat)
-    }
+    val stats = subsidyService.stat(ym)
     put("stats", stats)
-    val wardStats = stats.groupBy(w => w.account.inpatient.ward)
+    val wardStats = stats.groupBy(w => w.user.inpatient.ward)
     put("stats", wardStats)
     put("wards", wardStats.keys)
     forward()
@@ -74,11 +68,8 @@ class SubsidyStatAction extends ActionSupport, EntityAction[Subsidy] {
     val ym = YearMonth.parse(get("yearMonth", ""))
     val ward = entityDao.get(classOf[Ward], getIntId("ward"))
     val wards = entityDao.getAll(classOf[Ward])
-    val q = OqlBuilder.from(classOf[SubsidyStat], "ws")
-    q.where("ws.yearMonth=:yearMonth", ym)
-    q.where("ws.account.inpatient.ward=:ward", ward)
-    q.orderBy("ws.account.inpatient.bedNo")
-    put("stats", entityDao.search(q))
+    val stats = subsidyService.stat(ym)
+    put("stats", stats)
     put("yearMonth", ym)
     put("ward", ward)
     forward()
@@ -86,17 +77,15 @@ class SubsidyStatAction extends ActionSupport, EntityAction[Subsidy] {
 
   def ward(): View = {
     val ym = YearMonth.parse(get("yearMonth", ""))
-    val q = OqlBuilder.from(classOf[SubsidyStat], "ws")
-    q.where("ws.yearMonth=:yearMonth", ym)
-    val stats = entityDao.search(q)
-    val wardStats = stats.groupBy(_.account.inpatient.ward)
+    val stats = subsidyService.stat(ym)
+    val wardStats = stats.groupBy(_.user.inpatient.ward)
     val startBalances = new mutable.HashMap[Ward, Yuan]
     val endBalances = new mutable.HashMap[Ward, Yuan]
     val incomes = new mutable.HashMap[Ward, Yuan]
     val expenses = new mutable.HashMap[Ward, Yuan]
 
     wardStats foreach { case (ward, ws) =>
-      if(ward.id==1){
+      if (ward.id == 1) {
         println(ws.map(_.startBalance.value).mkString(","))
       }
       startBalances.put(ward, Yuan(ws.map(_.startBalance.value).sum))

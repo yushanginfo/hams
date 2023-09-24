@@ -29,7 +29,7 @@ class OrderLineServiceImpl extends OrderLineService {
   var entityDao: EntityDao = _
 
   override def createLine(order: EbuyOrder, inpatient: Inpatient, commodityName: String,
-                          brandName: String, unitName: String, amount: Int, price: Option[Yuan], payment: Option[Yuan]): OrderLine = {
+                          brandName: String, unitName: String, amount: Int, price: Option[Yuan], payable: Option[Yuan], payment: Option[Yuan]): OrderLine = {
 
     require(null != inpatient && null != order)
     val commodity = commodityService.getOrCreateCommodity(commodityName)
@@ -37,7 +37,9 @@ class OrderLineServiceImpl extends OrderLineService {
     line.order = order
     price foreach { p =>
       line.price = Some(p)
-      line.payable = Some(new Yuan(p.value * line.amount))
+      payable match
+        case None => line.payable = Some(new Yuan(p.value * line.amount))
+        case Some(p) => line.payable = payable
     }
     payment foreach { p =>
       line.payment = Some(p)

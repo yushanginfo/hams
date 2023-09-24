@@ -24,6 +24,6 @@ trait OrderLineService {
 
   def createLine(order: EbuyOrder, inpatient: Inpatient, commodityName: String,
                  brandName: String, unitName: String, amount: Int,
-                 price: Option[Yuan], payment: Option[Yuan]): OrderLine
+                 price: Option[Yuan], payable: Option[Yuan],payment: Option[Yuan]): OrderLine
 
 }

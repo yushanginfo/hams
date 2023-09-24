@@ -26,11 +26,28 @@ import java.time.LocalDateTime
 @value
 class Yuan(val value: Long) extends Serializable with Ordered[Yuan] {
   override def toString(): String = {
-    val res = value.toString
+    var res = value.toString
+    var sign = ""
+    if (res.charAt(0) == '-') {
+      sign = "-"
+      res = res.substring(1)
+    }
     if (res.length < 3) {
-      "0." + Strings.leftPad(res, 2, '0')
+      sign + "0." + Strings.leftPad(res, 2, '0')
     } else {
-      res.substring(0, res.length - 2) + "." + res.substring(res.length - 2)
+      val len = res.length - 2
+      var first = len % 3
+      if (first == 0) first = 3
+      val buf = new StringBuilder(sign)
+      buf.append(res.substring(0, first))
+      var s = first
+      while (s < len) {
+        buf.append(",")
+        buf.append(res.substring(s, s + 3))
+        s += 3
+      }
+      buf.append(".").append(res.substring(res.length - 2))
+      buf.mkString
     }
   }
 
@@ -56,12 +73,16 @@ object Yuan {
     new Yuan(value)
   }
 
-  def apply(v: String): Yuan = {
+  def apply(value: String): Yuan = {
+    var v = value
+
     if Strings.isEmpty(v) then Zero
     else if (v.contains(".")) {
+      v = Strings.replace(v, ",", "")
       val decimal = (Strings.substringAfter(v, ".") + "00").substring(0, 2)
       new Yuan(java.lang.Long.parseLong(Strings.substringBefore(v, ".") + decimal))
     } else {
+      v = Strings.replace(v, ",", "")
       new Yuan(java.lang.Long.parseLong(v + "00"))
     }
   }
@@ -71,9 +92,10 @@ object Yuan {
     val y = Yuan("4.123")
     println(y.value)
     println(new Yuan(30))
+    println(new Yuan(-30))
     println(new Yuan(-130))
     println(new Yuan(0))
-    println(new Yuan(1243))
+    println(new Yuan(-243128))
   }
 }
 

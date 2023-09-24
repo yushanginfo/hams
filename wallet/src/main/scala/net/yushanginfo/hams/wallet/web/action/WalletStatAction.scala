@@ -18,10 +18,9 @@
 package net.yushanginfo.hams.wallet.web.action
 
 import net.yushanginfo.hams.base.model.{Ward, Yuan}
-import net.yushanginfo.hams.wallet.model.{Wallet, WalletStat, WalletType}
+import net.yushanginfo.hams.wallet.model.{Wallet, WalletType}
 import net.yushanginfo.hams.wallet.service.WalletService
-import net.yushanginfo.hams.wallet.service.impl.WalletServiceImpl
-import org.beangle.data.dao.{EntityDao, OqlBuilder}
+import org.beangle.data.dao.EntityDao
 import org.beangle.web.action.support.ActionSupport
 import org.beangle.web.action.view.View
 import org.beangle.webmvc.support.action.EntityAction
@@ -54,16 +53,9 @@ abstract class WalletStatAction extends ActionSupport, EntityAction[Wallet] {
 
   def stat(): View = {
     val ym = YearMonth.parse(get("yearMonth", ""))
-    var forceStat = getBoolean("force", false)
-    val q = OqlBuilder.from(classOf[WalletStat], "ws")
-    q.where("ws.yearMonth=:yearMonth", ym)
-    q.where("ws.wallet.walletType=:walletType", walletType)
-    var stats = entityDao.search(q)
-    if (stats.isEmpty || forceStat) {
-      stats = walletService.stat(ym, walletType, forceStat)
-    }
+    val stats = walletService.stat(ym, walletType)
     put("stats", stats)
-    val wardStats = stats.groupBy(w => w.wallet.inpatient.ward)
+    val wardStats = stats.groupBy(w => w.user.inpatient.ward)
     put("wardStats", wardStats)
     put("wards", wardStats.keys)
     forward()
@@ -78,12 +70,7 @@ abstract class WalletStatAction extends ActionSupport, EntityAction[Wallet] {
     val ym = YearMonth.parse(get("yearMonth", ""))
     val ward = entityDao.get(classOf[Ward], getIntId("ward"))
     val wards = entityDao.getAll(classOf[Ward])
-    val q = OqlBuilder.from(classOf[WalletStat], "ws")
-    q.where("ws.yearMonth=:yearMonth", ym)
-    q.where("ws.wallet.inpatient.ward=:ward", ward)
-    q.where("ws.wallet.walletType=:walletType", walletType)
-    q.orderBy("ws.wallet.inpatient.bedNo")
-    put("walletStats", entityDao.search(q))
+    put("walletStats", walletService.stat(ym, walletType))
     put("yearMonth", ym)
     put("ward", ward)
     put("walletType", WalletType.Meal)
@@ -92,11 +79,8 @@ abstract class WalletStatAction extends ActionSupport, EntityAction[Wallet] {
 
   def ward(): View = {
     val ym = YearMonth.parse(get("yearMonth", ""))
-    val q = OqlBuilder.from(classOf[WalletStat], "ws")
-    q.where("ws.wallet.walletType=:walletType", walletType)
-    q.where("ws.yearMonth=:yearMonth", ym)
-    val stats = entityDao.search(q)
-    val wardStats = stats.groupBy(_.wallet.inpatient.ward)
+    val stats = walletService.stat(ym, walletType)
+    val wardStats = stats.groupBy(_.user.inpatient.ward)
     val startBalances = new mutable.HashMap[Ward, Yuan]
     val endBalances = new mutable.HashMap[Ward, Yuan]
     val incomes = new mutable.HashMap[Ward, Yuan]

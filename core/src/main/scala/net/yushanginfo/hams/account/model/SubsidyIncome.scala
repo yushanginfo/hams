@@ -17,7 +17,7 @@
 
 package net.yushanginfo.hams.account.model
 
-import net.yushanginfo.hams.base.model.{Inpatient, Transaction, Yuan}
+import net.yushanginfo.hams.base.model.{Account, Inpatient, Transaction, Yuan}
 import org.beangle.data.model.LongId
 import org.beangle.data.model.pojo.Updated
 
@@ -27,4 +27,6 @@ class SubsidyIncome extends LongId, Updated, Transaction {
   var account: Subsidy = _
   /** 渠道 */
   var channel: String = _
+
+  override def user: Account = account
 }

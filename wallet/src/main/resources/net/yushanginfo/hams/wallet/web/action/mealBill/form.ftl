@@ -10,7 +10,7 @@
       [@b.textfield name="bill.wallet.inpatient.code" label="住院号" value="" required="true" maxlength="10"/]
     [/#if]
     [@b.textfield name="bill.amount" label="消费金额" value=bill.amount! required="true" maxlength="20" comment="元"/]
-    [@b.date name="bill.payAt" label="入账时间" value=bill.payAt! format="datetime" required="true" /]
+    [@b.date name="payAt" label="入账时间" value=bill.payAt! format="datetime" required="true" /]
     [@b.textfield name="bill.goods" label="消费明细" value=bill.goods! required="true" maxlength="20"/]
     [@b.formfoot]
       [@b.reset/]&nbsp;&nbsp;[@b.submit value="action.submit"/]

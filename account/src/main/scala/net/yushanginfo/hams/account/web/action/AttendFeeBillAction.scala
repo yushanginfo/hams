@@ -18,9 +18,7 @@
 package net.yushanginfo.hams.account.web.action
 
 import net.yushanginfo.hams.account.model.{AttendFee, AttendFeeBill}
-import net.yushanginfo.hams.base.model.{Inpatient, Ward}
-import net.yushanginfo.hams.code.model.IncomeChannel
-import net.yushanginfo.hams.wallet.model.{Bill, Deposit, Wallet, WalletType}
+import net.yushanginfo.hams.base.model.{Inpatient, Ward, Yuan}
 import org.beangle.commons.lang.Strings
 import org.beangle.data.dao.OqlBuilder
 import org.beangle.web.action.view.View
@@ -43,6 +41,7 @@ class AttendFeeBillAction extends RestfulAction[AttendFeeBill], ImportSupport[At
     QueryHelper.dateBetween(query, null, "payAt", "beginAt", "endAt")
     query
   }
+
   override protected def saveAndRedirect(bill: AttendFeeBill): View = {
     if (!bill.persisted && !Strings.isEmpty(bill.account.inpatient.code)) {
       entityDao.findBy(classOf[Inpatient], "code", bill.account.inpatient.code).headOption match {
@@ -57,8 +56,11 @@ class AttendFeeBillAction extends RestfulAction[AttendFeeBill], ImportSupport[At
           bill.account = p
       }
     }
+    if (bill.amount.value > 0) {
+      bill.amount = Yuan.Zero - bill.amount
+    }
     val attendFee = entityDao.get(classOf[AttendFee], bill.account.id)
-    bill.balance = attendFee.balance - bill.amount
+    bill.balance = attendFee.balance + bill.amount
     attendFee.balance = bill.balance
     entityDao.saveOrUpdate(attendFee, bill)
     super.saveAndRedirect(bill)

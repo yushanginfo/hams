@@ -17,13 +17,30 @@
 
 package net.yushanginfo.hams.wallet.service
 
-import net.yushanginfo.hams.wallet.model.{Wallet, WalletStat, WalletType}
+import net.yushanginfo.hams.base.model.{Inpatient, TransactionStat, Yuan}
+import net.yushanginfo.hams.wallet.model.*
 
-import java.time.YearMonth
+import java.time.{Instant, YearMonth}
 
 trait WalletService {
 
+  def getWallet(inpatient: Inpatient, walletType: WalletType): Option[Wallet]
+
   def getWallet(code: String, walletType: WalletType): Option[Wallet]
 
-  def stat(yearMonth: YearMonth, walletType: WalletType, force: Boolean): Seq[WalletStat]
+  def getOrCreateWallet(inpatient: Inpatient, walletType: WalletType, payAt: Instant): Wallet
+
+  def getIncome(wallet: Wallet, amount: Yuan, payAt: Instant): Option[Income]
+
+  def getBill(wallet: Wallet, amount: Yuan, payAt: Instant): Option[Bill]
+
+  def stat(yearMonth: YearMonth, walletType: WalletType): collection.Seq[TransactionStat]
+
+  def adjustBalance(wallet: Wallet, beginAt: Instant): Yuan
+
+  def generateMealBills(yearMonth: YearMonth): Int
+
+  def generateMealBill(inpatient: Inpatient, yearMonth: YearMonth, setting: WalletSetting): Bill
+
+  def generateDischangeBill(inpatient: Inpatient): Bill
 }

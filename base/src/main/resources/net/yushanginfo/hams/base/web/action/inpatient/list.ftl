@@ -3,8 +3,9 @@
 [@b.grid items=inpatients var="inpatient"]
   [@b.gridbar]
     bar.addItem("修改联系人",action.edit());
-    bar.addItem("立即同步",action.method("syncNow"));
-    //bar.addItem("导入",action.method('importForm'));
+    bar.addItem("立即同步",action.method("manualSync"));
+    bar.addItem("${b.text("action.export")}",action.exportData("code:住院号,name:姓名,"+
+                 "gender.name:性别,ward.name:病区,bedNo:床号",null,'fileName=病人信息'));
   [/@]
   [@b.row]
     [@b.boxcol /]

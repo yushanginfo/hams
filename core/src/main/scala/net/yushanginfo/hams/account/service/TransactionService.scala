@@ -17,13 +17,17 @@
 
 package net.yushanginfo.hams.account.service
 
-import net.yushanginfo.hams.base.model.Transaction
+import net.yushanginfo.hams.base.model.{Account, Transaction, TransactionStat, Yuan}
 
-import java.time.Instant
+import java.time.{Instant, YearMonth}
 
 trait TransactionService {
+  def adjustBalance(account: Account, incomeClazz: Class[_], billClazz: Class[_], userAttr: String, beginAt: Instant): Yuan
 
-  def getLast(before: Instant, clazzes: Seq[Class[_]],params:Map[String,Any]): Option[Transaction]
+  def getLast(account: Account, incomeClazz: Class[_], billClazz: Class[_], userAttr: String, before: Instant): Option[Transaction]
 
-  def find(beginAt: Instant, clazzes: Seq[Class[_]],params:Map[String,Any]): collection.Seq[Transaction]
+  def find(account: Account, incomeClazz: Class[_], billClazz: Class[_], userAttr: String, beginAt: Instant): collection.Seq[Transaction]
+
+  def stat(yearMonth: YearMonth, accountClazz: Class[_], incomeClazz: Class[_], billClazz: Class[_], userAttr: String,
+           params: collection.Map[String, Any]): collection.Seq[TransactionStat]
 }

@@ -22,16 +22,19 @@ import net.yushanginfo.hams.base.model.{Inpatient, Ward, Yuan}
 import net.yushanginfo.hams.base.service.InpatientService
 import net.yushanginfo.hams.code.model.LeaveCategory
 import net.yushanginfo.hams.wallet.model.{LeaveApply, Wallet, WalletType}
+import net.yushanginfo.hams.wallet.service.WalletService
 import org.beangle.data.dao.OqlBuilder
 import org.beangle.web.action.view.View
 import org.beangle.webmvc.support.action.RestfulAction
 
-import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.time.{Instant, LocalDateTime}
 
 class ApplyAction extends RestfulAction[LeaveApply] {
 
   var inpatientService: InpatientService = _
+
+  var walletService: WalletService = _
 
   override protected def indexSetting(): Unit = {
     put("wards", entityDao.getAll(classOf[Ward]))
@@ -66,15 +69,23 @@ class ApplyAction extends RestfulAction[LeaveApply] {
     val inpatientCode = get("inpatient.code")
     val apply = new LeaveApply()
     if (inpatientCode.nonEmpty) {
-      inpatientService.getInpatient(inpatientCode.get) foreach { inpatient =>
-        val meals = entityDao.findBy(classOf[Wallet], "inpatient" -> inpatient, "walletType" -> WalletType.Meal)
-        val changes = entityDao.findBy(classOf[Wallet], "inpatient" -> inpatient, "walletType" -> WalletType.Change)
-        val attendFees = entityDao.findBy(classOf[AttendFee], "inpatient", inpatient)
-        put("inpatient", inpatient)
-        put("meals", meals)
-        put("changes", changes)
-        put("attendFees", attendFees)
-        apply.inpatient = inpatient
+      val p = inpatientService.getInpatient(inpatientCode.get)
+      if (p.isEmpty) {
+        addError("查不到该住院号")
+      } else {
+        if (p.get.endAt.isEmpty) {
+          addError("该病人尚未出院")
+        } else {
+          val inpatient = p.get
+          val mealBill = walletService.generateDischangeBill(inpatient)
+          val changes = entityDao.findBy(classOf[Wallet], "inpatient" -> inpatient, "walletType" -> WalletType.Change)
+          val attendFees = entityDao.findBy(classOf[AttendFee], "inpatient", inpatient)
+          put("inpatient", inpatient)
+          put("meals", List(mealBill.wallet))
+          put("changes", changes)
+          put("attendFees", attendFees)
+          apply.inpatient = inpatient
+        }
       }
     }
 
@@ -88,6 +99,10 @@ class ApplyAction extends RestfulAction[LeaveApply] {
     val inpatient = inpatientService.getInpatient(inpatientCode).get
     val apply = new LeaveApply()
     apply.inpatient = inpatient
+    apply.leaveAt = inpatient.endAt.get
+    apply.updatedAt = Instant.now
+    apply.reasons = "出院"
+    apply.category = entityDao.get(classOf[LeaveCategory], getIntId("apply.category"))
     apply.code = DateTimeFormatter.ofPattern("yyyyMMddHHmmss").format(LocalDateTime.now())
     val meals = entityDao.findBy(classOf[Wallet], "inpatient" -> inpatient, "walletType" -> WalletType.Meal)
     val changes = entityDao.findBy(classOf[Wallet], "inpatient" -> inpatient, "walletType" -> WalletType.Change)
@@ -96,10 +111,13 @@ class ApplyAction extends RestfulAction[LeaveApply] {
       val withdrawal = Yuan(w)
       if (withdrawal.value > 0) {
         meals foreach { meal =>
-          //meal.newBill()
+          val bill = meal.newBill(withdrawal, inpatient.endAt.get, "出院退费")
+          entityDao.saveOrUpdate(bill)
+          walletService.adjustBalance(meal, bill.payAt)
         }
       }
     }
-    forward()
+    entityDao.saveOrUpdate(apply)
+    redirect("search", "办理成功")
   }
 }

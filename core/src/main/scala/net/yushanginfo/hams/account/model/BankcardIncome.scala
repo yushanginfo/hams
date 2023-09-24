@@ -17,7 +17,7 @@
 
 package net.yushanginfo.hams.account.model
 
-import net.yushanginfo.hams.base.model.Yuan
+import net.yushanginfo.hams.base.model.{Account, Transaction, Yuan}
 import net.yushanginfo.hams.code.model.BankcardIncomeCategory
 import org.beangle.data.model.LongId
 import org.beangle.data.model.pojo.Updated
@@ -27,14 +27,10 @@ import java.time.Instant
 /**
  * 银行卡入账流水
  */
-class BankcardIncome extends LongId, Updated {
+class BankcardIncome extends LongId, Updated, Transaction {
   var account: Bankcard = _
-  /**金额*/
-  var amount: Yuan = _
-  /** 结余 */
-  var balance: Yuan = _
-  /** 支付时间 */
-  var payAt: Instant = _
-  /**入账类别*/
+  /** 入账类别 */
   var category: BankcardIncomeCategory = _
+
+  override def user: Account = account
 }

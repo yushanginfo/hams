@@ -74,12 +74,13 @@ class EbuyOrderAction extends RestfulAction[EbuyOrder] {
 
   def savePrice(): View = {
     val order = entityDao.get(classOf[EbuyOrder], getLongId("ebuyOrder"))
+    val discount = getFloat("unify_discount").getOrElse(10f)
     order.convertLineToPrice()
     order.prices foreach { p =>
       val key = s"commodity_${p.commodity.id}_brand_${p.brand.map(_.id.toString).getOrElse("")}_unit_${p.unit.id}"
       p.price = Yuan(get(key + "_price", ""))
-      p.discount = getFloat(key + "_discount").getOrElse(1f)
-      p.discountPrice = new Yuan((p.price.value * p.discount).toLong)
+      p.discount = discount
+      p.discountPrice = new Yuan((p.price.value * p.discount / 10.0f).toLong)
     }
     order.calcPayable()
     order.calcPayment()
@@ -109,8 +110,9 @@ class EbuyOrderAction extends RestfulAction[EbuyOrder] {
    */
   def generateBill(): View = {
     val order = entityDao.get(classOf[EbuyOrder], getLongId("ebuyOrder"))
-    if (order.orderOn.isEmpty) return redirect("search", "缺少订购日期")
-    val orderAt = order.orderOn.get.atTime(0, 0).atZone(ZoneId.systemDefault).toInstant
+    if (order.billOn.isEmpty) return redirect("search", "缺少入账日期")
+    val billOn = order.billOn.get
+    val orderAt = billOn.atTime(0, 0).atZone(ZoneId.systemDefault).toInstant
     val inpatientCost = order.lines.groupBy(_.inpatient).map(x => (x._1, new Yuan(x._2.map(_.payment.getOrElse(Yuan.Zero).value).sum)))
     val fails = Collections.newBuffer[String]
     inpatientCost foreach { case (i, c) =>
@@ -120,9 +122,8 @@ class EbuyOrderAction extends RestfulAction[EbuyOrder] {
       entityDao.search(walletQ).headOption match {
         case Some(w) =>
           val query = OqlBuilder.from(classOf[Bill], "bill")
-          query.where("bill.inpatient=:inpatient", i)
           query.where("bill.wallet=:w", w)
-          query.where("to_char(bill.payAt,'yyyy-MM-dd')=:payAt", order.orderOn.toString)
+          query.where("to_char(bill.payAt,'yyyy-MM-dd')=:payAt", billOn.toString)
           val bills = entityDao.search(query)
           if (bills.isEmpty) {
             val bill = w.newBill(c, orderAt, "随心E购")

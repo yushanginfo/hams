@@ -15,20 +15,5 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.yushanginfo.hams.wallet.service
-
-import net.yushanginfo.hams.wallet.model.*
-import org.beangle.data.dao.OqlBuilder
-
-import java.time.{LocalDate, YearMonth}
-import scala.collection.mutable
-
-class MealBillStatMonthly extends DaoJob {
-
-  var walletService: WalletService = _
-
-  def execute(): Unit = {
-    val yearMonth = YearMonth.now().minusMonths(1)
-    walletService.stat(yearMonth, WalletType.Meal,false)
-  }
-}
+@jakarta.xml.bind.annotation.XmlSchema(namespace = "http://out.webservice.organization.sys.kmss.landray.com/")
+package com.landray.kmss.sys.organization.webservice.out;

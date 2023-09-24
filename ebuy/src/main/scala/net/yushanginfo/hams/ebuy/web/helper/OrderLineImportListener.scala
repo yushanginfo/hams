@@ -20,9 +20,10 @@ package net.yushanginfo.hams.ebuy.web.helper
 import net.yushanginfo.hams.base.service.InpatientService
 import net.yushanginfo.hams.ebuy.model.{EbuyOrder, OrderLine}
 import net.yushanginfo.hams.ebuy.service.OrderLineService
+import org.beangle.data.dao.EntityDao
 import org.beangle.data.transfer.importer.{ImportListener, ImportResult}
 
-class OrderLineImportListener(val order: EbuyOrder, orderLineService: OrderLineService, inpatientService: InpatientService) extends ImportListener {
+class OrderLineImportListener(val order: EbuyOrder, entityDao: EntityDao, orderLineService: OrderLineService, inpatientService: InpatientService) extends ImportListener {
   override def onItemFinish(tr: ImportResult): Unit = {
     val data = tr.transfer.curData
     val l = tr.transfer.current.asInstanceOf[OrderLine]
@@ -37,7 +38,13 @@ class OrderLineImportListener(val order: EbuyOrder, orderLineService: OrderLineS
     val brandName = data.getOrElse("orderLine.brand.name", "").toString
     val unitName = data.getOrElse("orderLine.unit.name", "").toString
 
-    val line = orderLineService.createLine(order, inpatient, commodityName, brandName, unitName, l.amount, l.price, l.payment)
+    val line = orderLineService.createLine(order, inpatient, commodityName, brandName, unitName, l.amount, l.price, l.payable, l.payment)
     if (!line.persisted) tr.addFailure("缺少物品单位信息", inpatientName)
+  }
+
+  override def onFinish(tr: ImportResult): Unit = {
+    entityDao.refresh(order)
+    order.calcPayment()
+    entityDao.saveOrUpdate(order)
   }
 }

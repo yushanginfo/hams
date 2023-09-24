@@ -50,6 +50,11 @@ class EbuyOrder extends LongId, Named, DateRange {
   /** 是否生成订单 */
   var billGenerated: Boolean = _
 
+  /** 入账时间 */
+  var billOn: Option[LocalDate] = None
+
+  /** 如果先有了订单，可以生成没有的价格
+   */
   def convertLineToPrice(): Unit = {
     val products = this.lines.map(x => (x.commodity, x.brand, x.unit)).distinct
     val newer = products.filter { x => !this.prices.exists(y => y.commodity == x._1 && y.unit == x._3 && y.brand == x._2) }
@@ -79,6 +84,7 @@ class EbuyOrder extends LongId, Named, DateRange {
   def calcPayable(): Unit = {
     val groupLines = this.lines groupBy (x => (x.commodity, x.brand, x.unit))
     var totalPayable = Yuan(0)
+    var totalPayment = Yuan(0)
     groupLines.foreach { case (g, lines) =>
       this.prices.find(p => p.commodity == g._1 && p.brand == g._2 && p.unit == g._3) foreach { p =>
         p.amount = lines.map(_.amount).sum
@@ -86,11 +92,14 @@ class EbuyOrder extends LongId, Named, DateRange {
         lines foreach { line =>
           line.price = Some(p.price)
           line.payable = Some(new Yuan(p.price.value * line.amount))
+          line.payment = Some(new Yuan(p.discountPrice.value * line.amount))
+          totalPayment += line.payment.get
           totalPayable += line.payable.get
         }
       }
     }
     this.payable = Some(totalPayable)
+    this.payment = Some(totalPayment)
   }
 
   def calcPayment(): Unit = {

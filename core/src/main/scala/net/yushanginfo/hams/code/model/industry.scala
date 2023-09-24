@@ -17,9 +17,6 @@
 
 package net.yushanginfo.hams.code.model
 
-import org.beangle.data.model.IntId
-import org.beangle.data.model.pojo.*
-
 class DiseaseType extends CodeBean
 
 class FeeOrigin extends CodeBean
@@ -50,7 +47,16 @@ object IncomeChannel {
   val FromSubsidy = 5
 }
 
-class BankcardIncomeCategory extends CodeBean
+object BankcardIncomeCategory {
+  val Mics = 99
+}
+
+class BankcardIncomeCategory extends CodeBean {
+  def this(id: Int) = {
+    this()
+    this.id = id
+  }
+}
 
 class LeaveCategory extends CodeBean {
 

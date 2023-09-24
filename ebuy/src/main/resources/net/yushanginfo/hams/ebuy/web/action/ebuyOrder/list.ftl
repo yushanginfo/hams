@@ -19,6 +19,7 @@
     [@b.col width="9%" title="物品数量"]${ebuyOrder.prices?size}[/@]
     [@b.col width="9%" title="总金额"]${ebuyOrder.payment!}[/@]
     [@b.col width="10%" property="orderOn" title="采购日期" /]
+    [@b.col width="10%" property="billOn" title="入账日期" /]
     [@b.col width="10%" property="billGenerated" title="零用金扣款"]${ebuyOrder.billGenerated?string('完成','未完成')}[/@]
   [/@]
 [/@]

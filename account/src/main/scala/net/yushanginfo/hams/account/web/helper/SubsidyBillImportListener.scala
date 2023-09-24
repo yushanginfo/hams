@@ -28,20 +28,20 @@ class SubsidyBillImportListener(inpatientService: InpatientService, subsidyServi
 
   override def onItemFinish(tr: ImportResult): Unit = {
     val data = tr.transfer.curData
-    val code = data.get("subsidyBill.account.inpatient.name").orNull.asInstanceOf[String]
-    inpatientService.getInpatientByName(code) match
-      case None => tr.addFailure("错误的姓名", code)
+    val name = data.get("subsidyBill.account.inpatient.name").orNull.asInstanceOf[String]
+    inpatientService.getInpatientByName(name) match
+      case None => tr.addFailure("错误的姓名", name)
       case Some(inpatient) =>
         val po = tr.transfer.current.asInstanceOf[SubsidyBill]
         val payAt = po.payAt
         if (null == payAt) {
-          tr.addFailure("缺少支出时间", code)
+          tr.addFailure("缺少支出时间", name)
         } else {
           if (po.amount.value > 0) {
             po.amount = Yuan.Zero - po.amount
           }
           subsidyService.get(inpatient) match
-            case None => tr.addFailure("缺少账户余额信息", code)
+            case None => tr.addFailure("缺少账户余额信息", name)
             case Some(subsidy) =>
               val bill = subsidyService.getBill(subsidy, po.amount, payAt) match
                 case None => subsidy.newBill(po.amount, po.payAt, po.expenses)

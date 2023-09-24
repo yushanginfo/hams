@@ -17,36 +17,18 @@
 
 package net.yushanginfo.hams.wallet.service
 
-import net.yushanginfo.hams.wallet.model.{Bill, Wallet, WalletSetting}
 import org.beangle.commons.logging.Logging
-import org.beangle.data.dao.OqlBuilder
 
-import java.time.{Instant, LocalDate}
-import scala.collection.mutable
+import java.time.{LocalDate, Year, YearMonth}
 
 class MealBillGeneratorDaily extends DaoJob, Logging {
 
+  var walletService: WalletService = _
+
   def execute(): Unit = {
-    val setting = entityDao.getAll(classOf[WalletSetting]).head
-    val q = OqlBuilder.from(classOf[Wallet], "w")
-    q.where("w.inpatient.endAt is null or :today < w.inpatient.endAt", Instant.now)
-    q.where("w.balance >= :minBalance", setting.mealPricePerDay)
-    q.where("w.inpatient.status.name not like '%请假%'")
-    val wallets = entityDao.search(q)
-    val bills = new mutable.ArrayBuffer[Bill]
-    wallets.foreach { w =>
-      val bill = new Bill
-      bill.wallet = w
-      bill.inpatient = w.inpatient
-      bill.amount = setting.mealPricePerDay
-      bill.payAt = Instant.now
-      bill.goods = "伙食费"
-      bill.updatedAt = Instant.now
-      w.balance = w.balance - bill.amount
-      bill.balance = w.balance
-      bills.addOne(bill)
+    if (LocalDate.now == YearMonth.now().atDay(1)) {
+      val billCount = walletService.generateMealBills(YearMonth.now.minusMonths(1))
+      logger.info(s"每日伙食费扣费成功,${billCount}人")
     }
-    entityDao.saveOrUpdate(bills, wallets)
-    logger.info(s"每日伙食费扣费成功,${bills.length}人")
   }
 }

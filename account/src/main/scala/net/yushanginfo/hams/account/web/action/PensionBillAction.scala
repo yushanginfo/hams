@@ -58,7 +58,7 @@ class PensionBillAction extends RestfulAction[PensionBill], ImportSupport[Pensio
       }
     }
     val pension = entityDao.get(classOf[Pension], bill.account.id)
-    bill.balance = pension.balance - bill.amount
+    bill.balance = pension.balance + bill.amount
     pension.balance = bill.balance
     entityDao.saveOrUpdate(pension, bill)
 

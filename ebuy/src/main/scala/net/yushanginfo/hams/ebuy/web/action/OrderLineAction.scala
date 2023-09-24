@@ -81,6 +81,10 @@ class OrderLineAction extends RestfulAction[OrderLine], ImportSupport[OrderLine]
     get("unit.id") foreach { i =>
       line.unit = commodityService.getOrCreateUnit(i)
     }
+    entityDao.saveOrUpdate(line);
+    entityDao.refresh(line)
+    line.order.calcPayment()
+    entityDao.saveOrUpdate(line.order)
     super.saveAndRedirect(line)
   }
 
@@ -143,7 +147,9 @@ class OrderLineAction extends RestfulAction[OrderLine], ImportSupport[OrderLine]
     sheet.add("物品", "orderLine.commodity.name").length(100).required()
     sheet.add("数量", "orderLine.amount").required().decimal()
     sheet.add("单位", "orderLine.unit.name").required()
+    sheet.add("品牌", "orderLine.brand.name")
     sheet.add("单价", "orderLine.price")
+    sheet.add("购买金额", "orderLine.payable")
     sheet.add("实收金额", "orderLine.payment")
 
     val os = new ByteArrayOutputStream()
@@ -151,8 +157,14 @@ class OrderLineAction extends RestfulAction[OrderLine], ImportSupport[OrderLine]
     Stream(new ByteArrayInputStream(os.toByteArray), MediaTypes.ApplicationXlsx.toString, "订购明细.xlsx")
   }
 
+  override def importForm(): View = {
+    val order = entityDao.get(classOf[EbuyOrder], getLong("orderLine.order.id").get)
+    put("order", order)
+    forward()
+  }
+
   protected override def configImport(setting: ImportSetting): Unit = {
     val order = entityDao.get(classOf[EbuyOrder], getLong("orderLine.order.id").get)
-    setting.listeners = List(new OrderLineImportListener(order, orderLineService, inpatientService))
+    setting.listeners = List(new OrderLineImportListener(order, entityDao, orderLineService, inpatientService))
   }
 }

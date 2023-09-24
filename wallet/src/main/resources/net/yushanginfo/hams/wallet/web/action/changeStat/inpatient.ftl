@@ -6,11 +6,11 @@
     <div class="col-4" style="text-align:center">月份：${yearMonth?string('MM')}月份</div>
     <div class="col-4" style="text-align:right">单位：元</div>
   </div>
-  [@b.grid items=walletStats var="stat" style="border:0.5px solid #006CB2" sortable="false"]
+  [@b.grid items=walletStats?sort_by(["user","inpatient","bedNo"]) var="stat" style="border:0.5px solid #006CB2" sortable="false"]
     [@b.row]
-     [@b.col property="wallet.inpatient.code" title="住院号"/]
-     [@b.col property="wallet.inpatient.bedNo" title="床号"/]
-     [@b.col property="wallet.inpatient.name" title="姓名"/]
+     [@b.col property="user.inpatient.code" title="住院号"/]
+     [@b.col property="user.inpatient.bedNo" title="床号"/]
+     [@b.col property="user.inpatient.name" title="姓名"/]
      [@b.col property="startBalance" title="期初结余"/]
      [@b.col property="incomes" title="本期收入"]
        [#if stat.incomes.value != 0]${stat.incomes}[/#if]

@@ -17,18 +17,27 @@
 
 package net.yushanginfo.hams.wallet.web.action
 
-import net.yushanginfo.hams.base.model.{Inpatient, Ward}
+import net.yushanginfo.hams.base.model.Ward
+import net.yushanginfo.hams.base.service.InpatientService
 import net.yushanginfo.hams.code.model.IncomeChannel
-import net.yushanginfo.hams.wallet.model.{Income, Wallet, WalletType}
+import net.yushanginfo.hams.wallet.helper.IncomeImportListener
+import net.yushanginfo.hams.wallet.model.{Income, WalletType}
 import net.yushanginfo.hams.wallet.service.WalletService
+import org.beangle.commons.activation.MediaTypes
 import org.beangle.commons.lang.Strings
 import org.beangle.data.dao.OqlBuilder
-import org.beangle.web.action.view.View
+import org.beangle.data.excel.schema.ExcelSchema
+import org.beangle.data.transfer.importer.ImportSetting
+import org.beangle.data.transfer.importer.listener.ForeignerListener
+import org.beangle.web.action.view.{Stream, View}
 import org.beangle.webmvc.support.action.{ExportSupport, ImportSupport, RestfulAction}
 import org.beangle.webmvc.support.helper.QueryHelper
 
+import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
+
 class ChangeIncomeAction extends RestfulAction[Income], ImportSupport[Income], ExportSupport[Income] {
   var walletService: WalletService = _
+  var inpatientService: InpatientService = _
 
   override protected def indexSetting(): Unit = {
     put("wards", entityDao.getAll(classOf[Ward]))
@@ -36,16 +45,21 @@ class ChangeIncomeAction extends RestfulAction[Income], ImportSupport[Income], E
   }
 
   override protected def saveAndRedirect(income: Income): View = {
+    val payAt = getInstant("payAt").get
+    val minPayAt = income.updatePayAt(payAt)
+
     if (!income.persisted && !Strings.isEmpty(income.wallet.inpatient.code)) {
-      val wallet = walletService.getWallet(income.wallet.inpatient.code, WalletType.Change)
-      wallet match {
-        case None => return redirect("index", "没有对应住院号的零用金账户")
-        case Some(w) =>
-          val nincome = w.newIncome(income.amount, income.payAt, income.channel)
+      inpatientService.getInpatient(income.wallet.inpatient.code) match {
+        case None => redirect("index", "不正确的住院号")
+        case Some(inpatient) =>
+          val wallet = walletService.getOrCreateWallet(inpatient, WalletType.Change, income.payAt)
+          val nincome = wallet.newIncome(income.amount, income.payAt, income.channel)
           entityDao.saveOrUpdate(wallet, nincome)
-          super.saveAndRedirect(nincome)
+          walletService.adjustBalance(wallet, minPayAt)
+          redirect("search", "info.save.success")
       }
     } else {
+      walletService.adjustBalance(income.wallet, minPayAt)
       super.saveAndRedirect(income)
     }
   }
@@ -60,5 +74,26 @@ class ChangeIncomeAction extends RestfulAction[Income], ImportSupport[Income], E
     QueryHelper.dateBetween(query, null, "payAt", "beginAt", "endAt")
     query.where("income.wallet.walletType=:walletType", WalletType.Change)
     query
+  }
+
+  def downloadTemplate(): View = {
+    val schema = new ExcelSchema()
+    val sheet = schema.createScheet("数据模板")
+    val channels = entityDao.getAll(classOf[IncomeChannel]).map(x => x.code + " " + x.name).sorted
+    sheet.title("零用金入账模板")
+    sheet.remark("特别说明：\n1、不可改变本表格的行列结构以及批注，否则将会导入失败！\n2、必须按照规格说明的格式填写。\n3、可以多次导入，重复的信息会被新数据更新覆盖。\n4、保存的excel文件名称可以自定。")
+    sheet.add("姓名", "income.wallet.inpatient.name").length(10).required().remark("≤10位")
+    sheet.add("数额", "income.amount")
+    sheet.add("入账时间", "income.payAt")
+    sheet.add("来源渠道", "income.channel.code").ref(channels)
+
+    val os = new ByteArrayOutputStream()
+    schema.generate(os)
+    Stream(new ByteArrayInputStream(os.toByteArray), MediaTypes.ApplicationXlsx.toString, "零用金入账.xlsx")
+  }
+
+  protected override def configImport(setting: ImportSetting): Unit = {
+    setting.listeners = List(new ForeignerListener(entityDao),
+      new IncomeImportListener(WalletType.Change, inpatientService, walletService, entityDao))
   }
 }

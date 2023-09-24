@@ -17,7 +17,7 @@
 
 package net.yushanginfo.hams.account.model
 
-import net.yushanginfo.hams.base.model.{Inpatient, Yuan}
+import net.yushanginfo.hams.base.model.{Account, Inpatient, Yuan}
 import org.beangle.commons.collection.Collections
 import org.beangle.data.model.LongId
 import org.beangle.data.model.pojo.Updated
@@ -39,7 +39,7 @@ object Pension {
 /**
  * 养老金
  */
-class Pension extends LongId {
+class Pension extends LongId,Account {
 
   def this(id: Long) = {
     this()
@@ -52,51 +52,10 @@ class Pension extends LongId {
   /** 余额 */
   var balance: Yuan = _
 
-  /** 月度统计 */
-  var stats: mutable.Buffer[PensionStat] = Collections.newBuffer[PensionStat]
-
   /** 起始年月 */
   var createdOn: LocalDate = _
 
   /** 初始余额 */
   var initBalance: Yuan = _
 
-  def addStat(yearMonth: YearMonth, incomes: Yuan, expenses: Yuan): Option[PensionStat] = {
-    stats.find(x => x.yearMonth == yearMonth) match {
-      case None =>
-        val initYearMonth = YearMonth.from(createdOn)
-        if (initYearMonth == yearMonth) {
-          val ws = new PensionStat
-          ws.account = this
-          ws.yearMonth = initYearMonth
-          ws.startBalance = this.initBalance
-          ws.update(incomes, expenses)
-          Some(ws)
-        } else {
-          None
-        }
-      case Some(w) =>
-        Some(w.update(incomes, expenses))
-    }
-  }
-}
-
-/** 现金流量表
- * Statement of Cash Flow
- */
-class PensionStat extends LongId, Updated {
-  var account: Pension = _
-  var yearMonth: YearMonth = _
-  var startBalance: Yuan = _
-  var endBalance: Yuan = _
-  var incomes: Yuan = _
-  var expenses: Yuan = _
-
-  def update(incomes: Yuan, expenses: Yuan): PensionStat = {
-    this.incomes = incomes
-    this.expenses = if expenses.value > 0 then Yuan(0 - expenses.value) else expenses
-    this.endBalance = this.startBalance + this.incomes + this.expenses
-    this.updatedAt = Instant.now
-    this
-  }
 }

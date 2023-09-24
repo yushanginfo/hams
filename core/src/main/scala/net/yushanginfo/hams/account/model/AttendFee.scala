@@ -17,13 +17,10 @@
 
 package net.yushanginfo.hams.account.model
 
-import net.yushanginfo.hams.base.model.{Inpatient, Yuan}
-import org.beangle.commons.collection.Collections
+import net.yushanginfo.hams.base.model.{Account, Inpatient, Yuan}
 import org.beangle.data.model.LongId
-import org.beangle.data.model.pojo.Updated
 
-import java.time.{Instant, LocalDate, YearMonth}
-import scala.collection.mutable
+import java.time.LocalDate
 
 object AttendFee {
   def apply(inpatient: Inpatient): AttendFee = {
@@ -39,7 +36,7 @@ object AttendFee {
 /**
  * 陪护费
  */
-class AttendFee extends LongId {
+class AttendFee extends LongId, Account {
 
   def this(id: Long) = {
     this()
@@ -52,51 +49,9 @@ class AttendFee extends LongId {
   /** 余额 */
   var balance: Yuan = _
 
-  /** 月度统计 */
-  var stats: mutable.Buffer[AttendFeeStat] = Collections.newBuffer[AttendFeeStat]
-
   /** 起始年月 */
   var createdOn: LocalDate = _
 
   /** 初始余额 */
   var initBalance: Yuan = _
-
-  def addStat(yearMonth: YearMonth, incomes: Yuan, expenses: Yuan): Option[AttendFeeStat] = {
-    stats.find(x => x.yearMonth == yearMonth) match {
-      case None =>
-        val initYearMonth = YearMonth.from(createdOn)
-        if (initYearMonth == yearMonth) {
-          val ws = new AttendFeeStat
-          ws.account = this
-          ws.yearMonth = initYearMonth
-          ws.startBalance = this.initBalance
-          ws.update(incomes, expenses)
-          Some(ws)
-        } else {
-          None
-        }
-      case Some(w) =>
-        Some(w.update(incomes, expenses))
-    }
-  }
-}
-
-/** 现金流量表
- * Statement of Cash Flow
- */
-class AttendFeeStat extends LongId, Updated {
-  var account: AttendFee = _
-  var yearMonth: YearMonth = _
-  var startBalance: Yuan = _
-  var endBalance: Yuan = _
-  var incomes: Yuan = _
-  var expenses: Yuan = _
-
-  def update(incomes: Yuan, expenses: Yuan): AttendFeeStat = {
-    this.incomes = incomes
-    this.expenses = if expenses.value > 0 then Yuan(0 - expenses.value) else expenses
-    this.endBalance = this.startBalance + this.incomes + this.expenses
-    this.updatedAt = Instant.now
-    this
-  }
 }

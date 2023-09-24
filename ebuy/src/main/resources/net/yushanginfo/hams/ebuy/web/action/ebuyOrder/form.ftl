@@ -5,6 +5,7 @@
     [@b.textfield name="ebuyOrder.name" label="名称" value=ebuyOrder.name! required="true" maxlength="80"/]
     [@b.select name="ebuyOrder.ward.id" label="病区" items=wards empty="..." required="true"/]
     [@b.date label="购买日期" name="ebuyOrder.orderOn" required="false" value=ebuyOrder.orderOn! format="date"/]
+    [@b.date label="入账日期" name="ebuyOrder.billOn" required="false" value=ebuyOrder.billOn! format="date"/]
     [@b.startend label="采购登记日期"
       name="ebuyOrder.beginOn,ebuyOrder.endOn" required="true,false"
       start=ebuyOrder.beginOn end=ebuyOrder.endOn! format="date"/]

@@ -58,10 +58,10 @@ class SubsidyIncomeAction extends RestfulAction[SubsidyIncome], ImportSupport[Su
       inpatientService.getInpatient(income.account.inpatient.code) match {
         case None => redirect("index", "不正确的住院号")
         case Some(i) =>
-          val account = subsidyService.getOrCreate(i)
+          val account = subsidyService.getOrCreate(i, payAt)
           val newI = account.newIncome(income.amount, income.payAt, income.channel)
           entityDao.saveOrUpdate(account, newI)
-          subsidyService.adjustBalance(income.account, minPayAt)
+          subsidyService.adjustBalance(account, minPayAt)
           redirect("search", "info.save.success")
       }
     } else {
