@@ -113,8 +113,12 @@ class WalletServiceImpl extends WalletService {
 
     if (YearMonth.from(startDay) != YearMonth.from(endDay)) return null
 
+
     val days = Math.abs(ChronoUnit.DAYS.between(startDay, endDay).toInt + 1) //首尾都算
-    val mealDays = if (days <= 20) days else 30 - (yearMonth.lengthOfMonth() - days)
+    val daysOfMonth = Math.abs(ChronoUnit.DAYS.between(yearMonth.atDay(1), yearMonth.atEndOfMonth()).toInt + 1)
+
+    val fullMonth = days == daysOfMonth
+    val mealDays = if fullMonth then 30 else days //如果足月就按照30天，否则按照实际天数计算
     val cost = new Yuan(0 - setting.mealPricePerDay.value * mealDays)
 
     val bq = OqlBuilder.from(classOf[Bill], "b")
@@ -128,7 +132,7 @@ class WalletServiceImpl extends WalletService {
         b.wallet = existWallet
         b
 
-    bill.goods = if (mealDays != 30) yearMonth.toString + s"伙食费(${mealDays}天)" else yearMonth.toString + "伙食费"
+    bill.goods = if fullMonth then yearMonth.toString + "伙食费" else yearMonth.toString + s"伙食费(${mealDays}天)"
     bill.amount = cost
     bill.payAt = endDay.atTime(0, 0).atZone(ZoneId.systemDefault()).toInstant
     bill.updatedAt = Instant.now
