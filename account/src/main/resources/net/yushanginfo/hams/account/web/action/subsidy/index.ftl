@@ -1,11 +1,6 @@
 [#ftl]
 [@b.head/]
 [#include "../subsidy_nav.ftl"/]
-[@b.toolbar title="养护补贴管理"]
-  bar.addItem("每期汇总",function() {
-    bg.form.submit(document.searchForm, "${b.url("subsidy-stat!index")}", "_blank");
-  });
-[/@]
 <div class="search-container">
     <div class="search-panel">
     [@b.form name="searchForm" action="!search" target="subsidyList" title="ui.searchForm" theme="search"]

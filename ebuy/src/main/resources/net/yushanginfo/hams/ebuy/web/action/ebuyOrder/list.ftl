@@ -4,11 +4,13 @@
   [@b.gridbar]
     bar.addItem("${b.text("action.new")}",action.add());
     bar.addItem("${b.text("action.modify")}",action.edit());
-    bar.addItem("${b.text("action.delete")}",action.remove("确认删除?"));
-    bar.addItem("登记表",action.single('requireReport',null,null,"_blank"));
-    bar.addItem("汇总表",action.single('priceReport',null,null,"_blank"));
+    bar.addItem("登记表",action.single('requireReport',null,null,"_blank"),"action-print");
+    bar.addItem("汇总表",action.single('priceReport',null,null,"_blank"),"action-print");
     bar.addItem("输入价格",action.single('inputPrice',null,null,"_blank"));
-    bar.addItem("从零用金中扣款",action.single('generateBill',"确定开始扣款(多次点击仅会生成一次扣款流水)？"));
+    var m = bar.addMenu("批量...");
+    m.addItem("设置扣款日期",action.multi("batchUpdateSetting"));
+    m.addItem("从零用金中扣款",action.multi('generateBills',"确定开始扣款(多次点击仅会生成一次扣款流水)？"));
+    m.addItem("${b.text("action.delete")}",action.remove("确认删除?"));
   [/@]
   [@b.row]
     [@b.boxcol /]

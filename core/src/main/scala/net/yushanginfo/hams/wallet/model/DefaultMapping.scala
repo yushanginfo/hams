@@ -36,8 +36,11 @@ object DefaultMapping extends MappingModule {
     bind[Income] declare { e =>
       index("", false, e.wallet)
     }
+    bind[Deposit] declare { e =>
+      index("", false, e.inpatient)
+    }
+
     bind[LeaveApply]
     bind[WalletSetting]
-    bind[Deposit]
   }
 }

@@ -1,8 +1,6 @@
 [#ftl]
 [@b.head/]
 [#include "../subsidy_nav.ftl"/]
-[@b.toolbar title="养护补贴支出流水"]
-[/@]
 <div class="search-container">
     <div class="search-panel">
     [@b.form name="searchForm" action="!search" target="billList" title="ui.searchForm" theme="search"]

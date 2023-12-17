@@ -10,7 +10,7 @@
     [#else]
       [@b.textfield name="pension.inpatient.code" label="住院号" value="" required="true" maxlength="10"/]
     [/#if]
-    [@b.date name="pension.createdOn" label="起始年月" value=pension.createdOn! format="yyyy-MM" required="true" /]
+    [@b.date name="pension.createdOn" label="起始年月" value=pension.createdOn! required="true" /]
     [@b.textfield name="pension.initBalance" label="起始余额" value=pension.initBalance! required="true" comment="元"/]
     [@b.formfoot]
       [@b.reset/]&nbsp;&nbsp;[@b.submit value="action.submit"/]

@@ -20,6 +20,8 @@ package net.yushanginfo.hams.wallet.web.action
 import net.yushanginfo.hams.wallet.model.WalletType
 
 class MealStatAction extends WalletStatAction {
-  override def walletType: WalletType = WalletType.Meal
+  override def walletType: WalletType = {
+    WalletType.Meal
+  }
 
 }

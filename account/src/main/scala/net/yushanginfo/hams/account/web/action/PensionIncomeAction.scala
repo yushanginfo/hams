@@ -17,10 +17,9 @@
 
 package net.yushanginfo.hams.account.web.action
 
-import net.yushanginfo.hams.account.model.{Pension, PensionIncome}
+import net.yushanginfo.hams.account.model.PensionIncome
+import net.yushanginfo.hams.account.service.PensionService
 import net.yushanginfo.hams.base.model.{Inpatient, Ward}
-import net.yushanginfo.hams.code.model.IncomeChannel
-import net.yushanginfo.hams.wallet.model.{Income, Wallet, WalletType}
 import org.beangle.commons.lang.Strings
 import org.beangle.data.dao.OqlBuilder
 import org.beangle.web.action.view.View
@@ -31,6 +30,8 @@ import org.beangle.webmvc.support.helper.QueryHelper
  */
 class PensionIncomeAction extends RestfulAction[PensionIncome], ImportSupport[PensionIncome], ExportSupport[PensionIncome] {
   override protected def simpleEntityName: String = "income"
+
+  var pensionService: PensionService = _
 
   override protected def indexSetting(): Unit = {
     put("wards", entityDao.getAll(classOf[Ward]))
@@ -44,20 +45,23 @@ class PensionIncomeAction extends RestfulAction[PensionIncome], ImportSupport[Pe
   }
 
   override protected def saveAndRedirect(income: PensionIncome): View = {
+    val payAt = getInstant("payAt").get
+    val minPayAt = income.updatePayAt(payAt)
+
     if (!income.persisted && !Strings.isEmpty(income.account.inpatient.code)) {
       entityDao.findBy(classOf[Inpatient], "code", income.account.inpatient.code).headOption match {
-        case None => return redirect("index", "不正确的住院号")
+        case None => redirect("index", "不正确的住院号")
         case Some(i) =>
-          val q = OqlBuilder.from(classOf[Pension], "wallet")
-          q.where("wallet.inpatient=:inpatient", i)
-          val p = entityDao.search(q).headOption match {
-            case Some(w) => w
-            case None => return redirect("index", s"不存在${i.name}的养老金账户")
-          }
-          income.account = p
+          val account = pensionService.getOrCreate(i, payAt)
+          val newI = account.newIncome(income.amount, income.payAt, income.channel)
+          entityDao.saveOrUpdate(account, newI)
+          pensionService.adjustBalance(account, minPayAt)
+          redirect("search", "info.save.success")
       }
+    } else {
+      pensionService.adjustBalance(income.account, minPayAt)
+      super.saveAndRedirect(income)
     }
-    super.saveAndRedirect(income)
   }
 
 }

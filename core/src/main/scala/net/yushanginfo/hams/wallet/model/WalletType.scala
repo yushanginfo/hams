@@ -18,6 +18,8 @@
 package net.yushanginfo.hams.wallet.model
 
 enum WalletType(val id: Int, val name: String) {
+  case None extends WalletType(0, "")
   case Meal extends WalletType(1, "伙食费")
   case Change extends WalletType(2, "零用金")
+
 }

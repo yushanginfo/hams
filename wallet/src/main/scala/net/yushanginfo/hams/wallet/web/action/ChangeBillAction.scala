@@ -50,17 +50,15 @@ class ChangeBillAction extends RestfulAction[Bill], ImportSupport[Bill], ExportS
     val payAt = getInstant("payAt").get
     val minPayAt = bill.updatePayAt(payAt)
 
-    if (!bill.persisted && !Strings.isEmpty(bill.wallet.inpatient.code)) {
-      inpatientService.getInpatient(bill.wallet.inpatient.code).headOption match {
-        case None => redirect("index", "不正确的住院号")
-        case Some(inpatient) =>
-          val wallet = walletService.getOrCreateWallet(inpatient, WalletType.Change, payAt)
-          val nbill =
-            wallet.newBill(bill.amount, bill.payAt, bill.goods)
-          entityDao.saveOrUpdate(wallet, nbill)
-          walletService.adjustBalance(wallet, minPayAt)
-          super.saveAndRedirect(nbill)
-      }
+    val inpatientId = getLong("inpatient.id")
+    if (!bill.persisted && inpatientId.nonEmpty) {
+      val inpatient = entityDao.get(classOf[Inpatient], inpatientId.get)
+      val wallet = walletService.getOrCreateWallet(inpatient, WalletType.Change, payAt)
+      val nbill =
+        wallet.newBill(bill.amount, bill.payAt, bill.goods)
+      entityDao.saveOrUpdate(wallet, nbill)
+      walletService.adjustBalance(wallet, minPayAt)
+      super.saveAndRedirect(nbill)
     } else {
       entityDao.saveOrUpdate(bill)
       walletService.adjustBalance(bill.wallet, minPayAt)
@@ -95,7 +93,7 @@ class ChangeBillAction extends RestfulAction[Bill], ImportSupport[Bill], ExportS
       val yearMonth = YearMonth.parse(ym)
       val beginAt = yearMonth.atDay(1).atTime(0, 0, 0).atZone(ZoneId.systemDefault).toInstant
       val endAt = yearMonth.atEndOfMonth().atTime(23, 59, 59).atZone(ZoneId.systemDefault).toInstant
-      OqlBuilder.from(classOf[Inpatient],"")
+      OqlBuilder.from(classOf[Inpatient], "")
     }
     forward()
   }

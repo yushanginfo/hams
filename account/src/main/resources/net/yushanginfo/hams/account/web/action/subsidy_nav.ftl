@@ -2,4 +2,5 @@
   [@b.navitem href="subsidy"]养护补贴余额[/@]
   [@b.navitem href="subsidy-bill"]支出流水[/@]
   [@b.navitem href="subsidy-income"]入账明细[/@]
+  [@b.navitem href="subsidy-stat"]每期汇总[/@]
 [/@]

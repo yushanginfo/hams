@@ -32,16 +32,32 @@ class OrderCommodityPrice extends LongId {
   /** 单位 */
   var unit: CommodityUnit = _
   /** 数量 */
-  var amount: Int = _
+  var amount: Float = _
   /** 单价 */
   var price: Yuan = _
   /** 折扣 <=10 */
   var discount: Float = _
   /** 折后价格 */
   var discountPrice: Yuan = _
+  /** 实收 */
+  var payment: Yuan = Yuan.Zero
+  /** 应收 */
+  var payable: Yuan = Yuan.Zero
 
-  def payable: Yuan = {
-    new Yuan(price.value * amount)
+  def update(amount: Float, payable: Yuan, payment: Yuan): Unit = {
+    this.amount = amount
+    this.payable = payable
+    this.payment = payment
+    if (amount == 0) {
+      this.price = payable
+      this.discountPrice = payable
+    } else {
+      this.price = payable / amount
+      this.discountPrice = payment / amount
+    }
+    if (payable.value != 0) {
+      this.discount = payment.value * 10.0f / payable.value
+    }
   }
 
   def commodityDescription: String = {

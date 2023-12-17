@@ -1,6 +1,6 @@
 [@b.head/]
+[#include "../change_nav.ftl"/]
 <div class="container-fluid text-sm">
-  [@b.toolbar title="零用金月度统计"/]
   <div class="row">
     <div class="col-2">
       <div class="card  card-info card-primary card-outline">

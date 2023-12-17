@@ -1,7 +1,7 @@
 [#ftl]
 [@b.head/]
-[@b.toolbar title="住院押金管理"]
-[/@]
+[#include "../deposit_nav.ftl"/]
+[@b.toolbar title="住院押金管理"/]
 <div class="search-container">
     <div class="search-panel">
     [@b.form name="searchForm" action="!search" target="depositList" title="ui.searchForm" theme="search"]

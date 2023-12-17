@@ -1,5 +1,6 @@
 import HisDepends.*
-import _root_.org.beangle.parent.Settings.*
+import org.beangle.parent.Settings.*
+import org.beangle.parent.Dependencies.gson
 
 ThisBuild / organization := "net.yushanginfo.hams"
 ThisBuild / version := "0.0.1-SNAPSHOT"
@@ -25,7 +26,7 @@ ThisBuild / resolvers += Resolver.mavenLocal
 
 lazy val root = (project in file("."))
   .settings()
-  .aggregate(core, base, wallet, account, leave, ebuy)
+  .aggregate(core, ws, base, wallet, account, leave, ebuy)
 
 lazy val core = (project in file("core"))
   .settings(
@@ -34,6 +35,15 @@ lazy val core = (project in file("core"))
     crossPaths := false,
     libraryDependencies ++= appDepends
   )
+
+lazy val ws = (project in file("ws"))
+  .enablePlugins(WarPlugin, TomcatPlugin)
+  .settings(
+    name := "hams-ws",
+    common,
+    crossPaths := false,
+    libraryDependencies ++= appDepends
+  ).dependsOn(core)
 
 lazy val base = (project in file("base"))
   .enablePlugins(WarPlugin, TomcatPlugin)
@@ -85,13 +95,12 @@ val cxf_frontend_jaxws = "org.apache.cxf" % "cxf-rt-frontend-jaxws" % cxfVersion
 val cxf_transports_http = "org.apache.cxf" % "cxf-rt-transports-http" % cxfVersion
 
 lazy val landray = (project in file("landray"))
-  .enablePlugins(WarPlugin, TomcatPlugin)
   .settings(
     name := "hams-landray",
     common,
+    Compile / mainClass := Some("net.yushanginfo.landray.ws.Sync"),
     crossPaths := false,
-    libraryDependencies ++= appDepends,
-    libraryDependencies ++= Seq(cxf_frontend_jaxws, cxf_transports_http)
-  ).dependsOn(core)
+    libraryDependencies ++= Seq(cxf_frontend_jaxws, cxf_transports_http, gson)
+  )
 
 publish / skip := true

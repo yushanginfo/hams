@@ -42,7 +42,6 @@ class DefaultMapping extends MappingModule {
     bind[CriticalLevel]
     bind[CardType]
     bind[InpatientStatus]
-    bind[StaffType]
     bind[DiseaseType]
     bind[IncomeChannel]
 

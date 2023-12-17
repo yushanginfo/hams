@@ -1,11 +1,6 @@
 [#ftl]
 [@b.head/]
 [#include "../meal_nav.ftl"/]
-[@b.toolbar title="伙食费管理"]
-  bar.addItem("每期汇总",function() {
-    bg.form.submit(document.searchForm, "${b.url("meal-stat!index")}", "_blank");
-  });
-[/@]
 <div class="search-container">
     <div class="search-panel">
     [@b.form name="searchForm" action="!search" target="walletList" title="ui.searchForm" theme="search"]

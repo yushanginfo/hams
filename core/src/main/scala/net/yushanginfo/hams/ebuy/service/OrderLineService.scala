@@ -23,7 +23,7 @@ import net.yushanginfo.hams.ebuy.model.{EbuyOrder, OrderLine}
 trait OrderLineService {
 
   def createLine(order: EbuyOrder, inpatient: Inpatient, commodityName: String,
-                 brandName: String, unitName: String, amount: Int,
+                 brandName: String, unitName: String, amount: Float,
                  price: Option[Yuan], payable: Option[Yuan],payment: Option[Yuan]): OrderLine
 
 }

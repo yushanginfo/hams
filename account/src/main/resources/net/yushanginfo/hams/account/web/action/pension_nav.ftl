@@ -2,4 +2,5 @@
   [@b.navitem href="pension"]养老金余额[/@]
   [@b.navitem href="pension-bill"]支出流水[/@]
   [@b.navitem href="pension-income"]入账明细[/@]
+  [@b.navitem href="pension-stat"]每期汇总[/@]
 [/@]

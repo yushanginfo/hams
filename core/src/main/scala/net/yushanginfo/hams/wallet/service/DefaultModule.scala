@@ -18,7 +18,7 @@
 package net.yushanginfo.hams.wallet.service
 
 import net.yushanginfo.hams.account.service.impl.TransactionServiceImpl
-import net.yushanginfo.hams.wallet.service.impl.WalletServiceImpl
+import net.yushanginfo.hams.wallet.service.impl.{BillServiceImpl, DepositServiceImpl, WalletServiceImpl}
 import org.beangle.cdi.bind.BindModule
 
 class DefaultModule extends BindModule {
@@ -26,5 +26,7 @@ class DefaultModule extends BindModule {
   override def binding(): Unit = {
     bind(classOf[WalletServiceImpl])
     bind(classOf[TransactionServiceImpl])
+    bind(classOf[BillServiceImpl])
+    bind(classOf[DepositServiceImpl])
   }
 }

@@ -1,11 +1,6 @@
 [#ftl]
 [@b.head/]
 [#include "../change_nav.ftl"/]
-[@b.toolbar title="零用金管理"]
-  bar.addItem("每期汇总",function() {
-    bg.form.submit(document.searchForm, "${b.url("change-stat")}", "_blank");
-  });
-[/@]
 <div class="search-container">
     <div class="search-panel">
     [@b.form name="searchForm" action="!search" target="walletList" title="ui.searchForm" theme="search"]

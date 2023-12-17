@@ -1,8 +1,6 @@
 [#ftl]
 [@b.head/]
 [#include "../pension_nav.ftl"/]
-[@b.toolbar title="养老金支出流水"]
-[/@]
 <div class="search-container">
     <div class="search-panel">
     [@b.form name="searchForm" action="!search" target="billList" title="ui.searchForm" theme="search"]

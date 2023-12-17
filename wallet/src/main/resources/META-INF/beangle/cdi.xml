@@ -2,8 +2,10 @@
 <cdi>
   <container>
     <module class="net.yushanginfo.hams.wallet.web.action.DefaultModule"/>
+    <module class="net.yushanginfo.hams.wallet.web.action.info.DefaultModule"/>
     <module class="net.yushanginfo.hams.base.service.DefaultModule"/>
     <module class="net.yushanginfo.hams.wallet.service.DefaultModule"/>
     <module class="net.yushanginfo.hams.wallet.helper.HelperModule"/>
+    <module class="net.yushanginfo.hams.base.web.tag.DefaultModule"/>
   </container>
 </cdi>

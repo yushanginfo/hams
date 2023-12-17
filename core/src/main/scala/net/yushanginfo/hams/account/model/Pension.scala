@@ -18,12 +18,9 @@
 package net.yushanginfo.hams.account.model
 
 import net.yushanginfo.hams.base.model.{Account, Inpatient, Yuan}
-import org.beangle.commons.collection.Collections
 import org.beangle.data.model.LongId
-import org.beangle.data.model.pojo.Updated
 
-import java.time.{Instant, LocalDate, YearMonth}
-import scala.collection.mutable
+import java.time.{Instant, LocalDate}
 
 object Pension {
   def apply(inpatient: Inpatient): Pension = {
@@ -39,7 +36,7 @@ object Pension {
 /**
  * 养老金
  */
-class Pension extends LongId,Account {
+class Pension extends LongId, Account {
 
   def this(id: Long) = {
     this()
@@ -57,5 +54,29 @@ class Pension extends LongId,Account {
 
   /** 初始余额 */
   var initBalance: Yuan = _
+
+  def newIncome(amount: Yuan, payAt: Instant, channel: String): PensionIncome = {
+    val i = new PensionIncome
+    i.account = this
+    i.amount = amount
+    i.updatedAt = Instant.now
+    i.payAt = payAt
+    i.balance = this.balance + amount
+    i.channel = channel
+    this.balance = i.balance
+    i
+  }
+
+  def newBill(amount: Yuan, payAt: Instant, expenses: String): PensionBill = {
+    val i = new PensionBill
+    i.account = this
+    i.amount = if (amount.value > 0) Yuan.Zero - amount else amount
+    i.updatedAt = Instant.now
+    i.payAt = payAt
+    i.balance = this.balance + i.amount
+    i.expenses = expenses
+    this.balance = i.balance
+    i
+  }
 
 }

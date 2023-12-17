@@ -1,11 +1,6 @@
 [#ftl]
 [@b.head/]
 [#include "../pension_nav.ftl"/]
-[@b.toolbar title="养老金余额管理"]
-  bar.addItem("每期汇总",function() {
-    bg.form.submit(document.searchForm, "${b.url("pension-stat!index")}", "_blank");
-  });
-[/@]
 <div class="search-container">
     <div class="search-panel">
     [@b.form name="searchForm" action="!search" target="pensionList" title="ui.searchForm" theme="search"]

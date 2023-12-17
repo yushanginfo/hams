@@ -19,8 +19,8 @@ package net.yushanginfo.hams.base.model
 
 import org.beangle.data.dao.OqlBuilder
 import org.beangle.data.model.IntId
-import org.beangle.data.model.pojo.{Coded, Hierarchical, Named, TemporalOn}
+import org.beangle.data.model.pojo.*
 
-class Department extends IntId, Coded, Named, Hierarchical[Department], TemporalOn {
+class Department extends IntId, Coded, Named, Hierarchical[Department], TemporalOn, Updated {
 
 }

@@ -76,12 +76,17 @@ class EbuyOrder extends LongId, Named, DateRange {
     val groupLines = this.lines groupBy (x => (x.commodity, x.brand, x.unit))
     groupLines.foreach { case (g, lines) =>
       this.prices.find(p => p.commodity == g._1 && p.brand == g._2 && p.unit == g._3) foreach { p =>
-        p.amount = lines.map(_.amount).sum
+        val amount = lines.map(_.amount).sum
+        val payable = new Yuan(lines.map(_.payable.getOrElse(Yuan.Zero).value).sum)
+        val payment = new Yuan(lines.map(_.payment.getOrElse(Yuan.Zero).value).sum)
+        p.update(amount, payable, payment)
       }
     }
   }
 
   def calcPayable(): Unit = {
+    if (this.prices.isEmpty) return
+
     val groupLines = this.lines groupBy (x => (x.commodity, x.brand, x.unit))
     var totalPayable = Yuan(0)
     var totalPayment = Yuan(0)
@@ -91,13 +96,14 @@ class EbuyOrder extends LongId, Named, DateRange {
         p.discountPrice = new Yuan((p.price.value * p.discount / 10).toLong)
         lines foreach { line =>
           line.price = Some(p.price)
-          line.payable = Some(new Yuan(p.price.value * line.amount))
-          line.payment = Some(new Yuan(p.discountPrice.value * line.amount))
+          line.payable = Some(p.price * line.amount)
+          line.payment = Some(p.discountPrice * line.amount)
           totalPayment += line.payment.get
           totalPayable += line.payable.get
         }
       }
     }
+
     this.payable = Some(totalPayable)
     this.payment = Some(totalPayment)
   }

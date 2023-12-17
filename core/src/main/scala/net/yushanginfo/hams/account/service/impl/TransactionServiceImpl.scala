@@ -111,7 +111,7 @@ class TransactionServiceImpl extends TransactionService {
     val stats = new mutable.ArrayBuffer[TransactionStat]
     //有余额或者产生过流水的
     accounts foreach { acc =>
-      val s = new TransactionStat(acc, yearMonth)
+      val s = new TransactionStat(acc.inpatient, yearMonth)
       val incomes = incomeStats.get(acc) match
         case None => Yuan(0)
         case Some(bs) => Yuan(bs.map(_.amount.value).sum)
@@ -131,8 +131,8 @@ class TransactionServiceImpl extends TransactionService {
   def findInitBalance(account: Account, incomes: Option[Seq[Transaction]], bills: Option[Seq[Transaction]],
                       incomeClazz: Class[_], billClazz: Class[_], userAttr: String, beginAt: Instant): Yuan = {
     val rs = new mutable.ArrayBuffer[Transaction]
-    incomes foreach { i => rs ++= i.headOption }
-    bills foreach { b => rs ++= b.headOption }
+    incomes foreach { i => rs ++= i }
+    bills foreach { b => rs ++= b }
     if (rs.nonEmpty) {
       val ts = rs.sorted
       ts.head.originBalance

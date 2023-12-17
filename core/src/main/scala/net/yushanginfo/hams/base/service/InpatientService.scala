@@ -17,11 +17,13 @@
 
 package net.yushanginfo.hams.base.service
 
-import net.yushanginfo.hams.base.model.Inpatient
+import net.yushanginfo.hams.base.model.{Inpatient, Ward}
 
 trait InpatientService {
 
   def getInpatient(code: String): Option[Inpatient]
 
   def getInpatientByName(name: String): Option[Inpatient]
+
+  def getInpatientByName(name: String, ward: Ward): Option[Inpatient]
 }

@@ -6,6 +6,7 @@
     bar.addItem("${b.text("action.modify")}",action.edit());
     bar.addItem("${b.text("action.delete")}",action.remove("确认删除?"));
     bar.addItem("导入",action.method('importForm'));
+    bar.addItem("立即同步",action.method("manualSync"));
   [/@]
   [@b.row]
     [@b.boxcol /]
@@ -17,7 +18,6 @@
     [/@]
     [@b.col width="8%" property="gender.name" title="性别"/]
     [@b.col property="department.name" title="部门"]${(staff.department.name)!}[/@]
-    [@b.col width="10%" property="staffType.name" title="类别"]${(staff.staffType.name)!}[/@]
     [@b.col width="8%" property="mobile" title="手机"/]
     [@b.col property="beginOn" title="在院时间"]${staff.beginOn?string('yyyy-MM')}~${(staff.endOn?string('yyyy-MM'))!'至今'}[/@]
   [/@]

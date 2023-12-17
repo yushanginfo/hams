@@ -19,6 +19,7 @@ package net.yushanginfo.hams.account.web.action
 
 import net.yushanginfo.hams.account.model.AttendFee
 import net.yushanginfo.hams.account.service.AttendFeeService
+import net.yushanginfo.hams.account.web.StatHelper
 import net.yushanginfo.hams.base.model.{Ward, Yuan}
 import org.beangle.data.dao.EntityDao
 import org.beangle.web.action.support.ActionSupport
@@ -52,9 +53,8 @@ class AttendFeeStatAction extends ActionSupport, EntityAction[AttendFee] {
   def stat(): View = {
     val ym = YearMonth.parse(get("yearMonth", ""))
     val stats = attendFeeService.stat(ym)
-    put("stats", stats)
-    val wardStats = stats.groupBy(w => w.user.inpatient.ward)
-    put("wardStats", wardStats)
+    val wardStats = stats.groupBy(w => w.inpatient.ward)
+    put("stats", wardStats)
     put("wards", wardStats.keys)
     forward()
   }
@@ -78,30 +78,7 @@ class AttendFeeStatAction extends ActionSupport, EntityAction[AttendFee] {
   def ward(): View = {
     val ym = YearMonth.parse(get("yearMonth", ""))
     val stats = attendFeeService.stat(ym)
-    val wardStats = stats.groupBy(_.user.inpatient.ward)
-    val startBalances = new mutable.HashMap[Ward, Yuan]
-    val endBalances = new mutable.HashMap[Ward, Yuan]
-    val incomes = new mutable.HashMap[Ward, Yuan]
-    val expenses = new mutable.HashMap[Ward, Yuan]
-
-    wardStats foreach { case (ward, ws) =>
-      startBalances.put(ward, Yuan(ws.map(_.startBalance.value).sum))
-      endBalances.put(ward, Yuan(ws.map(_.endBalance.value).sum))
-      incomes.put(ward, Yuan(ws.map(_.incomes.value).sum))
-      expenses.put(ward, Yuan(ws.map(_.expenses.value).sum))
-    }
-    put("startBalances", startBalances)
-    put("endBalances", endBalances)
-    put("incomes", incomes)
-    put("expenses", expenses)
-
-    put("startBalances_sum", Yuan(startBalances.values.map(_.value).sum))
-    put("endBalances_sum", Yuan(endBalances.values.map(_.value).sum))
-    put("incomes_sum", Yuan(incomes.values.map(_.value).sum))
-    put("expenses_sum", Yuan(expenses.values.map(_.value).sum))
-
-    put("wards", wardStats.keys)
-    put("yearMonth", ym)
+    StatHelper.putStats(ym,stats)
     forward()
   }
 }

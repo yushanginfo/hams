@@ -2,4 +2,5 @@
   [@b.navitem href="attend-fee"]陪护费余额[/@]
   [@b.navitem href="attend-fee-bill"]支出流水[/@]
   [@b.navitem href="attend-fee-income"]入账明细[/@]
+  [@b.navitem href="attend-fee-stat"]每期统计[/@]
 [/@]

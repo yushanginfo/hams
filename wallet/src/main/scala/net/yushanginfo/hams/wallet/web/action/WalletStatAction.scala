@@ -55,7 +55,7 @@ abstract class WalletStatAction extends ActionSupport, EntityAction[Wallet] {
     val ym = YearMonth.parse(get("yearMonth", ""))
     val stats = walletService.stat(ym, walletType)
     put("stats", stats)
-    val wardStats = stats.groupBy(w => w.user.inpatient.ward)
+    val wardStats = stats.groupBy(w => w.inpatient.ward)
     put("wardStats", wardStats)
     put("wards", wardStats.keys)
     forward()
@@ -70,17 +70,18 @@ abstract class WalletStatAction extends ActionSupport, EntityAction[Wallet] {
     val ym = YearMonth.parse(get("yearMonth", ""))
     val ward = entityDao.get(classOf[Ward], getIntId("ward"))
     val wards = entityDao.getAll(classOf[Ward])
-    put("walletStats", walletService.stat(ym, walletType))
+    val stats = walletService.stat(ym,walletType)
+    put("walletStats", stats.filter(x=> x.inpatient.ward== ward))
     put("yearMonth", ym)
     put("ward", ward)
-    put("walletType", WalletType.Meal)
+    put("walletType", walletType)
     forward()
   }
 
   def ward(): View = {
     val ym = YearMonth.parse(get("yearMonth", ""))
     val stats = walletService.stat(ym, walletType)
-    val wardStats = stats.groupBy(_.user.inpatient.ward)
+    val wardStats = stats.groupBy(_.inpatient.ward)
     val startBalances = new mutable.HashMap[Ward, Yuan]
     val endBalances = new mutable.HashMap[Ward, Yuan]
     val incomes = new mutable.HashMap[Ward, Yuan]
@@ -104,7 +105,7 @@ abstract class WalletStatAction extends ActionSupport, EntityAction[Wallet] {
 
     put("wards", wardStats.keys)
     put("yearMonth", ym)
-    put("walletType", WalletType.Meal)
+    put("walletType", walletType)
     forward()
   }
 

@@ -17,7 +17,7 @@
 
 package net.yushanginfo.hams.base.model
 
-import net.yushanginfo.hams.code.model.{Gender, StaffType}
+import net.yushanginfo.hams.code.model.Gender
 import org.beangle.data.model.LongId
 import org.beangle.data.model.pojo.*
 
@@ -26,9 +26,6 @@ import java.time.LocalDate
 /** 员工
  * */
 class Staff extends LongId, Coded, Named, Updated, TemporalOn, Remark {
-
-  /** 员工类型 */
-  var staffType: StaffType = _
 
   /** 性别 */
   var gender: Gender = _

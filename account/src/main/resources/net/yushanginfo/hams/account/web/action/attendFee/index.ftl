@@ -1,11 +1,6 @@
 [#ftl]
 [@b.head/]
 [#include "../attendFee_nav.ftl"/]
-[@b.toolbar title="陪护费余额管理"]
-  bar.addItem("每期汇总",function() {
-    bg.form.submit(document.searchForm, "${b.url("attend-fee-stat!index")}", "_blank");
-  });
-[/@]
 <div class="search-container">
     <div class="search-panel">
     [@b.form name="searchForm" action="!search" target="attendFeeList" title="ui.searchForm" theme="search"]

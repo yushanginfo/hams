@@ -9,7 +9,6 @@ FeeOrigin=费用来源
 CriticalLevel=危重级别
 CardType=卡类型
 InpatientStatus=病人状态
-StaffType=员工类别
 DiseaseType=临床诊断
 IncomeChannel=收入渠道
 BankcardIncomeCategory=银行卡收入类别

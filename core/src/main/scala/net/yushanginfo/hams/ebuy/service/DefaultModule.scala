@@ -17,7 +17,7 @@
 
 package net.yushanginfo.hams.ebuy.service
 
-import net.yushanginfo.hams.ebuy.service.impl.{CommodityServiceImpl, OrderLineServiceImpl}
+import net.yushanginfo.hams.ebuy.service.impl.{CommodityServiceImpl, OrderLineServiceImpl, OrderServiceImpl}
 import org.beangle.cdi.bind.BindModule
 
 class DefaultModule extends BindModule {
@@ -25,5 +25,6 @@ class DefaultModule extends BindModule {
   override def binding(): Unit = {
     bind(classOf[CommodityServiceImpl])
     bind(classOf[OrderLineServiceImpl])
+    bind(classOf[OrderServiceImpl])
   }
 }

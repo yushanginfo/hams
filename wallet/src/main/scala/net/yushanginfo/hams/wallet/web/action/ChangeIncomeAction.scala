@@ -17,7 +17,7 @@
 
 package net.yushanginfo.hams.wallet.web.action
 
-import net.yushanginfo.hams.base.model.Ward
+import net.yushanginfo.hams.base.model.{Inpatient, Ward}
 import net.yushanginfo.hams.base.service.InpatientService
 import net.yushanginfo.hams.code.model.IncomeChannel
 import net.yushanginfo.hams.wallet.helper.IncomeImportListener
@@ -47,17 +47,14 @@ class ChangeIncomeAction extends RestfulAction[Income], ImportSupport[Income], E
   override protected def saveAndRedirect(income: Income): View = {
     val payAt = getInstant("payAt").get
     val minPayAt = income.updatePayAt(payAt)
-
-    if (!income.persisted && !Strings.isEmpty(income.wallet.inpatient.code)) {
-      inpatientService.getInpatient(income.wallet.inpatient.code) match {
-        case None => redirect("index", "不正确的住院号")
-        case Some(inpatient) =>
-          val wallet = walletService.getOrCreateWallet(inpatient, WalletType.Change, income.payAt)
-          val nincome = wallet.newIncome(income.amount, income.payAt, income.channel)
-          entityDao.saveOrUpdate(wallet, nincome)
-          walletService.adjustBalance(wallet, minPayAt)
-          redirect("search", "info.save.success")
-      }
+    val inpatientId = getLong("inpatient.id")
+    if (!income.persisted && inpatientId.nonEmpty) {
+      val inpatient = entityDao.get(classOf[Inpatient], inpatientId.get)
+      val wallet = walletService.getOrCreateWallet(inpatient, WalletType.Change, income.payAt)
+      val nincome = wallet.newIncome(income.amount, income.payAt, income.channel)
+      entityDao.saveOrUpdate(wallet, nincome)
+      walletService.adjustBalance(wallet, minPayAt)
+      redirect("search", "info.save.success")
     } else {
       walletService.adjustBalance(income.wallet, minPayAt)
       super.saveAndRedirect(income)

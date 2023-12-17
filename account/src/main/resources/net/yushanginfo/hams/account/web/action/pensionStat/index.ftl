@@ -1,4 +1,5 @@
 [@b.head/]
+[#include "../pension_nav.ftl"/]
 <div class="container-fluid text-sm">
   [@b.toolbar title="养老金月度统计"/]
   <div class="row">

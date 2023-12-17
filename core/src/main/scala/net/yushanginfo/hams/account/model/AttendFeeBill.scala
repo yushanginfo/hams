@@ -17,7 +17,7 @@
 
 package net.yushanginfo.hams.account.model
 
-import net.yushanginfo.hams.base.model.Yuan
+import net.yushanginfo.hams.base.model.{Account, Transaction, Yuan}
 import net.yushanginfo.hams.wallet.model.WalletType
 import org.beangle.data.model.LongId
 import org.beangle.data.model.pojo.{Remark, Updated}
@@ -27,17 +27,13 @@ import java.time.Instant
 /**
  * 陪护费消费账单
  */
-class AttendFeeBill extends LongId, Updated, Remark {
+class AttendFeeBill extends LongId, Updated, Transaction {
   /** 养老金 */
   var account: AttendFee = _
-  /** 金额 */
-  var amount: Yuan = _
-  /** 结余 */
-  var balance: Yuan = _
-  /** 支付时间 */
-  var payAt: Instant = _
   /** 资金去向 */
   var expenses: String = _
   /** 转入钱包 */
   var toWallet: Option[WalletType] = None
+
+  override def user: Account = account
 }

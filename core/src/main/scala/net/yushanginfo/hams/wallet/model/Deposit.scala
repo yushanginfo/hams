@@ -17,15 +17,15 @@
 
 package net.yushanginfo.hams.wallet.model
 
-import net.yushanginfo.hams.base.model.{Inpatient, Yuan}
+import net.yushanginfo.hams.base.model.{Account, Inpatient, Transaction, Yuan}
 import org.beangle.data.model.LongId
 import org.beangle.data.model.pojo.Updated
 
-import java.time.{Instant, LocalDateTime}
+import java.time.{Instant, LocalDate, LocalDateTime, ZoneId}
 
 /** 住院押金
  */
-class Deposit extends LongId, Updated {
+class Deposit extends LongId, Updated, Account {
   def this(inpatient: Inpatient, payAt: Instant) = {
     this()
     this.inpatient = inpatient
@@ -41,4 +41,36 @@ class Deposit extends LongId, Updated {
   var payAt: Instant = _
   /** 退回时间 */
   var refundAt: Option[Instant] = None
+
+  override def createdOn: LocalDate = {
+    payAt.atZone(ZoneId.systemDefault()).toLocalDate
+  }
+
+  def initBalance: Yuan = {
+    amount
+  }
+
+  def balance: Yuan = {
+    if (refundAt.isEmpty) amount else Yuan.Zero
+  }
+
+  def toIncome: DepositTransaction = {
+    val i = new DepositTransaction(this)
+    i.amount = amount
+    i.payAt = payAt
+    i.balance = amount
+    i
+  }
+
+  def toBill: DepositTransaction = {
+    val i = new DepositTransaction(this)
+    i.amount = Yuan.Zero - amount
+    i.payAt = refundAt.get
+    i.balance = Yuan.Zero
+    i
+  }
+}
+
+class DepositTransaction(val user: Deposit) extends Transaction {
+  override def id: Long = user.inpatient.id
 }

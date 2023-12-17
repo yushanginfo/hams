@@ -31,8 +31,6 @@ class CriticalLevel extends CodeBean
  */
 class InpatientStatus extends CodeBean
 
-class StaffType extends CodeBean
-
 /** 收入渠道 */
 class IncomeChannel extends CodeBean {
   def this(id: Int) = {

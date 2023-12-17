@@ -17,11 +17,16 @@
 
 package net.yushanginfo.hams.account.service
 
-import net.yushanginfo.hams.base.model.TransactionStat
+import net.yushanginfo.hams.account.model.Pension
+import net.yushanginfo.hams.base.model.{Inpatient, TransactionStat, Yuan}
 
-import java.time.YearMonth
+import java.time.{Instant, YearMonth}
 
 trait PensionService {
 
   def stat(yearMonth: YearMonth): collection.Seq[TransactionStat]
+
+  def adjustBalance(pension: Pension, beginAt: Instant): Yuan
+
+  def getOrCreate(inpatient: Inpatient, payAt: Instant): Pension
 }

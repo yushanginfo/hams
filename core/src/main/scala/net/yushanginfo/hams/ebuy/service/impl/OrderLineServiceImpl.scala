@@ -29,16 +29,17 @@ class OrderLineServiceImpl extends OrderLineService {
   var entityDao: EntityDao = _
 
   override def createLine(order: EbuyOrder, inpatient: Inpatient, commodityName: String,
-                          brandName: String, unitName: String, amount: Int, price: Option[Yuan], payable: Option[Yuan], payment: Option[Yuan]): OrderLine = {
+                          brandName: String, unitName: String, amount: Float, price: Option[Yuan], payable: Option[Yuan], payment: Option[Yuan]): OrderLine = {
 
     require(null != inpatient && null != order)
     val commodity = commodityService.getOrCreateCommodity(commodityName)
-    val line = order.lines.find(l => l.inpatient == inpatient && l.commodity == commodity).getOrElse(new OrderLine)
+    val unit = commodityService.getOrCreateUnit(unitName)
+    val line = order.lines.find(l => l.inpatient == inpatient && l.commodity == commodity && l.unit == unit).getOrElse(new OrderLine)
     line.order = order
     price foreach { p =>
       line.price = Some(p)
       payable match
-        case None => line.payable = Some(new Yuan(p.value * line.amount))
+        case None => line.payable = Some(p * line.amount)
         case Some(p) => line.payable = payable
     }
     payment foreach { p =>
@@ -47,10 +48,11 @@ class OrderLineServiceImpl extends OrderLineService {
     line.inpatient = inpatient
     line.commodity = commodity
     line.amount = amount
-    line.unit = commodityService.getOrCreateUnit(unitName)
+    line.unit = unit
     line.brand = Option(commodityService.getOrCreateBrand(brandName))
-    if (!line.persisted && line.unit != null) {
-      order.lines.addOne(line)
+
+    if (line.unit != null) {
+      if !line.persisted then order.lines.addOne(line)
       entityDao.saveOrUpdate(order, line)
     }
     line

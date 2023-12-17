@@ -1,0 +1,7 @@
+[@b.nav class="nav-tabs nav-tabs-compact"]
+  [@b.navitem href="wallet"]账户余额[/@]
+  [@b.navitem href="bill"]支出流水[/@]
+  [@b.navitem href="income"]入账明细[/@]
+  [@b.navitem href="meal-stat"]伙食费汇总[/@]
+  [@b.navitem href="change-stat"]零用金汇总[/@]
+[/@]

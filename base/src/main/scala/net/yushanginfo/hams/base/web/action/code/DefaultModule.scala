@@ -30,7 +30,6 @@ class DefaultModule extends BindModule {
     bind(classOf[RelationshipAction])
 
     bind(classOf[InpatientStatusAction])
-    bind(classOf[StaffTypeAction])
     bind(classOf[CardTypeAction])
     bind(classOf[FeeOriginAction])
     bind(classOf[CriticalLevelAction])

@@ -32,7 +32,7 @@ import org.beangle.web.action.view.{Stream, View}
 import org.beangle.webmvc.support.action.{ExportSupport, ImportSupport, RestfulAction}
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
-import java.time.Year
+import java.time.{Year, ZoneId}
 
 class ChangeAction extends RestfulAction[Wallet], ImportSupport[Wallet], ExportSupport[Wallet] {
 
@@ -114,6 +114,32 @@ class ChangeAction extends RestfulAction[Wallet], ImportSupport[Wallet], ExportS
     val os = new ByteArrayOutputStream()
     schema.generate(os)
     Stream(new ByteArrayInputStream(os.toByteArray), MediaTypes.ApplicationXlsx.toString, "零用金余额.xlsx")
+  }
+
+  def refundSetting(): View = {
+    val wallets = entityDao.find(classOf[Wallet], getLongIds("wallet"))
+    put("wallets", wallets)
+    forward()
+  }
+
+  def refund(): View = {
+    val wallets = entityDao.find(classOf[Wallet], getLongIds("wallet"))
+    val refundAt = getInstant("refundAt").get
+    wallets foreach { wallet =>
+      if (wallet.balance.value > 0) {
+        val bill = wallet.newBill(wallet.balance, refundAt, "全额退款")
+        entityDao.saveOrUpdate(bill)
+      }
+    }
+    redirect("search", "退款成功")
+  }
+
+  def adjustBalance(): View = {
+    val wallets = entityDao.find(classOf[Wallet], getLongIds("wallet"))
+    wallets foreach { w =>
+      walletService.adjustBalance(w, w.createdOn.atTime(0, 0).atZone(ZoneId.systemDefault).toInstant)
+    }
+    redirect("search", "计算完成")
   }
 
   protected override def configImport(setting: ImportSetting): Unit = {

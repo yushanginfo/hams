@@ -1,4 +1,5 @@
 [@b.head/]
+[#include "../subsidy_nav.ftl"/]
 <div class="container-fluid text-sm">
   [@b.toolbar title="养护补贴月度统计"/]
   <div class="row">

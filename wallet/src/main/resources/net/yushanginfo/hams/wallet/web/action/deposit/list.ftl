@@ -6,7 +6,7 @@
     bar.addItem("${b.text("action.modify")}",action.edit());
     var m=bar.addMenu("${b.text("action.export")}",action.exportData("inpatient.code:住院号,inpatient.name:姓名,"+
                  "inpatient.gender.name:性别,inpatient.ward.name:病区,inpatient.bedNo:床号,"+
-                 "amount:金额,inpatient.beginAt:入院时间,payAt:缴费时间,inpatient.refundAt:退款时间",null,'fileName=住院押金信息'));
+                 "amount:金额,inpatient.beginAt:入院时间,payAt:缴费时间,refundAt:退款时间",null,'fileName=住院押金信息'));
     m.addItem("导入",action.method('importForm'));
     m.addItem("删除",action.remove());
   [/@]

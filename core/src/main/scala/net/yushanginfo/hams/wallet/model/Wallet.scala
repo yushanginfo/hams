@@ -66,7 +66,7 @@ class Wallet extends LongId, Account {
     i.amount = if (amount.value > 0) Yuan.Zero - amount else amount
     i.updatedAt = Instant.now
     i.payAt = payAt
-    i.balance = this.balance + amount
+    i.balance = this.balance + i.amount
     i.goods = goods
     this.balance = i.balance
     i

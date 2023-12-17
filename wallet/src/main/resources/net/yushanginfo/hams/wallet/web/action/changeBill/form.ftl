@@ -7,7 +7,7 @@
         ${bill.wallet.inpatient.code} ${bill.wallet.inpatient.name}
       [/@]
     [#else]
-      [@b.textfield name="bill.wallet.inpatient.code" label="住院号" value="" required="true" maxlength="10"/]
+      [@base.inpatient name="inpatient.id" value=(income.wallet.inpatient)! label="病人" required="true"/]
     [/#if]
     [@b.textfield name="bill.amount" label="消费金额" value=bill.amount! required="true" maxlength="20" comment="元"/]
     [@b.date name="payAt" label="入账时间" value=bill.payAt! format="datetime" required="true" /]

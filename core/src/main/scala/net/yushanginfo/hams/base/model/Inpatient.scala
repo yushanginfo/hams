@@ -102,6 +102,8 @@ class Inpatient extends LongId, Coded, Named {
   }
 
   def description: String = {
-    bedNo + " " + name + " " + ward.name
+    person.phoneticName match
+      case None => code + " " + name + " " + ward.name + "(" + bedNo + ")"
+      case Some(n) => code + " " + name + "(" + n + ")" + " " + ward.name + "(" + bedNo + ")"
   }
 }

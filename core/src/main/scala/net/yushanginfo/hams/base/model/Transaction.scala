@@ -30,6 +30,12 @@ trait Transaction extends Remark, Ordered[Transaction], Entity[Long] {
   /** 结余 */
   var balance: Yuan = _
 
+  def update(amount: Yuan, payAt: Instant): Unit = {
+    this.balance += (this.amount - amount)
+    this.amount = amount
+    this.payAt = payAt
+  }
+
   def user: Account
 
   def updatePayAt(newPayAt: Instant): Instant = {
@@ -43,6 +49,11 @@ trait Transaction extends Remark, Ordered[Transaction], Entity[Long] {
     }
   }
 
+  /** 按照时间和ID的发生顺序进行排序
+   *
+   * @param that
+   * @return
+   */
   override def compare(that: Transaction): Int = {
     val rs = this.payAt.compareTo(that.payAt)
     if (rs == 0) this.id.compare(that.id) else rs
@@ -56,7 +67,7 @@ trait Transaction extends Remark, Ordered[Transaction], Entity[Long] {
 /** 现金流量表
  * Statement of Cash Flow
  */
-class TransactionStat(val user: Account, val yearMonth: YearMonth) extends Updated {
+class TransactionStat(val inpatient: Inpatient, val yearMonth: YearMonth) extends Updated {
   var startBalance: Yuan = _
   var endBalance: Yuan = _
   var incomes: Yuan = _
@@ -70,6 +81,10 @@ class TransactionStat(val user: Account, val yearMonth: YearMonth) extends Updat
     this
   }
 
+  /** 是否账户起始、结束金额都是0并且进账、出账都是0
+   *
+   * @return
+   */
   def isZero: Boolean = {
     startBalance == Yuan.Zero && endBalance == Yuan.Zero && incomes == Yuan.Zero && expenses == Yuan.Zero
   }

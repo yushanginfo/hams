@@ -19,15 +19,31 @@ package net.yushanginfo.hams.account.service.impl
 
 import net.yushanginfo.hams.account.model.{Pension, PensionBill, PensionIncome}
 import net.yushanginfo.hams.account.service.{PensionService, TransactionService}
-import net.yushanginfo.hams.base.model.TransactionStat
-import org.beangle.data.dao.EntityDao
+import net.yushanginfo.hams.base.model.{Inpatient, TransactionStat, Yuan}
+import org.beangle.data.dao.{EntityDao, OqlBuilder}
 
-import java.time.YearMonth
+import java.time.{Instant, YearMonth, ZoneId}
 
 class PensionServiceImpl extends PensionService {
   var entityDao: EntityDao = _
 
   var transactionService: TransactionService = _
+
+  override def adjustBalance(pension: Pension, beginAt: Instant): Yuan = {
+    transactionService.adjustBalance(pension, classOf[PensionIncome], classOf[PensionBill], "account", beginAt)
+  }
+
+  override def getOrCreate(inpatient: Inpatient, payAt: Instant): Pension = {
+    val q = OqlBuilder.from(classOf[Pension], "s")
+    q.where("s.inpatient=:inpatient", inpatient)
+    entityDao.search(q).headOption match
+      case None =>
+        val w = Pension(inpatient)
+        w.createdOn = payAt.atZone(ZoneId.systemDefault()).toLocalDate
+        entityDao.saveOrUpdate(w)
+        w
+      case Some(s) => s
+  }
 
   override def stat(yearMonth: YearMonth): collection.Seq[TransactionStat] = {
     transactionService.stat(yearMonth, classOf[Pension], classOf[PensionIncome], classOf[PensionBill], "account", Map.empty)

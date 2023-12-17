@@ -7,7 +7,6 @@
 
     [@b.select name="staff.gender.id" label="性别" value=staff.gender! required="true"  items=genders empty="..."/]
 
-    [@b.select name="staff.staffType.id" label="职工类别" value=staff.staffType! required="true"  items=staffTypes/]
     [@b.select name="staff.department.id" label="所在部门" value=staff.department! required="true" style="width:200px;" items=departments empty="..."/]
 
     [@b.textfield label="移动电话"  name="staff.mobile" value=staff.mobile! required="false" /]

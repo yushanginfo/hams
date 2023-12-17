@@ -52,7 +52,6 @@ Relation.address=联系地址
 Relation.subdistrict=街道
 
 Staff=员工
-Staff.staffType=员工类型
 Staff.gender=性别
 Staff.department=部门
 Staff.mobile=移动电话

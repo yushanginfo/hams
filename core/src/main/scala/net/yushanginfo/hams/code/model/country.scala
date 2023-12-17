@@ -20,7 +20,12 @@ package net.yushanginfo.hams.code.model
 import org.beangle.data.model.IntId
 import org.beangle.data.model.pojo.*
 
-class Gender extends CodeBean
+class Gender extends CodeBean {
+  def this(id: Int) = {
+    this()
+    this.id = id
+  }
+}
 
 class Nation extends CodeBean
 

@@ -23,7 +23,7 @@ class DefaultModule extends BindModule {
 
   override def binding(): Unit = {
     bind(classOf[DepositAction])
-    bind(classOf[DepositSearchAction])
+    bind(classOf[DepositStatAction])
 
     bind(classOf[ChangeAction])
     bind(classOf[ChangeBillAction])
@@ -35,9 +35,5 @@ class DefaultModule extends BindModule {
     bind(classOf[MealIncomeAction])
     bind(classOf[MealSettingAction])
     bind(classOf[MealStatAction])
-
-    bind(classOf[WalletSearchAction])
-    bind(classOf[BillSearchAction])
-    bind(classOf[IncomeSearchAction])
   }
 }

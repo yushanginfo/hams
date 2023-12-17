@@ -64,6 +64,20 @@ class Yuan(val value: Long) extends Serializable with Ordered[Yuan] {
     new Yuan(this.value - o.value)
   }
 
+  def *(o: Float): Yuan = {
+    new Yuan((this.value * o).toLong)
+  }
+
+  def /(i: Float): Yuan = {
+    new Yuan((this.value / i).toLong)
+  }
+
+  override def equals(obj: Any): Boolean = {
+    obj match {
+      case o: Yuan => this.value == o.value
+      case _ => false
+    }
+  }
 }
 
 object Yuan {
@@ -79,8 +93,8 @@ object Yuan {
     if Strings.isEmpty(v) then Zero
     else if (v.contains(".")) {
       v = Strings.replace(v, ",", "")
-      val decimal = (Strings.substringAfter(v, ".") + "00").substring(0, 2)
-      new Yuan(java.lang.Long.parseLong(Strings.substringBefore(v, ".") + decimal))
+      val h = Strings.substringAfter(v, ".") + "00"
+      new Yuan(java.lang.Long.parseLong(Strings.substringBefore(v, ".") + h.substring(0, 2)))
     } else {
       v = Strings.replace(v, ",", "")
       new Yuan(java.lang.Long.parseLong(v + "00"))
@@ -89,8 +103,12 @@ object Yuan {
 
   def main(args: Array[String]): Unit = {
     println(LocalDateTime.parse("2021-06-28T11:04:00"))
-    val y = Yuan("4.123")
-    println(y.value)
+    val y = Yuan("4.156")
+    println(Yuan("50.85475444"))
+    println(Yuan("19.13061651"))
+    println(Yuan("22.01462905"))
+
+    assert(y.value == 416)
     println(new Yuan(30))
     println(new Yuan(-30))
     println(new Yuan(-130))

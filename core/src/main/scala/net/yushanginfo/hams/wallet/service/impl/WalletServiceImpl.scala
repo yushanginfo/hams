@@ -113,7 +113,6 @@ class WalletServiceImpl extends WalletService {
 
     if (YearMonth.from(startDay) != YearMonth.from(endDay)) return null
 
-
     val days = Math.abs(ChronoUnit.DAYS.between(startDay, endDay).toInt + 1) //首尾都算
     val daysOfMonth = Math.abs(ChronoUnit.DAYS.between(yearMonth.atDay(1), yearMonth.atEndOfMonth()).toInt + 1)
 

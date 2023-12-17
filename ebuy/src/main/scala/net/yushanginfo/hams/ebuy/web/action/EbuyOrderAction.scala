@@ -19,18 +19,20 @@ package net.yushanginfo.hams.ebuy.web.action
 
 import net.yushanginfo.hams.base.model.{Inpatient, Ward, Yuan}
 import net.yushanginfo.hams.ebuy.model.*
-import net.yushanginfo.hams.wallet.model.{Bill, Wallet, WalletType}
+import net.yushanginfo.hams.ebuy.service.OrderService
+import net.yushanginfo.hams.wallet.model.Bill
 import org.beangle.commons.collection.{Collections, Properties}
 import org.beangle.data.dao.OqlBuilder
 import org.beangle.web.action.annotation.response
 import org.beangle.web.action.view.View
 import org.beangle.webmvc.support.action.RestfulAction
 
-import java.time.ZoneId
+import java.time.{LocalDate, YearMonth, ZoneId}
 
 /** 随心E购订单
  */
 class EbuyOrderAction extends RestfulAction[EbuyOrder] {
+  var orderService: OrderService = _
 
   override protected def getQueryBuilder: OqlBuilder[EbuyOrder] = {
     val query = super.getQueryBuilder
@@ -42,6 +44,10 @@ class EbuyOrderAction extends RestfulAction[EbuyOrder] {
 
   override protected def editSetting(entity: EbuyOrder): Unit = {
     put("wards", entityDao.getAll(classOf[Ward]))
+    if (!entity.persisted) {
+      entity.beginOn = LocalDate.now
+      entity.endOn = LocalDate.now.plusDays(1)
+    }
     super.editSetting(entity)
   }
 
@@ -104,39 +110,34 @@ class EbuyOrderAction extends RestfulAction[EbuyOrder] {
     forward()
   }
 
+  def batchUpdateSetting(): View = {
+    val orders = entityDao.find(classOf[EbuyOrder], getLongIds("ebuyOrder"))
+    put("orders", orders)
+    forward()
+  }
+
+  def batchUpdate(): View = {
+    val orders = entityDao.find(classOf[EbuyOrder], getLongIds("ebuyOrder"))
+    val billOn = getDate("billOn")
+    orders foreach { order =>
+      order.billOn = billOn
+    }
+    entityDao.saveOrUpdate(orders)
+    redirect("search", "info.save.success")
+  }
+
   /** 生成零用金流水
    *
    * @return
    */
-  def generateBill(): View = {
-    val order = entityDao.get(classOf[EbuyOrder], getLongId("ebuyOrder"))
-    if (order.billOn.isEmpty) return redirect("search", "缺少入账日期")
-    val billOn = order.billOn.get
-    val orderAt = billOn.atTime(0, 0).atZone(ZoneId.systemDefault).toInstant
-    val inpatientCost = order.lines.groupBy(_.inpatient).map(x => (x._1, new Yuan(x._2.map(_.payment.getOrElse(Yuan.Zero).value).sum)))
-    val fails = Collections.newBuffer[String]
-    inpatientCost foreach { case (i, c) =>
-      val walletQ = OqlBuilder.from(classOf[Wallet], "w")
-      walletQ.where("w.inpatient=:inpatient", i)
-      walletQ.where("w.walletType=:walletType", WalletType.Change)
-      entityDao.search(walletQ).headOption match {
-        case Some(w) =>
-          val query = OqlBuilder.from(classOf[Bill], "bill")
-          query.where("bill.wallet=:w", w)
-          query.where("to_char(bill.payAt,'yyyy-MM-dd')=:payAt", billOn.toString)
-          val bills = entityDao.search(query)
-          if (bills.isEmpty) {
-            val bill = w.newBill(c, orderAt, "随心E购")
-            entityDao.saveOrUpdate(bill)
-          }
-        case None => fails.addOne(s"${i.bedNo} ${i.name}")
-      }
-    }
-    if (fails.nonEmpty) {
-      redirect("search", s"找不到${fails.size}位病人的零用金账户，扣款失败.")
+  def generateBills(): View = {
+    val orders = entityDao.find(classOf[EbuyOrder], getLongIds("ebuyOrder"))
+    val freshOrders = orders.filter { x => x.billOn.nonEmpty }
+    orderService.generateBills(freshOrders)
+    val failed = orders.size - freshOrders.size
+    if (failed > 0) {
+      redirect("search", s"成功生成${freshOrders.size}流水，有${failed}个批次没有生成(缺乏扣款日期).")
     } else {
-      order.billGenerated = true
-      entityDao.saveOrUpdate(order)
       redirect("search", "生成成功")
     }
   }

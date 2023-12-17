@@ -17,23 +17,16 @@
 
 package net.yushanginfo.hams.account.model
 
-import net.yushanginfo.hams.base.model.{Inpatient, Yuan}
-import net.yushanginfo.hams.code.model.IncomeChannel
+import net.yushanginfo.hams.base.model.{Account, Transaction}
 import org.beangle.data.model.LongId
 import org.beangle.data.model.pojo.Updated
 
-import java.time.Instant
-
 /** 陪护费收入明细 */
-class AttendFeeIncome extends LongId, Updated {
+class AttendFeeIncome extends LongId, Updated, Transaction {
   /** 养老金 */
   var account: AttendFee = _
-  /** 支付日期 */
-  var payAt: Instant = _
-  /** 金额 */
-  var amount: Yuan = _
-  /** 结余 */
-  var balance: Yuan = _
   /** 渠道 */
   var channel: String = _
+
+  override def user: Account = account
 }

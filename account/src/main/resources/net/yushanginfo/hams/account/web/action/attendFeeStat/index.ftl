@@ -1,4 +1,5 @@
 [@b.head/]
+[#include "../attendFee_nav.ftl"/]
 <div class="container-fluid text-sm">
   [@b.toolbar title="陪护费月度统计"/]
   <div class="row">

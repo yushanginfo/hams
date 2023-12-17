@@ -53,7 +53,7 @@ class BankcardStatAction extends ActionSupport, EntityAction[Bankcard] {
     val ym = YearMonth.parse(get("yearMonth", ""))
     val stats = bankcardService.stat(ym)
     put("stats", stats)
-    val wardStats = stats.groupBy(w => w.user.inpatient.ward)
+    val wardStats = stats.groupBy(w => w.inpatient.ward)
     put("wardStats", wardStats)
     put("wards", wardStats.keys)
     forward()
@@ -78,7 +78,7 @@ class BankcardStatAction extends ActionSupport, EntityAction[Bankcard] {
   def ward(): View = {
     val ym = YearMonth.parse(get("yearMonth", ""))
     val stats = bankcardService.stat(ym)
-    val wardStats = stats.groupBy(_.user.inpatient.ward)
+    val wardStats = stats.groupBy(_.inpatient.ward)
     val startBalances = new mutable.HashMap[Ward, Yuan]
     val endBalances = new mutable.HashMap[Ward, Yuan]
     val incomes = new mutable.HashMap[Ward, Yuan]

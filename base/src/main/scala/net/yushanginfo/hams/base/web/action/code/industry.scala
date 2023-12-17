@@ -22,8 +22,6 @@ import org.beangle.webmvc.support.action.RestfulAction
 
 class InpatientStatusAction extends RestfulAction[InpatientStatus]
 
-class StaffTypeAction extends RestfulAction[StaffType]
-
 class CardTypeAction extends RestfulAction[CardType]
 
 class FeeOriginAction extends RestfulAction[FeeOrigin]

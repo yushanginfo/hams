@@ -50,7 +50,7 @@ class OrderLineAction extends RestfulAction[OrderLine], ImportSupport[OrderLine]
   override protected def indexSetting(): Unit = {
     super.indexSetting()
     val query = OqlBuilder.from(classOf[EbuyOrder], "o")
-    query.orderBy("o.beginOn desc")
+    query.orderBy("o.name desc")
     val orders = entityDao.search(query)
     put("orders", orders)
 
