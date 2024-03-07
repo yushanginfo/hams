@@ -22,20 +22,20 @@ import net.yushanginfo.hams.wallet.model.Deposit
 import org.beangle.data.dao.{EntityDao, OqlBuilder}
 import org.beangle.data.transfer.importer.{ImportListener, ImportResult}
 
-import java.time.{Instant, LocalDate, ZoneId}
+import java.time.{Instant, ZoneId}
 
 class DepositImportListener(inpatientService: InpatientService, entityDao: EntityDao) extends ImportListener {
 
   override def onItemFinish(tr: ImportResult): Unit = {
     val data = tr.transfer.curData
-    val code = data.get("deposit.inpatient.code").orNull.asInstanceOf[String]
-    inpatientService.getInpatient(code) match
-      case None => tr.addFailure("错误的住院号", code)
+    val name = data.get("deposit.inpatient.name").orNull.asInstanceOf[String]
+    inpatientService.getInpatientByName(name) match
+      case None => tr.addFailure("错误的住院号", name)
       case Some(inpatient) =>
         val po = tr.transfer.current.asInstanceOf[Deposit]
         val payAt = po.payAt
         if (null == payAt) {
-          tr.addFailure("缺少支付时间", code)
+          tr.addFailure("缺少支付时间", name)
         } else {
           val query = OqlBuilder.from(classOf[Deposit], "d")
           query.where("d.inpatient=:inpatient", inpatient)

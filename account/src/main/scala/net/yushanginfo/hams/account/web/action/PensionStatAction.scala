@@ -19,8 +19,8 @@ package net.yushanginfo.hams.account.web.action
 
 import net.yushanginfo.hams.account.model.Pension
 import net.yushanginfo.hams.account.service.PensionService
-import net.yushanginfo.hams.account.web.StatHelper
-import net.yushanginfo.hams.base.model.{Ward, Yuan}
+import net.yushanginfo.hams.base.model.Ward
+import net.yushanginfo.hams.web.helper.StatHelper
 import org.beangle.data.dao.EntityDao
 import org.beangle.web.action.support.ActionSupport
 import org.beangle.web.action.view.View
@@ -53,9 +53,7 @@ class PensionStatAction extends ActionSupport, EntityAction[Pension] {
   def stat(): View = {
     val ym = YearMonth.parse(get("yearMonth", ""))
     val stats = pensionService.stat(ym)
-    val wardStats = stats.groupBy(w => w.inpatient.ward)
-    put("stats", wardStats)
-    put("wards", wardStats.keys)
+    StatHelper.putStats(ym, stats)
     forward()
   }
 
@@ -72,13 +70,6 @@ class PensionStatAction extends ActionSupport, EntityAction[Pension] {
     put("stats", stats)
     put("yearMonth", ym)
     put("ward", ward)
-    forward()
-  }
-
-  def ward(): View = {
-    val ym = YearMonth.parse(get("yearMonth", ""))
-    val stats = pensionService.stat(ym)
-    StatHelper.putStats(ym, stats)
     forward()
   }
 }

@@ -19,8 +19,8 @@ package net.yushanginfo.hams.account.web.action
 
 import net.yushanginfo.hams.account.model.Subsidy
 import net.yushanginfo.hams.account.service.SubsidyService
-import net.yushanginfo.hams.account.web.StatHelper
 import net.yushanginfo.hams.base.model.Ward
+import net.yushanginfo.hams.web.helper.StatHelper
 import org.beangle.data.dao.EntityDao
 import org.beangle.web.action.support.ActionSupport
 import org.beangle.web.action.view.View
@@ -53,9 +53,7 @@ class SubsidyStatAction extends ActionSupport, EntityAction[Subsidy] {
   def stat(): View = {
     val ym = YearMonth.parse(get("yearMonth", ""))
     val stats = subsidyService.stat(ym)
-    val wardStats = stats.groupBy(w => w.inpatient.ward)
-    put("stats", wardStats)
-    put("wards", wardStats.keys)
+    StatHelper.putStats(ym, stats)
     forward()
   }
 
@@ -72,13 +70,6 @@ class SubsidyStatAction extends ActionSupport, EntityAction[Subsidy] {
     put("stats", stats)
     put("yearMonth", ym)
     put("ward", ward)
-    forward()
-  }
-
-  def ward(): View = {
-    val ym = YearMonth.parse(get("yearMonth", ""))
-    val stats = subsidyService.stat(ym)
-    StatHelper.putStats(ym, stats)
     forward()
   }
 }

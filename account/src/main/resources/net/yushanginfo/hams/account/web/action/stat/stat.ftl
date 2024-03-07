@@ -22,7 +22,7 @@
     </tr>
   </thead>
   <tbody>
-  [#list stats.get(ward)?sort_by(['inpatient','bedNo']) as stat]
+  [#list wardStats.get(ward)?sort_by(['inpatient','bedNo']) as stat]
     <tr>
       <td>${stat_index+1}</td>
       <td>${stat.inpatient.code}</td>
@@ -35,9 +35,53 @@
       <td></td>
     </tr>
   [/#list]
+    <tr>
+      <td colspan="4">合计</td>
+      <td class="yuan">${startBalances.get(ward)!}</td>
+      <td class="yuan">${incomes.get(ward)!}</td>
+      <td class="yuan">${expenses.get(ward)!}</td>
+      <td class="yuan">${endBalances.get(ward)!}</td>
+      <td></td>
+    </tr>
   </tbody>
 </table>
 [/#macro]
+
+[#macro displayAllWards]
+<table class="table table-sm table-bordered">
+  <thead>
+    <tr>
+      <td>月份</td>
+      <td>部门</td>
+      <td>期初结余</td>
+      <td>本期收入</td>
+      <td>本期支出</td>
+      <td>本期结余</td>
+      <td>备注</td>
+    </tr>
+  </thead>
+  <tbody>
+    [#list wards?sort_by('code') as ward]
+    <tr>
+      [#if ward_index==0]<td rowspan="${wards?size+1}" style="text-align:center;vertical-align: middle;">${yearMonth?string("MM")}月份</td>[/#if]
+      <td>${ward.name}</td>
+      <td>${startBalances.get(ward)!}</td>
+      <td>${incomes.get(ward)!}</td>
+      <td>${expenses.get(ward)!}</td>
+      <td>${endBalances.get(ward)!}</td>
+    </tr>
+    [/#list]
+    <tr>
+      <td>合计</td>
+      <td>${startBalances_sum}</td>
+      <td>${incomes_sum}</td>
+      <td>${expenses_sum}</td>
+      <td>${endBalances_sum}</td>
+    </tr>
+  </tbody>
+</table>
+[/#macro]
+
 <div class="container-fluid">
 [#if wards?size>0]
 [@b.tabs]
@@ -47,7 +91,7 @@
   [/@]
   [/#list]
   [@b.tab label="月末结算表"]
-     [@b.div href="!ward?yearMonth="+Parameters['yearMonth'] /]
+     [@displayAllWards/]
   [/@]
 [/@]
 [#else]

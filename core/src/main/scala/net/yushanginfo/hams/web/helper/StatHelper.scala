@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.yushanginfo.hams.account.web
+package net.yushanginfo.hams.web.helper
 
 import net.yushanginfo.hams.base.model.{TransactionStat, Ward, Yuan}
 import org.beangle.web.action.context.ActionContext
@@ -49,6 +49,7 @@ object StatHelper {
     put("expenses_sum", Yuan(expenses.values.map(_.value).sum))
 
     put("wards", wardStats.keys)
+    put("wardStats", wardStats)
     put("yearMonth", ym)
   }
 

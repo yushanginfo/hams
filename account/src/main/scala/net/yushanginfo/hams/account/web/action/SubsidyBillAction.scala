@@ -25,7 +25,6 @@ import net.yushanginfo.hams.base.service.InpatientService
 import net.yushanginfo.hams.code.model.IncomeChannel
 import net.yushanginfo.hams.wallet.model.{Income, Wallet, WalletType}
 import org.beangle.commons.activation.MediaTypes
-import org.beangle.commons.lang.Strings
 import org.beangle.data.dao.OqlBuilder
 import org.beangle.data.excel.schema.ExcelSchema
 import org.beangle.data.transfer.importer.ImportSetting
@@ -59,13 +58,11 @@ class SubsidyBillAction extends RestfulAction[SubsidyBill], ImportSupport[Subsid
     val payAt = getInstant("payAt").get
     val minPayAt = bill.updatePayAt(payAt)
 
-    if (!bill.persisted && !Strings.isEmpty(bill.account.inpatient.code)) {
-      inpatientService.getInpatient(bill.account.inpatient.code).headOption match {
-        case None => return redirect("index", "不正确的住院号")
-        case Some(i) =>
-          val s = subsidyService.getOrCreate(i, payAt)
-          bill.account = s
-      }
+    val inpatientId = getLong("inpatient.id")
+    if (!bill.persisted && inpatientId.nonEmpty) {
+      val inpatient = entityDao.get(classOf[Inpatient], inpatientId.get)
+      val s = subsidyService.getOrCreate(inpatient, payAt)
+      bill.account = s
     }
     if (bill.amount.value > 0) {
       bill.amount = Yuan.Zero - bill.amount

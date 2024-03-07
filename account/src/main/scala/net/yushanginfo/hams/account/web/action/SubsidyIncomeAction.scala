@@ -23,7 +23,6 @@ import net.yushanginfo.hams.account.web.helper.SubsidyIncomeImportListener
 import net.yushanginfo.hams.base.model.{Inpatient, Ward}
 import net.yushanginfo.hams.base.service.InpatientService
 import org.beangle.commons.activation.MediaTypes
-import org.beangle.commons.lang.Strings
 import org.beangle.data.dao.OqlBuilder
 import org.beangle.data.excel.schema.ExcelSchema
 import org.beangle.data.transfer.importer.ImportSetting
@@ -54,16 +53,14 @@ class SubsidyIncomeAction extends RestfulAction[SubsidyIncome], ImportSupport[Su
     val payAt = getInstant("payAt").get
     val minPayAt = income.updatePayAt(payAt)
 
-    if (!income.persisted && !Strings.isEmpty(income.account.inpatient.code)) {
-      inpatientService.getInpatient(income.account.inpatient.code) match {
-        case None => redirect("index", "不正确的住院号")
-        case Some(i) =>
-          val account = subsidyService.getOrCreate(i, payAt)
-          val newI = account.newIncome(income.amount, income.payAt, income.channel)
-          entityDao.saveOrUpdate(account, newI)
-          subsidyService.adjustBalance(account, minPayAt)
-          redirect("search", "info.save.success")
-      }
+    val inpatientId = getLong("inpatient.id")
+    if (!income.persisted && inpatientId.nonEmpty) {
+      val inpatient = entityDao.get(classOf[Inpatient], inpatientId.get)
+      val account = subsidyService.getOrCreate(inpatient, payAt)
+      val newI = account.newIncome(income.amount, income.payAt, income.channel)
+      entityDao.saveOrUpdate(account, newI)
+      subsidyService.adjustBalance(account, minPayAt)
+      redirect("search", "info.save.success")
     } else {
       subsidyService.adjustBalance(income.account, minPayAt)
       super.saveAndRedirect(income)

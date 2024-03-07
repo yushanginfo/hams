@@ -7,7 +7,7 @@
         ${income.account.inpatient.code} ${income.account.inpatient.name}
       [/@]
     [#else]
-      [@b.textfield name="income.account.inpatient.code" label="住院号" value="" required="true" maxlength="10"/]
+      [@base.inpatient name="inpatient.id" value=(bill.account.inpatient)! label="病人" required="true" style="width:300px"/]
     [/#if]
     [@b.textfield name="income.amount" label="入账金额" value=income.amount! required="true" maxlength="20" comment="元"/]
     [@b.date name="payAt" label="入账时间" value=income.payAt! format="datetime" required="true" /]

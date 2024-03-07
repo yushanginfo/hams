@@ -55,9 +55,9 @@ class DepositAction extends RestfulAction[Deposit], ImportSupport[Deposit], Expo
     val sheet = schema.createScheet("数据模板")
     sheet.title("住院押金信息模板")
     sheet.remark("特别说明：\n1、不可改变本表格的行列结构以及批注，否则将会导入失败！\n2、必须按照规格说明的格式填写。\n3、可以多次导入，重复的信息会被新数据更新覆盖。\n4、保存的excel文件名称可以自定。")
-    sheet.add("住院号", "deposit.inpatient.code").length(10).required().remark("≤10位")
-    sheet.add("缴费日期", "deposit.payAt").remark("yyyy-MM-dd").required()
+    sheet.add("姓名", "deposit.inpatient.name").length(10).required().remark("≤10位")
     sheet.add("缴费金额", "deposit.amount")
+    sheet.add("缴费日期", "deposit.payAt").remark("yyyy-MM-dd").required()
 
     val os = new ByteArrayOutputStream()
     schema.generate(os)
