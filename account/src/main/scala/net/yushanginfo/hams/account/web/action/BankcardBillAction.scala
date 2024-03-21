@@ -61,6 +61,7 @@ class BankcardBillAction extends RestfulAction[BankcardBill], ImportSupport[Bank
     if (!bill.persisted && null != bill.account && bill.account.persisted) {
       bill.account = entityDao.get(classOf[Bankcard], bill.account.id)
     }
+    bill.fixBillAmount()
     if (!bill.persisted) {
       val bankcard = entityDao.get(classOf[Bankcard], bill.account.id)
       val newBill = bankcard.newBill(bill.amount, bill.payAt, bill.expenses)
@@ -70,6 +71,7 @@ class BankcardBillAction extends RestfulAction[BankcardBill], ImportSupport[Bank
           walletService.getWallet(bankcard.inpatient.code, WalletType.Change) foreach { w =>
             val income = w.newIncome(bill.amount, bill.payAt, new IncomeChannel(IncomeChannel.FromBank))
             entityDao.saveOrUpdate(income, w)
+            walletService.adjustBalance(w, bill.payAt)
           }
           bill.toWallet = Some(WalletType.Change)
         case _ =>

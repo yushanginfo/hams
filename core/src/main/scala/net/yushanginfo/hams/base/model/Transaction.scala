@@ -62,6 +62,12 @@ trait Transaction extends Remark, Ordered[Transaction], Entity[Long] {
   def originBalance: Yuan = {
     balance - amount
   }
+
+  def fixBillAmount(): Unit = {
+    if (this.amount.value > 0) {
+      this.amount = Yuan.Zero - this.amount
+    }
+  }
 }
 
 /** 现金流量表

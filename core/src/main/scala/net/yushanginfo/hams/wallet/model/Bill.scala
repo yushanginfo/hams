@@ -17,11 +17,9 @@
 
 package net.yushanginfo.hams.wallet.model
 
-import net.yushanginfo.hams.base.model.{Account, Inpatient, Transaction, Yuan}
+import net.yushanginfo.hams.base.model.{Account, Transaction, Yuan}
 import org.beangle.data.model.LongId
 import org.beangle.data.model.pojo.Updated
-
-import java.time.Instant
 
 /**
  * 消费账单
@@ -31,6 +29,7 @@ class Bill extends LongId, Updated, Transaction {
   var wallet: Wallet = _
   /** 商品 */
   var goods: String = _
+
 
   override def user: Account = wallet
 }

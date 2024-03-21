@@ -20,10 +20,11 @@ package net.yushanginfo.hams.account.web.action
 import net.yushanginfo.hams.account.model.{Subsidy, SubsidyBill}
 import net.yushanginfo.hams.account.service.SubsidyService
 import net.yushanginfo.hams.account.web.helper.SubsidyBillImportListener
-import net.yushanginfo.hams.base.model.{Inpatient, Ward, Yuan}
+import net.yushanginfo.hams.base.model.{Inpatient, Ward}
 import net.yushanginfo.hams.base.service.InpatientService
 import net.yushanginfo.hams.code.model.IncomeChannel
 import net.yushanginfo.hams.wallet.model.{Income, Wallet, WalletType}
+import net.yushanginfo.hams.wallet.service.WalletService
 import org.beangle.commons.activation.MediaTypes
 import org.beangle.data.dao.OqlBuilder
 import org.beangle.data.excel.schema.ExcelSchema
@@ -40,6 +41,7 @@ import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
 class SubsidyBillAction extends RestfulAction[SubsidyBill], ImportSupport[SubsidyBill], ExportSupport[SubsidyBill] {
   var inpatientService: InpatientService = _
   var subsidyService: SubsidyService = _
+  var walletService: WalletService = _
 
   override protected def simpleEntityName: String = "bill"
 
@@ -64,9 +66,7 @@ class SubsidyBillAction extends RestfulAction[SubsidyBill], ImportSupport[Subsid
       val s = subsidyService.getOrCreate(inpatient, payAt)
       bill.account = s
     }
-    if (bill.amount.value > 0) {
-      bill.amount = Yuan.Zero - bill.amount
-    }
+    bill.fixBillAmount()
     val subsidy = entityDao.get(classOf[Subsidy], bill.account.id)
     if (null == bill.balance) bill.balance = subsidy.balance + bill.amount
     entityDao.saveOrUpdate(subsidy, bill)
@@ -78,6 +78,7 @@ class SubsidyBillAction extends RestfulAction[SubsidyBill], ImportSupport[Subsid
         wallet foreach { w =>
           val income = w.newIncome(bill.amount, bill.payAt, new IncomeChannel(IncomeChannel.FromSubsidy))
           entityDao.saveOrUpdate(income, wallet)
+          walletService.adjustBalance(w, minPayAt)
         }
         bill.toWallet = Some(WalletType.Change)
       case "转伙食费" =>
@@ -85,6 +86,7 @@ class SubsidyBillAction extends RestfulAction[SubsidyBill], ImportSupport[Subsid
         wallet foreach { w =>
           val income = w.newIncome(bill.amount, bill.payAt, new IncomeChannel(IncomeChannel.FromSubsidy))
           entityDao.saveOrUpdate(income, wallet)
+          walletService.adjustBalance(w, minPayAt)
         }
         bill.toWallet = Some(WalletType.Meal)
       case _ =>

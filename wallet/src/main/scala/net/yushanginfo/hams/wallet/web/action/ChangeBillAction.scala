@@ -17,13 +17,12 @@
 
 package net.yushanginfo.hams.wallet.web.action
 
-import net.yushanginfo.hams.base.model.{Inpatient, Ward}
+import net.yushanginfo.hams.base.model.{Inpatient, Ward, Yuan}
 import net.yushanginfo.hams.base.service.InpatientService
 import net.yushanginfo.hams.wallet.helper.BillImportListener
 import net.yushanginfo.hams.wallet.model.{Bill, WalletType}
 import net.yushanginfo.hams.wallet.service.WalletService
 import org.beangle.commons.activation.MediaTypes
-import org.beangle.commons.lang.Strings
 import org.beangle.data.dao.OqlBuilder
 import org.beangle.data.excel.schema.ExcelSchema
 import org.beangle.data.transfer.importer.ImportSetting
@@ -49,13 +48,20 @@ class ChangeBillAction extends RestfulAction[Bill], ImportSupport[Bill], ExportS
   override protected def saveAndRedirect(bill: Bill): View = {
     val payAt = getInstant("payAt").get
     val minPayAt = bill.updatePayAt(payAt)
+    val detailGood = get("detail_good", "")
+    val enumGood = get("enum_good", "")
+    if (detailGood.isBlank) {
+      bill.goods = enumGood
+    } else {
+      bill.goods = detailGood
+    }
+    bill.fixBillAmount()
 
     val inpatientId = getLong("inpatient.id")
     if (!bill.persisted && inpatientId.nonEmpty) {
       val inpatient = entityDao.get(classOf[Inpatient], inpatientId.get)
       val wallet = walletService.getOrCreateWallet(inpatient, WalletType.Change, payAt)
-      val nbill =
-        wallet.newBill(bill.amount, bill.payAt, bill.goods)
+      val nbill = wallet.newBill(bill.amount, bill.payAt, bill.goods)
       entityDao.saveOrUpdate(wallet, nbill)
       walletService.adjustBalance(wallet, minPayAt)
       super.saveAndRedirect(nbill)

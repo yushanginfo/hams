@@ -59,6 +59,7 @@ class PensionIncomeAction extends RestfulAction[PensionIncome], ImportSupport[Pe
           redirect("search", "info.save.success")
       }
     } else {
+      entityDao.saveOrUpdate(income)
       pensionService.adjustBalance(income.account, minPayAt)
       super.saveAndRedirect(income)
     }

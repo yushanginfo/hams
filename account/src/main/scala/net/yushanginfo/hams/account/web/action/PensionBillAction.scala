@@ -18,10 +18,11 @@
 package net.yushanginfo.hams.account.web.action
 
 import net.yushanginfo.hams.account.model.{Pension, PensionBill}
+import net.yushanginfo.hams.account.service.PensionService
 import net.yushanginfo.hams.base.model.{Inpatient, Ward}
 import net.yushanginfo.hams.code.model.IncomeChannel
-import net.yushanginfo.hams.wallet.model.{Bill, Deposit, Wallet, WalletType}
-import org.beangle.commons.lang.Strings
+import net.yushanginfo.hams.wallet.model.{Wallet, WalletType}
+import net.yushanginfo.hams.wallet.service.WalletService
 import org.beangle.data.dao.OqlBuilder
 import org.beangle.web.action.view.View
 import org.beangle.webmvc.support.action.{ExportSupport, ImportSupport, RestfulAction}
@@ -33,6 +34,10 @@ import org.beangle.webmvc.support.helper.QueryHelper
 class PensionBillAction extends RestfulAction[PensionBill], ImportSupport[PensionBill], ExportSupport[PensionBill] {
   override protected def simpleEntityName: String = "bill"
 
+  var pensionService: PensionService = _
+
+  var walletService: WalletService = _
+
   override protected def indexSetting(): Unit = {
     put("wards", entityDao.getAll(classOf[Ward]))
     super.indexSetting()
@@ -43,31 +48,36 @@ class PensionBillAction extends RestfulAction[PensionBill], ImportSupport[Pensio
     QueryHelper.dateBetween(query, null, "payAt", "beginAt", "endAt")
     query
   }
-  override protected def saveAndRedirect(bill: PensionBill): View = {
-    if (!bill.persisted && !Strings.isEmpty(bill.account.inpatient.code)) {
-      entityDao.findBy(classOf[Inpatient], "code", bill.account.inpatient.code).headOption match {
-        case None => return redirect("index", "不正确的住院号")
-        case Some(i) =>
-          val q = OqlBuilder.from(classOf[Pension], "wallet")
-          q.where("wallet.inpatient=:inpatient", i)
-          val p = entityDao.search(q).headOption match {
-            case Some(w) => w
-            case None => return redirect("index", s"不存在${i.name}的养老金账户")
-          }
-          bill.account = p
-      }
-    }
-    val pension = entityDao.get(classOf[Pension], bill.account.id)
-    bill.balance = pension.balance + bill.amount
-    pension.balance = bill.balance
-    entityDao.saveOrUpdate(pension, bill)
 
+  override protected def saveAndRedirect(bill: PensionBill): View = {
+    val payAt = getInstant("payAt").get
+    val minPayAt = bill.updatePayAt(payAt)
+
+    val inpatientId = getLong("inpatient.id")
+
+    bill.fixBillAmount()
+    if (!bill.persisted && inpatientId.nonEmpty) {
+      val i = entityDao.get(classOf[Inpatient], inpatientId.get)
+      val q = OqlBuilder.from(classOf[Pension], "p")
+      q.where("p.inpatient=:inpatient", i)
+      val p = entityDao.search(q).headOption match {
+        case Some(w) => w
+        case None => return redirect("index", s"不存在${i.name}的养老金账户")
+      }
+      bill.account = p
+    }
+
+    entityDao.saveOrUpdate(bill)
+    pensionService.adjustBalance(bill.account, minPayAt)
+
+    val pension = bill.account
     bill.expenses.trim match
       case "转零用金" =>
         val wallet = entityDao.findBy(classOf[Wallet], "inpatient" -> pension.inpatient, "walletType" -> WalletType.Change).headOption
         wallet foreach { w =>
           val income = w.newIncome(bill.amount, bill.payAt, new IncomeChannel(IncomeChannel.FromPension))
           entityDao.saveOrUpdate(income, wallet)
+          walletService.adjustBalance(w, payAt)
         }
         bill.toWallet = Some(WalletType.Change)
       case "转伙食费" =>
@@ -75,6 +85,7 @@ class PensionBillAction extends RestfulAction[PensionBill], ImportSupport[Pensio
         wallet foreach { w =>
           val income = w.newIncome(bill.amount, bill.payAt, new IncomeChannel(IncomeChannel.FromPension))
           entityDao.saveOrUpdate(income, wallet)
+          walletService.adjustBalance(w, payAt)
         }
         bill.toWallet = Some(WalletType.Meal)
       case _ =>

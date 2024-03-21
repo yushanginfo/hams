@@ -50,6 +50,7 @@ class MealBillAction extends RestfulAction[Bill], ImportSupport[Bill], ExportSup
     val payAt = getInstant("payAt").get
     val minPayAt = bill.updatePayAt(payAt)
 
+    bill.fixBillAmount()
     if (!bill.persisted && !Strings.isEmpty(bill.wallet.inpatient.code)) {
       inpatientService.getInpatient(bill.wallet.inpatient.code).headOption match {
         case None => redirect("index", "不正确的住院号")

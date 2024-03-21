@@ -56,9 +56,7 @@ class AttendFeeBillAction extends RestfulAction[AttendFeeBill], ImportSupport[At
           bill.account = p
       }
     }
-    if (bill.amount.value > 0) {
-      bill.amount = Yuan.Zero - bill.amount
-    }
+    bill.fixBillAmount()
     val attendFee = entityDao.get(classOf[AttendFee], bill.account.id)
     bill.balance = attendFee.balance + bill.amount
     attendFee.balance = bill.balance

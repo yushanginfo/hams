@@ -11,7 +11,7 @@
     [/#if]
     [@b.textfield name="bill.amount" label="消费金额" value=bill.amount! required="true" maxlength="20" comment="元"/]
     [@b.date name="payAt" label="支出时间" value=bill.payAt! format="datetime" required="true" /]
-    [@b.radios label="消费明细" name="bill.expenses" items="转伙食费:转伙食费,转零用金:转零用金,转住院费:转住院费,其他用途:其他用途" value=bill.expenses!/]
+    [@b.radios label="消费明细" name="bill.expenses" items="转伙食费和住院费:转伙食费和住院费,转伙食费:转伙食费,转零用金:转零用金,转住院费:转住院费,其他用途:其他用途" value=bill.expenses!/]
     [@b.textfield name="bill.remark" label="备注" value=bill.remark! required="false" maxlength="20" /]
     [@b.formfoot]
       [@b.reset/]&nbsp;&nbsp;[@b.submit value="action.submit"/]
