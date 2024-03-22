@@ -23,7 +23,7 @@ import net.yushanginfo.hams.wallet.service.DepositService
 import org.beangle.commons.collection.Collections
 import org.beangle.data.dao.{EntityDao, OqlBuilder}
 
-import java.time.{Instant, YearMonth, ZoneId}
+import java.time.{YearMonth, ZoneId}
 import scala.collection.mutable
 
 class DepositServiceImpl extends DepositService {
@@ -34,16 +34,20 @@ class DepositServiceImpl extends DepositService {
     val endAt = yearMonth.atEndOfMonth().atTime(23, 59, 59).atZone(ZoneId.systemDefault).toInstant
     val accounts = Collections.newSet[Inpatient]
 
+    //所有该区间之前缴费，但在该区间没有退回的押金=>余额
     val aq = OqlBuilder.from(classOf[Deposit], "w")
     aq.where("w.payAt<=:beginAt", beginAt)
-    aq.where("w.refundAt is null")
-    accounts ++= entityDao.search(aq).map(_.inpatient)
+    aq.where("w.refundAt is null or w.refundAt > :endAt", endAt)
+    val balances = entityDao.search(aq).groupBy(_.inpatient) // [inpatient, List(deposit)]
+    accounts ++= balances.keySet
 
+    //该区间的收入
     val iq = OqlBuilder.from(classOf[Deposit], "i")
     iq.where("i.payAt between :beginAt and :endAt", beginAt, endAt)
     iq.orderBy("i.payAt desc")
     val incomes = entityDao.search(iq)
 
+    //该区间的支出
     val bq = OqlBuilder.from(classOf[Deposit], "b")
     bq.where("b.refundAt between :beginAt and :endAt", beginAt, endAt)
     bq.orderBy("b.refundAt desc")
@@ -66,7 +70,7 @@ class DepositServiceImpl extends DepositService {
         case None => Yuan(0)
         case Some(bs) => Yuan(bs.map(_.amount.value).sum)
 
-      s.startBalance = findInitBalance(acc, incomeStats.get(acc), billStats.get(acc), beginAt)
+      s.startBalance = findInitBalance(acc, balances.getOrElse(acc, List.empty))
       s.update(incomes, expenses)
 
       if (!s.isZero) stats.addOne(s)
@@ -74,38 +78,8 @@ class DepositServiceImpl extends DepositService {
     stats
   }
 
-  def findInitBalance(inpatient: Inpatient, incomes: Option[Seq[Deposit]], bills: Option[Seq[Deposit]],
-                      beginAt: Instant): Yuan = {
-    val rs = new mutable.ArrayBuffer[Transaction]
-    incomes foreach { i => rs ++= i.map(d => d.toIncome) }
-    bills foreach { b => rs ++= b.map(d => d.toBill) }
-    if (rs.nonEmpty) {
-      val ts = rs.sorted
-      ts.head.originBalance
-    } else {
-      val last = getLast(inpatient, beginAt)
-      last.map(_.balance).getOrElse(Yuan.Zero)
-    }
-  }
-
-  private def getLast(inpatient: Inpatient, before: Instant): Option[Transaction] = {
-    val ts = Collections.newBuffer[Transaction]
-
-    var query = OqlBuilder.from(classOf[Deposit], "t")
-    query.where("t.payAt<:before", before)
-    query.orderBy("t.payAt desc")
-    query.where(s"t.inpatient =:inpatient", inpatient)
-    query.limit(1, 1)
-    ts ++= entityDao.search(query).map(_.toIncome)
-
-    query = OqlBuilder.from(classOf[Deposit], "t")
-    query.where("t.refundAt<:before", before)
-    query.orderBy("t.refundAt desc")
-    query.where(s"t.inpatient =:inpatient", inpatient)
-    query.limit(1, 1)
-    ts ++= entityDao.search(query).map(_.toBill)
-
-    ts.sorted.lastOption
+  def findInitBalance(inpatient: Inpatient, balances: Seq[Deposit]): Yuan = {
+    Yuan(balances.map(_.amount.value).sum)
   }
 
 }
