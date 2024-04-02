@@ -9,6 +9,7 @@
                  "balance:余额",null,'fileName=养护补贴余额信息'));
     m.addItem("导入",action.method('importForm'));
     m.addItem("删除",action.remove("确认删除?"));
+    m.addItem("统计余额",action.multi("adjustBalance"));
   [/@]
   [@b.row]
     [@b.boxcol /]

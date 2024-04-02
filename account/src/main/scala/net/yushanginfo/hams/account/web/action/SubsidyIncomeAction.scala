@@ -31,6 +31,7 @@ import org.beangle.webmvc.support.action.{ExportSupport, ImportSupport, RestfulA
 import org.beangle.webmvc.support.helper.QueryHelper
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
+import java.time.ZoneId
 
 class SubsidyIncomeAction extends RestfulAction[SubsidyIncome], ImportSupport[SubsidyIncome], ExportSupport[SubsidyIncome] {
   var subsidyService: SubsidyService = _
@@ -65,6 +66,14 @@ class SubsidyIncomeAction extends RestfulAction[SubsidyIncome], ImportSupport[Su
       subsidyService.adjustBalance(income.account, minPayAt)
       super.saveAndRedirect(income)
     }
+  }
+
+  override protected def removeAndRedirect(incomes: Seq[SubsidyIncome]): View = {
+    val view = super.removeAndRedirect(incomes)
+    incomes foreach { i =>
+      subsidyService.adjustBalance(i.account, i.account.createdOn.atTime(0, 0).atZone(ZoneId.systemDefault).toInstant)
+    }
+    view
   }
 
   def downloadTemplate(): View = {

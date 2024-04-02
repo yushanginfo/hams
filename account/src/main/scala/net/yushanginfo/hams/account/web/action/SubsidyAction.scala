@@ -23,17 +23,14 @@ import net.yushanginfo.hams.account.web.helper.SubsidyImportListener
 import net.yushanginfo.hams.base.model.{Inpatient, Ward}
 import net.yushanginfo.hams.base.service.InpatientService
 import org.beangle.commons.activation.MediaTypes
-import org.beangle.commons.collection.Collections
 import org.beangle.commons.lang.Strings
-import org.beangle.data.dao.OqlBuilder
 import org.beangle.data.excel.schema.ExcelSchema
 import org.beangle.data.transfer.importer.ImportSetting
 import org.beangle.web.action.view.{Stream, View}
 import org.beangle.webmvc.support.action.{ExportSupport, ImportSupport, RestfulAction}
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
-import java.time.{LocalDate, Year, YearMonth}
-import scala.collection.mutable
+import java.time.ZoneId
 
 class SubsidyAction extends RestfulAction[Subsidy], ImportSupport[Subsidy], ExportSupport[Subsidy] {
 
@@ -69,6 +66,18 @@ class SubsidyAction extends RestfulAction[Subsidy], ImportSupport[Subsidy], Expo
     val os = new ByteArrayOutputStream()
     schema.generate(os)
     Stream(new ByteArrayInputStream(os.toByteArray), MediaTypes.ApplicationXlsx.toString, "养护补贴.xlsx")
+  }
+
+  /** 重新统计各笔流水的余额
+   *
+   * @return
+   */
+  def adjustBalance(): View = {
+    val subsidies = entityDao.find(classOf[Subsidy], getLongIds("subsidy"))
+    subsidies foreach { w =>
+      subsidyService.adjustBalance(w, w.createdOn.atTime(0, 0).atZone(ZoneId.systemDefault).toInstant)
+    }
+    redirect("search", "计算完成")
   }
 
   protected override def configImport(setting: ImportSetting): Unit = {

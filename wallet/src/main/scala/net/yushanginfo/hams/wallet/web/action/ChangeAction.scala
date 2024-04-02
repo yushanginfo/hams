@@ -134,6 +134,9 @@ class ChangeAction extends RestfulAction[Wallet], ImportSupport[Wallet], ExportS
     redirect("search", "退款成功")
   }
 
+  /** 重新统计各笔流水的余额
+   * @return
+   */
   def adjustBalance(): View = {
     val wallets = entityDao.find(classOf[Wallet], getLongIds("wallet"))
     wallets foreach { w =>
