@@ -28,6 +28,8 @@ import org.beangle.web.action.view.View
 import org.beangle.webmvc.support.action.{ExportSupport, ImportSupport, RestfulAction}
 import org.beangle.webmvc.support.helper.QueryHelper
 
+import java.time.Instant
+
 /**
  * 养老金支出
  */
@@ -65,6 +67,9 @@ class PensionBillAction extends RestfulAction[PensionBill], ImportSupport[Pensio
         case None => return redirect("index", s"不存在${i.name}的养老金账户")
       }
       bill.account = p
+      bill.updatedAt = Instant.now
+      bill.balance = p.balance + bill.amount
+      p.balance = bill.balance
     }
 
     entityDao.saveOrUpdate(bill)

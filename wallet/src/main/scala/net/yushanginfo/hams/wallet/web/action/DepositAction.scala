@@ -40,16 +40,6 @@ class DepositAction extends RestfulAction[Deposit], ImportSupport[Deposit], Expo
     put("statues", entityDao.getAll(classOf[InpatientStatus]))
   }
 
-  override protected def saveAndRedirect(deposit: Deposit): View = {
-    if (!deposit.persisted && !Strings.isEmpty(deposit.inpatient.code)) {
-      entityDao.findBy(classOf[Inpatient], "code", deposit.inpatient.code).headOption match {
-        case None => return redirect("index", "不正确的住院号")
-        case Some(i) => deposit.inpatient = i
-      }
-    }
-    super.saveAndRedirect(deposit)
-  }
-
   def downloadTemplate(): View = {
     val schema = new ExcelSchema()
     val sheet = schema.createScheet("数据模板")
