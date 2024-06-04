@@ -10,6 +10,8 @@
       [@b.select name="inpatient.gender.id" label="性别" value=inpatient.gender! required="true"  items=genders empty="..."/]
       [@b.select name="inpatient.ward.id" label="病区" value=inpatient.ward! required="true"  items=wards empty="..."/]
       [@b.select name="inpatient.status.id" label="状态" value=inpatient.status! required="true"  items=statuses /]
+      [@b.textfield name="inpatient.dietaryType" label="特殊膳食类型" value=inpatient.dietaryType! style="width:100px;" maxlength="20"/]
+      [@b.date name="inpatient.predictEndOn" label="预计出院日期" value=inpatient.predictEndOn! format="date" /]
       [@b.startend label="请假-预计销假" style="width:150px"
             name="inpatient.leaveAt,inpatient.backAt" required="false,false"
             start=inpatient.leaveAt end=inpatient.backAt format="datetime"/]

@@ -78,6 +78,9 @@ class Inpatient extends LongId, Coded, Named {
   /** 预计销假日期 */
   var backAt: Option[Instant] = None
 
+  /** 特殊膳食类型 */
+  var dietaryType: Option[String] = None
+
   /** 费用来源 */
   var feeOrigin: FeeOrigin = _
 
@@ -86,6 +89,9 @@ class Inpatient extends LongId, Coded, Named {
 
   /** 登记人 */
   var createdBy: Option[String] = None
+
+  /** 预计出院时间 */
+  var predictEndOn: Option[LocalDate] = None
 
   /** 入院时间 */
   var beginAt: Instant = _

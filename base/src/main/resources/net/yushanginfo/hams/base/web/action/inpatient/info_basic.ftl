@@ -28,7 +28,10 @@
       <td class="title" width="100px">费用类别：</td>
       <td>${inpatient.feeOrigin.name}</td>
       <td class="title" width="100px">入院~出院：</td>
-      <td>${inpatient.beginAt?string('yyyy-MM-dd HH:mm')}~${(inpatient.endAt?string('yyyy-MM-dd HH:mm'))!}</td>
+      <td>
+      ${inpatient.beginAt?string('yyyy-MM-dd HH:mm')}~${(inpatient.endAt?string('yyyy-MM-dd HH:mm'))!}
+      [#if !inpatient.endAt?? && inpatient.predictEndOn??]预计${inpatient.predictEndOn?string('yyyy-MM-dd')}[/#if]
+      </td>
       <td class="title" width="100px">病人状态</td>
       <td>${inpatient.status.name}</td>
     </tr>

@@ -24,4 +24,8 @@
       <td class="title">登记人：</td>
       <td>${(inpatient.createdBy)!}</td>
     </tr>
+    <tr>
+      <td class="title">特殊膳食类型：</td>
+      <td colspan="5">${(inpatient.dietaryType)!}</td>
+    </tr>
   </table>

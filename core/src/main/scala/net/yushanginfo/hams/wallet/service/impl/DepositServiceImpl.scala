@@ -30,14 +30,14 @@ class DepositServiceImpl extends DepositService {
   var entityDao: EntityDao = _
 
   override def stat(yearMonth: YearMonth): collection.Seq[TransactionStat] = {
-    val beginAt = yearMonth.atDay(1).atTime(0, 0, 0).atZone(ZoneId.systemDefault).toInstant
-    val endAt = yearMonth.atEndOfMonth().atTime(23, 59, 59).atZone(ZoneId.systemDefault).toInstant
+    val beginAt = yearMonth.atDay(1).atTime(0, 0, 0).atZone(ZoneId.systemDefault).toInstant //月初
+    val endAt = yearMonth.atEndOfMonth().atTime(23, 59, 59).atZone(ZoneId.systemDefault).toInstant //月末
     val accounts = Collections.newSet[Inpatient]
 
-    //所有该区间之前缴费，但在该区间没有退回的押金=>余额
+    //所有该区间之前缴费，但在退款是在该月或之后的押金=>余额
     val aq = OqlBuilder.from(classOf[Deposit], "w")
     aq.where("w.payAt<=:beginAt", beginAt)
-    aq.where("w.refundAt is null or w.refundAt > :endAt", endAt)
+    aq.where("w.refundAt is null or w.refundAt > :beginAt", beginAt)//在月初之后才退，都算余额
     val balances = entityDao.search(aq).groupBy(_.inpatient) // [inpatient, List(deposit)]
     accounts ++= balances.keySet
 

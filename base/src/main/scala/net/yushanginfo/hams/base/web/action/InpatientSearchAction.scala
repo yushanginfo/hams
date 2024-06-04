@@ -19,22 +19,13 @@ package net.yushanginfo.hams.base.web.action
 
 import net.yushanginfo.hams.base.model.*
 import net.yushanginfo.hams.base.service.CodeService
-import net.yushanginfo.hams.base.web.helper.InpatientImporterListener
 import net.yushanginfo.hams.code.model.*
 import net.yushanginfo.hams.wallet.model.LeaveApply
-import org.beangle.commons.activation.{MediaType, MediaTypes}
-import org.beangle.commons.lang.Strings
 import org.beangle.data.dao.OqlBuilder
-import org.beangle.data.excel.schema.ExcelSchema
-import org.beangle.data.transfer.importer.listener.ForeignerListener
-import org.beangle.data.transfer.importer.{ImportSetting, MultiEntityImporter}
-import org.beangle.web.action.annotation.response
-import org.beangle.web.action.view.{Stream, View}
+import org.beangle.web.action.view.View
 import org.beangle.webmvc.support.action.{ExportSupport, ImportSupport, RestfulAction}
-import org.beangle.webmvc.support.helper.PopulateHelper
 
-import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
-import java.time.{Instant, LocalDateTime, ZoneId}
+import java.time.*
 
 class InpatientSearchAction extends RestfulAction[Inpatient], ExportSupport[Inpatient], ImportSupport[Inpatient] {
 
@@ -79,6 +70,23 @@ class InpatientSearchAction extends RestfulAction[Inpatient], ExportSupport[Inpa
     put("leaving", leaving.headOption.getOrElse(0))
     put("newer", newer.headOption.getOrElse(0))
 
+    forward()
+  }
+
+  def countStat(): View = {
+    val beginAt = LocalDate.now.atTime(LocalTime.MIN).atZone(ZoneId.systemDefault()).toInstant
+    val endAt = LocalDate.now.atTime(LocalTime.MAX).atZone(ZoneId.systemDefault()).toInstant
+    val q1 = OqlBuilder.from(classOf[Inpatient], "i")
+    q1.where("i.endAt between :beginAt and :endAt", beginAt, endAt)
+    val dischargingCount = entityDao.search(q1).size //当天出院人数
+
+    val now = Instant.now
+    val q2 = OqlBuilder.from(classOf[Inpatient], "i")
+    q2.where(" :now > i.leaveAt and (i.backAt is null or :now < i.backAt)", now)
+    val leavingCount = entityDao.search(q2).size //当天请假人数
+
+    put("dischargingCount", dischargingCount)
+    put("leavingCount", leavingCount)
     forward()
   }
 
