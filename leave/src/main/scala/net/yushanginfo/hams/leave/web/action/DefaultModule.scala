@@ -23,6 +23,8 @@ class DefaultModule extends BindModule {
 
   override def binding(): Unit = {
     bind(classOf[ApplyAction])
+    bind(classOf[AuditAction])
+    bind(classOf[AdminAction])
   }
 
 }

@@ -1,6 +1,6 @@
 [#ftl]
 [@b.head/]
-[@b.toolbar title="离院申请"]
+[@b.toolbar title="离院信息"]
 [/@]
 <div class="search-container">
     <div class="search-panel">

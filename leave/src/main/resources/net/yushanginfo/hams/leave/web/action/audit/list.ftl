@@ -2,11 +2,12 @@
 [@b.head/]
 [@b.grid items=applies var="apply"]
   [@b.gridbar]
-    bar.addItem("新增离院申请",action.add());
+    bar.addItem("审核通过",action.multi('audit',"是否确认审批通过?","approved=1"));
+    bar.addItem("驳回",action.multi('audit',"是否确认驳回申请?","approved=0"));
   [/@]
   [@b.row]
     [@b.boxcol /]
-    [@b.col width="10%" property="code" title="申请流水号"]${apply.code}[/@]
+    [@b.col width="10%" property="code" title="离院流水号"]${apply.code}[/@]
     [@b.col width="5%" property="inpatient.code" title="住院号"/]
     [@b.col property="inpatient.name" title="姓名"]
       [@b.a href="!info?id=${apply.id}" target="_blank"]

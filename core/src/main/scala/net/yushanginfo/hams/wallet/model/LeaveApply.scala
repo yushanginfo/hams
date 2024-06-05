@@ -22,7 +22,7 @@ import net.yushanginfo.hams.code.model.LeaveCategory
 import org.beangle.data.model.LongId
 import org.beangle.data.model.pojo.{Coded, Updated}
 
-import java.time.{Instant, LocalDate}
+import java.time.Instant
 
 /**
  * 请假申请
@@ -45,5 +45,8 @@ class LeaveApply extends LongId, Updated, Coded {
 
   /** 请假分类 */
   var category: LeaveCategory = _
+
+  /** 是否通过 */
+  var approved: Option[Boolean] = None
 
 }

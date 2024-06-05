@@ -4,5 +4,6 @@
     <module class="net.yushanginfo.hams.leave.web.action.DefaultModule"/>
     <module class="net.yushanginfo.hams.base.service.DefaultModule"/>
     <module class="net.yushanginfo.hams.wallet.service.DefaultModule"/>
+    <module class="net.yushanginfo.hams.base.web.tag.DefaultModule"/>
   </container>
 </cdi>

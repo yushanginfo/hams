@@ -1,19 +1,20 @@
 [#ftl]
 [@b.head/]
-[@b.toolbar title="新增离院申请"]bar.addBack();[/@]
+[@b.toolbar title="离院信息"]bar.addBack();[/@]
   [@b.form action=b.rest.save(apply) theme="list"]
     [#if apply.persisted]
       [@b.field label="病人"]
         ${apply.inpatient.code} ${apply.inpatient.name}
       [/@]
     [#else]
-      [@base.inpatient name="apply.inpatient.id"  label="病人" required="true"  style="width:300px"/]
+      [@b.textfield name="inpatient.code" label="住院号" value="" required="true" maxlength="10"/]
     [/#if]
-    [@b.select name="apply.category.id" label="离院类别" required="true" value=apply.category! items=categories comment="请假请填写请假和销假日期"/]
     [@b.startend label="请假-预计销假" style="width:150px"
           name="apply.leaveAt,apply.predictBackAt" required="false,false"
           start=apply.leaveAt! end=apply.predictBackAt! format="datetime"/]
+    [@b.date name="apply.backAt" label="实际返回时间" value=apply.backAt! format="datetime" /]
     [@b.textarea name="apply.reasons" label="离院事由" cols="60" rows="3" value=apply.reasons! maxlength="200" /]
+    [@b.select name="apply.category.id" label="离院类别" required="true" value=apply.category! items=categories /]
     [@b.formfoot]
       [@b.reset/]&nbsp;&nbsp;[@b.submit value="action.submit"/]
     [/@]
