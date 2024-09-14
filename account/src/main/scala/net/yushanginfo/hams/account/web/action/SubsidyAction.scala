@@ -17,20 +17,23 @@
 
 package net.yushanginfo.hams.account.web.action
 
-import net.yushanginfo.hams.account.model.Subsidy
+import net.yushanginfo.hams.account.model.{Subsidy, SubsidyBill, SubsidyIncome}
 import net.yushanginfo.hams.account.service.SubsidyService
 import net.yushanginfo.hams.account.web.helper.SubsidyImportListener
 import net.yushanginfo.hams.base.model.{Inpatient, Ward}
 import net.yushanginfo.hams.base.service.InpatientService
+import net.yushanginfo.hams.wallet.model.{Income, WalletType}
 import org.beangle.commons.activation.MediaTypes
+import org.beangle.commons.collection.Collections
 import org.beangle.commons.lang.Strings
+import org.beangle.data.dao.OqlBuilder
 import org.beangle.data.excel.schema.ExcelSchema
 import org.beangle.data.transfer.importer.ImportSetting
 import org.beangle.web.action.view.{Stream, View}
 import org.beangle.webmvc.support.action.{ExportSupport, ImportSupport, RestfulAction}
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
-import java.time.ZoneId
+import java.time.{Year, YearMonth, ZoneId}
 
 class SubsidyAction extends RestfulAction[Subsidy], ImportSupport[Subsidy], ExportSupport[Subsidy] {
 
@@ -84,4 +87,41 @@ class SubsidyAction extends RestfulAction[Subsidy], ImportSupport[Subsidy], Expo
     setting.listeners = List(new SubsidyImportListener(inpatientService, entityDao))
   }
 
+  def yearReport(): View = {
+    var year: Int = 0
+    get("yearMonth") foreach { ym => year = YearMonth.parse(ym).getYear }
+    if (year == 0) year = getInt("year", Year.now().getValue)
+    val inpatientIds = getLongIds("inpatient")
+    val inpatients =
+      if null != inpatientIds && inpatientIds.nonEmpty then
+        entityDao.find(classOf[Inpatient], inpatientIds)
+      else
+        entityDao.find(classOf[Subsidy], getLongIds("subsidy")).map(_.inpatient)
+
+    val inpatientLogs = Collections.newMap[Inpatient, Object]
+    inpatients foreach { inpatient =>
+      val q = OqlBuilder.from(classOf[Subsidy], "w")
+      q.where("w.inpatient=:inpatient", inpatient)
+      val wallet = entityDao.search(q).head
+
+      val b = OqlBuilder.from(classOf[SubsidyBill], "bill")
+      b.where("bill.account.inpatient=:inpatient", inpatient)
+      b.where("year(bill.payAt)=:year", year)
+      val bills = entityDao.search(b)
+
+      val i = OqlBuilder.from(classOf[SubsidyIncome], "income")
+      i.where("income.account.inpatient=:inpatient", inpatient)
+      i.where("year(income.payAt)=:year", year)
+      val incomes = entityDao.search(i)
+
+      val logs = Collections.newBuffer[Object]
+      logs.addAll(bills)
+      logs.addAll(incomes)
+      inpatientLogs.put(inpatient, logs)
+    }
+    put("inpatientLogs", inpatientLogs)
+    put("year", year)
+    put("inpatients", inpatients)
+    forward()
+  }
 }

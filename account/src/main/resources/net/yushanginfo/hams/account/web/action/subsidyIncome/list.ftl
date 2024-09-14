@@ -7,7 +7,7 @@
     bar.addItem("${b.text("action.delete")}",action.remove("确认删除?"));
     var m = bar.addMenu("${b.text("action.export")}",action.exportData("account.inpatient.code:住院号,account.inpatient.name:姓名,"+
                  "account.inpatient.gender.name:性别,account.inpatient.ward.name:病区,account.inpatient.bedNo:床号,"+
-                 "amount:入账金额,channel:入账渠道,payAt:入账时间",null,'fileName=养护补贴入账流水'));
+                 "amount:入账金额,channel:入账渠道,balance:结余,payAt:入账时间",null,'fileName=养护补贴入账流水'));
     m.addItem("导入",action.method('importForm'));
     m.addItem("删除",action.remove("确认删除?"));
   [/@]

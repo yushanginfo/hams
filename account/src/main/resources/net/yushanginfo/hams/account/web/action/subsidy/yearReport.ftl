@@ -1,8 +1,7 @@
 [@b.head/]
-
 <div class="container-fluid text-sm">
   <div class="notprint">
-    [@b.form name="reportForm" action="!yearReport" theme="list" title="个人零用金收支明细表"]
+    [@b.form name="reportForm" action="!yearReport" theme="list" title="个人养护补贴收支明细表"]
       [#list inpatients as i]
       <input name="inpatient.id" type="hidden" value="${i.id}"/>
       [/#list]
@@ -14,7 +13,7 @@
   </div>
   [#list inpatients?sort_by('bedNo') as inpatient]
   [#assign yearLogs = inpatientLogs.get(inpatient)?sort_by('payAt')/]
-  <h6 style="text-align: center;">上海民政第二精神卫生中心<br>${year}年度个人零用金收支明细表</h6>
+  <h6 style="text-align: center;">上海民政第二精神卫生中心<br>${year}年度个人养护补贴收支明细表</h6>
   <div class="row">
     <div class="col-2">姓名：${inpatient.name}</div>
     <div class="col-2" style="text-align:center">病区：${inpatient.ward.name}</div>
@@ -33,7 +32,7 @@
      [/@]
      [@b.col property="balance" title="结余"/]
      [@b.col title="备注"]
-       [#if log.channel??]${log.channel.name}[#else]${log.goods!}[/#if]
+       [#if log.channel??]${log.channel}[#else]${log.expenses!}[/#if]
      [/@]
     [/@]
   [/@]

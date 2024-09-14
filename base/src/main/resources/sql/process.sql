@@ -57,7 +57,7 @@ update hams.people p set idcard=(select b.idcard from tmp.brxx b where b.person_
 
 --更新出生日期
 update hams.people p set birthday=(select to_date(b.birthday,'yyyyMMdd') from tmp.brxx b where b.person_id=p.id)
-	where exists(select * from tmp.brxx b where b.person_id=p.id and to_date(b.birthday,'yyyyMMdd') <> p.birthday);
+	where exists(select * from tmp.brxx b where b.person_id=p.id and to_date(b.birthday,'yyyyMMdd') <> coalesce(p.birthday,current_date));
 
 --更新民族
 update hams.people p set nation_id=(select b.nation_id from tmp.brxx b where b.person_id=p.id)
@@ -91,12 +91,16 @@ update hams.people p set nation_id=(select b.nation_id from tmp.brxx b where b.p
 update hams.people p set marital_status_id=(select b.marital_status_id from tmp.brxx b where b.person_id=p.id)
 	where exists(select * from tmp.brxx b where b.person_id=p.id and coalesce(b.marital_status_id,0) <> coalesce(p.marital_status_id,0));
 
+
 --更新新的联系人ID
 update tmp.brxx set contact_id=datetime_id() where contact_id is null;
 
 update tmp.brxx b set status_id=(select c.id from hams.c_inpatient_statuses c where c.name=b.status_name);
 update tmp.brxx b set fee_origin_id=(select c.id from hams.c_fee_origins c where c.name=b.fee_origin_name);
 
+--更新病人费用类别
+update hams.inpatients i set fee_origin_id=(select b.fee_origin_id from tmp.brxx b where i.id=b.id)
+	where exists(select * from tmp.brxx b where i.id=b.id and i.fee_origin_id <> b.fee_origin_id);
 
 --生成新的病人ID
 update tmp.brxx set id=datetime_id() where newer =true;
@@ -108,7 +112,7 @@ insert into hams.contacts(id) select contact_id from tmp.brxx where newer =true;
 insert into hams.inpatients(id,code,name,gender_id,patient_id,ward_id,bed_no,status_id,fee_origin_id,begin_at,person_id,contact_id)
 select id,zyh,name,case when gender_name ='男' then 1  else 2 end,
 patid,(select w.id from hams.wards w where w.name=ward_name),bed_no,status_id,fee_origin_id,
-to_timestamp(begin_at,'yyyyMMddHH:mi:ss'),person_id,contact_id from tmp.brxx
+to_timestamp(begin_at,'yyyyMMddHH24:mi:ss'),person_id,contact_id from tmp.brxx
 where newer =true;
 
 --更新住院号

@@ -6,7 +6,7 @@
     bar.addItem("${b.text("action.modify")}",action.edit());
     var m = bar.addMenu("${b.text("action.export")}",action.exportData("wallet.inpatient.code:住院号,wallet.inpatient.name:姓名,"+
                  "wallet.inpatient.gender.name:性别,wallet.inpatient.ward.name:病区,wallet.inpatient.bedNo:床号,"+
-                 "amount:支出金额,goods:消费明细,payAt:支出时间",null,'fileName=零用金支出流水'));
+                 "amount:支出金额,goods:消费明细,balance:结余,payAt:支出时间",null,'fileName=零用金支出流水'));
     m.addItem("导入",action.method('importForm'));
     m.addItem("删除",action.remove("确认删除?"));
   [/@]

@@ -32,7 +32,7 @@ import org.beangle.web.action.view.{Stream, View}
 import org.beangle.webmvc.support.action.{ExportSupport, ImportSupport, RestfulAction}
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
-import java.time.{Year, ZoneId}
+import java.time.{Year, YearMonth, ZoneId}
 
 class ChangeAction extends RestfulAction[Wallet], ImportSupport[Wallet], ExportSupport[Wallet] {
 
@@ -45,7 +45,9 @@ class ChangeAction extends RestfulAction[Wallet], ImportSupport[Wallet], ExportS
   }
 
   def yearReport(): View = {
-    val year = getInt("year", Year.now().getValue)
+    var year :Int =0
+    get("yearMonth") foreach{ ym => year=YearMonth.parse(ym).getYear}
+    if(year==0) year = getInt("year", Year.now().getValue)
     val inpatientIds = getLongIds("inpatient")
     val inpatients =
       if null != inpatientIds && inpatientIds.nonEmpty then

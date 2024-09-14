@@ -15,7 +15,7 @@
     [@b.boxcol /]
     [@b.col width="10%" property="inpatient.code" title="住院号"]${subsidy.inpatient.code}[/@]
     [@b.col property="inpatient.name" title="姓名"]
-      [@b.a href="!info?id=${subsidy.id}"]
+      [@b.a href="!yearReport?inpatient.id=${subsidy.inpatient.id}" target="_blank"]
         ${subsidy.inpatient.name}
       [/@]
     [/@]
